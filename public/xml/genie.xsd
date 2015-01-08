@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+
+<xs:element name="extensions_any">
+	<xs:complexType mixed="true">          
+		<xs:sequence>            
+			<xs:any namespace="##any" processContents="skip" minOccurs="0" maxOccurs="unbounded" />          
+		</xs:sequence>          
+	</xs:complexType>
+</xs:element>
+
+
+<xs:element name="extensions">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element name="genie">
+				<xs:complexType>
+					<xs:sequence>            
+						<xs:element name="comment" type="xs:string" minOccurs="0" maxOccurs="1" />
+						<xs:element name="diagautoformat" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:attribute name="target" type="colorType" use="required" />
+								<xs:attribute name="targetnr" type="colorType" use="required" />
+								<xs:attribute name="observation" type="colorType" use="required" />
+								<xs:attribute name="observationnr" type="colorType" use="required" />
+								<xs:attribute name="auxiliary" type="colorType" use="required" />
+							</xs:complexType>
+						</xs:element>
+						<xs:choice minOccurs="0" maxOccurs="unbounded">
+							<xs:element ref="node" />
+							<xs:element ref="submodel" />
+							<xs:element ref="textbox" />
+						</xs:choice>
+						<xs:element name="arccomment" minOccurs="0" maxOccurs="unbounded">
+							<xs:complexType mixed="true">
+								<xs:attribute name="parent" type="xs:token" use="required" />
+								<xs:attribute name="child" type="xs:token" use="required" />
+								<xs:attribute name="cost" type="xs:boolean" use="optional" default="false" />
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>          
+					<xs:attribute name="version" type="xs:string" use="required" />
+					<xs:attribute name="name" type="xs:string" use="required" />
+					<xs:attribute ref="faultnameformat" use="optional" default="user" />
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+
+
+<xs:simpleType name="colorType">
+	<xs:restriction base="xs:string">
+		<xs:pattern value="[0-9|a-f|A-F]{6}" />
+	</xs:restriction>
+</xs:simpleType>
+<xs:attribute name="color" type="colorType" />
+
+
+<xs:complexType name="fontType">
+	<xs:attribute ref="color" use="required" />
+	<xs:attribute name="name" type="xs:string" use="required" />
+	<xs:attribute name="size" type="xs:integer" use="required" />
+	<xs:attribute name="bold" type="xs:boolean" use="optional" default="false" />
+	<xs:attribute name="italic" type="xs:boolean" use="optional" default="false" />
+</xs:complexType>
+<xs:element name="font" type="fontType" />
+
+
+<xs:attribute name="faultnameformat">
+	<xs:simpleType>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="node" />
+			<xs:enumeration value="nodestate" />
+			<xs:enumeration value="user" />
+			<xs:enumeration value="inherit" />
+		</xs:restriction>
+	</xs:simpleType>   
+</xs:attribute>
+
+
+<xs:complexType name="alignedfont">
+	<xs:complexContent>
+		<xs:extension base="fontType">
+			<xs:attribute name="align" use="optional" default="left">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						 <xs:enumeration value="left" />
+						 <xs:enumeration value="right" />
+						 <xs:enumeration value="center" />
+					  </xs:restriction>
+				</xs:simpleType>   
+			</xs:attribute>
+		</xs:extension>
+	</xs:complexContent>
+</xs:complexType>
+
+
+<xs:complexType name="tableComment" mixed="true">    
+	<xs:attribute name="col" type="xs:integer" use="required" />
+	<xs:attribute name="row" type="xs:integer" use="required" />
+</xs:complexType>
+
+
+<xs:element name="link">
+	<xs:complexType>
+		<xs:attribute name="title" type="xs:string" use="required" />
+		<xs:attribute name="path" type="xs:string" use="required" />
+	</xs:complexType>
+</xs:element>
+
+
+<xs:simpleType name="position">
+	<xs:restriction base="intList">
+		<xs:length value="4" />
+	</xs:restriction>
+</xs:simpleType>
+<xs:element name="position" type="position" />
+
+
+<xs:complexType name="icon">
+	<xs:sequence>
+		<xs:element name="name" type="xs:string" />
+		<xs:element name="interior">
+			<xs:complexType>
+				<xs:attribute ref="color" use="required" />
+			</xs:complexType>
+		</xs:element>
+		<xs:element name="outline">
+			<xs:complexType>
+				<xs:attribute ref="color" use="required" />
+				<xs:attribute name="width" type="xs:integer" use="optional" default="1" />
+			</xs:complexType>
+		</xs:element>
+		<xs:element ref="font" />
+		<xs:element ref="position" />
+		<xs:element name="comment" type="xs:string" minOccurs="0" maxOccurs="1" />
+	</xs:sequence>
+	<xs:attribute name="id" type="xs:token" use="required" />
+</xs:complexType>
+
+
+<xs:element name="textbox">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element name="caption" type="xs:string" />
+			<xs:element name="font" type="alignedfont" />
+			<xs:element ref="position" />
+			<xs:element name="comment" type="xs:string" minOccurs="0" maxOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+
+
+<xs:element name="node">
+	<xs:complexType>
+		<xs:complexContent>
+			<xs:extension base="icon">
+				<xs:sequence>
+					<xs:element name="state" minOccurs="0" maxOccurs="unbounded">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="fix" type="xs:string" minOccurs="0" maxOccurs="1" />
+								<xs:element name="comment" type="xs:string" minOccurs="0" maxOccurs="1" />
+								<xs:element ref="link" minOccurs="0" maxOccurs="unbounded" />
+							</xs:sequence>
+							<xs:attribute name="id" type="xs:token" use="required" />
+							<xs:attribute name="faultname" type="xs:string" use="optional" />
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="barchart" minOccurs="0" maxOccurs="1" >
+						<xs:complexType>
+							<xs:attribute name="active" type="xs:boolean" use="required" />
+							<xs:attribute name="width" type="xs:integer" use="required" />
+							<xs:attribute name="height" type="xs:integer" use="required" />
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="question" type="xs:string" minOccurs="0" maxOccurs="1" />
+					<xs:element ref="link" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element name="defcomment" type="tableComment" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element name="costcomment" type="tableComment" minOccurs="0" maxOccurs="unbounded" />
+				</xs:sequence>
+				<xs:attribute ref="faultnameformat" use="optional" default="inherit" />
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:element>
+
+
+<xs:element name="submodel">
+	<xs:complexType>
+		<xs:complexContent>
+			<xs:extension base="icon">
+				<xs:sequence>
+					<xs:element name="window" type="position" minOccurs="0" maxOccurs="1"/>
+					<xs:choice minOccurs="0" maxOccurs="unbounded">
+						<xs:element ref="node" />
+						<xs:element ref="submodel" />
+						<xs:element ref="textbox" />
+					</xs:choice>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:element>
+
+
+</xs:schema>

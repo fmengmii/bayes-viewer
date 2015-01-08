@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+
+<xs:include schemaLocation="genie.xsd" />
+
+
+<xs:element name="smile">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="properties" minOccurs="0" maxOccurs="1" />
+			<xs:element ref="algparams" minOccurs="0" maxOccurs="1" />
+			<xs:element ref="nodes" minOccurs="0" maxOccurs="1" />
+			<xs:element ref="observationcost" minOccurs="0" maxOccurs="1" />
+			<xs:element ref="extensions" minOccurs="0" maxOccurs="1" />
+		</xs:sequence>
+		<xs:attribute name="version" use="required" />
+		<xs:attribute name="id" type="xs:token" use="required" />
+		<xs:attribute name="numsamples" type="xs:integer" default="1000" />
+	</xs:complexType>
+</xs:element>
+
+
+<xs:attributeGroup name="nodeAttributes">    
+	<xs:attribute name="id" type="xs:token" use="required" />  
+	<xs:attribute name="target" type="xs:boolean" use="optional" />
+	<xs:attribute name="ranked" type="xs:boolean" use="optional" default="false" />
+	<xs:attribute name="mandatory" type="xs:boolean" use="optional" default="false" />
+	<xs:attribute name="diagtype" default="auxiliary" use="optional">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				 <xs:enumeration value="target" />
+				 <xs:enumeration value="observation" />
+				 <xs:enumeration value="auxiliary" />
+			  </xs:restriction>
+		</xs:simpleType>   
+	</xs:attribute>
+</xs:attributeGroup>
+
+
+<xs:attributeGroup name="stateAttributes">    
+	<xs:attribute name="id" type="xs:token" use="required" />  
+	<xs:attribute name="label" type="xs:token" use="optional" />
+	<xs:attribute name="target" type="xs:boolean" use="optional" />
+	<xs:attribute name="default" type="xs:boolean" use="optional" />
+	<xs:attribute name="fault" type="xs:boolean" use="optional" />
+</xs:attributeGroup>
+
+
+<xs:element name="property">
+	<xs:complexType>
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="id" type="xs:token" use="required" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:element>
+
+
+<xs:simpleType name="intList">
+	<xs:list itemType="xs:integer" />
+</xs:simpleType>
+
+
+<xs:simpleType name="doubleList">
+	<xs:list itemType="xs:double" />
+</xs:simpleType>
+
+
+<xs:simpleType name="idList">
+	<xs:list itemType="xs:token" />
+</xs:simpleType>
+
+
+<xs:element name="state">
+	<xs:complexType>	
+		<xs:attributeGroup ref="stateAttributes" />
+	</xs:complexType>
+</xs:element>
+
+
+<xs:element name="parents" type="idList" />
+
+<xs:element name="algparams">
+	<xs:complexType>
+		<xs:all>
+			<xs:element name="epis" minOccurs="0">
+				<xs:complexType>
+					<xs:attribute name="proplen" type="xs:integer" use="required" />
+					<xs:attribute name="numstates1" type="xs:integer" use="required" />
+					<xs:attribute name="numstates2" type="xs:integer" use="required" />
+					<xs:attribute name="numstates3" type="xs:integer" use="required" />
+					<xs:attribute name="eps1" type="xs:double" use="required" />
+					<xs:attribute name="eps2" type="xs:double" use="required" />
+					<xs:attribute name="eps3" type="xs:double" use="required" />
+					<xs:attribute name="eps4" type="xs:double" use="required" />
+				</xs:complexType>
+			</xs:element>
+		</xs:all>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="observationcost">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element name="node" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>          
+					<xs:sequence>            
+						<xs:element ref="parents" minOccurs="0" maxOccurs="1" />
+						<xs:element name="cost" type="doubleList" />
+					</xs:sequence>          
+					<xs:attribute name="id" type="xs:token" use="required" />
+				</xs:complexType>			
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+
+
+<xs:element name="properties">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="property" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+
+
+
+<xs:element name="nodes">
+	<xs:complexType>
+		<xs:choice minOccurs="0" maxOccurs="unbounded" >
+			<xs:element ref="cpt" />
+			<xs:element ref="noisymax" />
+			<xs:element ref="noisyadder" />
+			<xs:element ref="deterministic" />
+			<xs:element ref="decision" />
+			<xs:element ref="utility" />
+			<xs:element ref="mau" />
+		</xs:choice>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="cpt">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="state" minOccurs="2" maxOccurs="unbounded" />
+			<xs:element ref="parents" minOccurs="0" maxOccurs="1" />
+			<xs:element name="probabilities" type="doubleList" />
+			<xs:element ref="property" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attributeGroup ref="nodeAttributes" />
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="noisymax">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="state" minOccurs="2" maxOccurs="unbounded" />
+			<xs:element ref="parents" minOccurs="0" maxOccurs="1" />
+			<xs:element name="strengths" type="intList" minOccurs="0" maxOccurs="1" />
+			<xs:element name="parameters" type="doubleList" />
+			<xs:element ref="property" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attributeGroup ref="nodeAttributes" />
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="noisyadder">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="state" minOccurs="2" maxOccurs="unbounded" />
+			<xs:element ref="parents" minOccurs="0" maxOccurs="1" />
+			<xs:element name="dstates" type="intList" />
+			<xs:element name="weights" type="doubleList" />
+			<xs:element name="parameters" type="doubleList" />
+			<xs:element ref="property" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attributeGroup ref="nodeAttributes" />
+	</xs:complexType>
+</xs:element>
+
+
+<xs:element name="deterministic">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="state" minOccurs="2" maxOccurs="unbounded" />
+			<xs:element ref="parents" minOccurs="0" maxOccurs="1" />
+			<xs:element name="resultingstates" type="idList" />
+			<xs:element ref="property" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attributeGroup ref="nodeAttributes" />
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="decision">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="state" minOccurs="2" maxOccurs="unbounded" />
+			<xs:element ref="parents" minOccurs="0" maxOccurs="1" />
+			<xs:element ref="property" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attributeGroup ref="nodeAttributes" />
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="utility">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="parents" minOccurs="0" maxOccurs="1" />
+			<xs:element name="utilities" type="doubleList" />
+			<xs:element ref="property" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attributeGroup ref="nodeAttributes" />
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="mau">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="parents" minOccurs="0" maxOccurs="1" />
+			<xs:element name="weights" type="doubleList" />
+			<xs:element ref="property" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attributeGroup ref="nodeAttributes" />
+	</xs:complexType>
+</xs:element>
+
+</xs:schema>
