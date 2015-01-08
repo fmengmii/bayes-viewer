@@ -1,0 +1,38 @@
+
+.chart {
+	padding: 5pm;
+}
+
+.chart div {
+	font: 10px sans-serif;
+	background-color: steelblue;
+	text-align: right;
+	padding: 3px;
+	margin: 1px;
+	color: white;
+}
+
+div[class='chart'] {
+	border:1px, solid, black
+}
+
+svg[class^='chart'] rect {
+  fill: steelblue;
+}
+
+svg[class^='chart'] text {
+  fill: black;
+  font: 10px sans-serif;
+  text-anchor: end;
+}
+
+.axis path, .axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+}
