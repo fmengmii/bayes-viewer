@@ -205,8 +205,6 @@ function setAsTarget()
 		setNodeColor(nodeID, 'yellow');
 		$('#chartDiv').trigger('resize');
 
-		//grey out text
-		document.getElementById("nodeMenu").style.color = "#E6E6E6";
 	}).fail(function() {
 	});
 }
@@ -229,9 +227,6 @@ function clearAllTargets()
 		//cy.$('node').css('background-color', 'lightblue');
 		setNodeColorAll('lightblue');
 		$('#chartDiv').trigger('resize');
-
-		//un-grey out text
-		document.getElementById("nodeMenu").style.color = "black";
 
 	}).fail(function() {
 	});

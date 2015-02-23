@@ -39,6 +39,16 @@ $(function() { // on dom ready
 	
 	cy.on('cxttap', 'node', function(evt) {
 		console.log(evt.cyTarget.id());
+		var color = cy.getElementById(evt.cyTarget.id()).css('background-color');
+		if (color == 'yellow') {
+			console.log(color);
+			$('#nodeMenu').css({'color':'#F8F8F8'});
+			$('#nodeMenu').jqxMenu('disable', 'target', true);
+		} else {
+			console.log(color);
+			$('#nodeMenu').css({'color':'black'});
+			$('#nodeMenu').jqxMenu('disable', 'target', false);
+		}
 		var scrollTop = $(window).scrollTop();
         var scrollLeft = $(window).scrollLeft();
 		$('#nodeMenu').jqxMenu('open', parseInt(event.clientX) + 5 + scrollLeft, parseInt(event.clientY) + 5 + scrollTop);
