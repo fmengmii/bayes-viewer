@@ -204,6 +204,7 @@ function setAsTarget()
 		//cy.getElementById(nodeID).css('background-color', 'yellow');
 		setNodeColor(nodeID, 'yellow');
 		$('#chartDiv').trigger('resize');
+
 	}).fail(function() {
 	});
 }
