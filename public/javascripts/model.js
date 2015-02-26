@@ -230,3 +230,4 @@ function clearAllTargets()
 	}).fail(function() {
 	});
 }
+
