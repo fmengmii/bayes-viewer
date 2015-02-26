@@ -231,3 +231,4 @@ function clearAllTargets()
 	}).fail(function() {
 	});
 }
+
