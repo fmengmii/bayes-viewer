@@ -53,6 +53,7 @@ function nodeSelected(nodeID, nodeName)
 	$("#dialogGeneralPanel").jqxPanel('clearcontent');
 	$("#dialogSetEvidencePanel #formDiv").empty();
 	$("#dialogSetVirtualEvidencePanel #formDiv").empty();
+	$("#dialogDefinition #formDiv").empty();
 	
 	$("#dialogGeneralPanel").jqxPanel('append', '<div id="evidenceChart"></div>');
 	var chartDiv = d3.select("#evidenceChart");

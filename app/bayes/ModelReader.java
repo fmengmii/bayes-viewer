@@ -5,14 +5,18 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 
+import com.google.gson.Gson;
+
 import smile.*;
 
 public class ModelReader
 {
 	private Network network;
+	private Gson gson;
 
 	public ModelReader()
 	{
+		gson = new Gson();
 	}
 	
 	public Network getNetwork()
@@ -171,6 +175,51 @@ public class ModelReader
 		network.clearAllTargets();
 		
 		return getModelStr();
+	}
+	
+	public String getCPT(String modelName, String nodeID)
+	{
+		loadModel(modelName);
+		
+		StringBuilder strBlder = new StringBuilder("{\"parents\":[");				
+		String[] parentIDs = network.getParentIds(nodeID);
+		for (int i=0; i<parentIDs.length; i++) {
+			
+			if (i > 0)
+				strBlder.append(",");
+			
+			strBlder.append("{\"parentID\":\"" + parentIDs[i] + "\",\"outcomeIDs\":[");
+			String[] outcomeIDs  = network.getOutcomeIds(parentIDs[i]);
+			
+			for (int j=0; j<outcomeIDs.length; j++) {
+				if (j > 0)
+					strBlder.append(",");
+				strBlder.append("\"" + outcomeIDs[j] + "\"");
+			}
+			
+			strBlder.append("]}");
+		}
+		
+		strBlder.append("],\"outcomeIDs\":[");
+		
+		String[] outcomeIDs = network.getOutcomeIds(nodeID);
+		for (int i=0; i<outcomeIDs.length; i++) {
+			if (i > 0)
+				strBlder.append(",");
+			strBlder.append("\"" + outcomeIDs[i] + "\"");
+		}
+		
+		strBlder.append("],\"definition\":[");
+		double[] definition = network.getNodeDefinition(nodeID);
+		for (int i=0; i<definition.length; i++) {
+			if (i > 0)
+				strBlder.append(",");
+			strBlder.append(definition[i]);
+		}
+		
+		strBlder.append("]}");
+		
+		return strBlder.toString();
 	}
 	
 	private void loadModel(String modelName)
