@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<smile version="1.0" id="Network5" numsamples="1000" discsamples="10000">
+	<nodes>
+		<cpt id="age_at_initial_pathologic_diagnosis">
+			<state id="State0" />
+			<state id="State1" />
+			<state id="State2" />
+			<state id="State3" />
+			<probabilities>0.1139518133914495 0.570814498029641 0.2954750420924208 0.01975864648648863</probabilities>
+		</cpt>
+		<cpt id="MetageneScore">
+			<state id="State0" />
+			<state id="State1" />
+			<probabilities>0.7324256221999675 0.2675743778000325</probabilities>
+		</cpt>
+		<cpt id="karnofsky_performance_score">
+			<state id="State0" />
+			<state id="State1" />
+			<state id="State2" />
+			<state id="State3" />
+			<state id="State4" />
+			<state id="State5" />
+			<state id="State6" />
+			<parents>age_at_initial_pathologic_diagnosis</parents>
+			<probabilities>0.2880747135862386 8.11873882861537e-014 0 0.04382183980104544 0 0.6681034466126349 0 0.1447804020364246 0.0002359208523597854 0.02881299532882261 0.1480832939694616 0 0.6712380202592655 0.006849367553665973 0.06797881129427233 0.01388734995387795 0.0840530689608264 0.3603790640035305 0.01315838071631924 0.4605433250711736 6.051710565456481e-020 4.725191910834339e-009 4.725191910834339e-009 0.1481608541891963 0.1703678811392717 4.725191910834339e-009 0.6814712457707641 4.725191910834339e-009</probabilities>
+		</cpt>
+		<cpt id="Survived12Months">
+			<state id="State0" />
+			<state id="State1" />
+			<parents>age_at_initial_pathologic_diagnosis karnofsky_performance_score MetageneScore</parents>
+			<probabilities>0.0001775568181818182 0.9998224431818183 1.298998212578459e-006 0.9999987010017875 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.96875 0.03125 0.99609375 0.00390625 0.5 0.5 0.5 0.5 0.1999981489275471 0.8000018510724529 6.773255088112575e-009 0.9999999932267449 0.5 0.5 0.5 0.5 0.264071630854528 0.735928369145472 0.4584547189565805 0.5415452810434195 0.96875 0.03125 0.5 0.5 0.8367293605442177 0.1632706394557823 0.9166666666666666 0.08333333333333333 0.5435875096777841 0.4564124903222159 0.0960061824 0.9039938176 0.5 0.5 0.5 0.5 0.2674418604653372 0.7325581395346628 0.4999999716682105 0.5000000283317896 0.75 0.25 0.99609375 0.00390625 0.5851838885925248 0.4148161114074752 0.03125 0.96875 0.381103515625 0.618896484375 0.25 0.75 0.9722219004441597 0.02777809955584035 0.5054012345679012 0.4945987654320987 0.8887073364643664 0.1112926635356335 0.5919191316887285 0.4080808683112716 0.75 0.25 0.99609375 0.00390625 0.6499999993356731 0.3500000006643269 0.4000000115050826 0.5999999884949174 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.9938271604938271 0.006172839506172839 0.5 0.5 0.998046875 0.001953125 0.875 0.125 0.5 0.5 0.5 0.5 0.6666259765625 0.3333740234375 0.0078125 0.9921875 0.5 0.5 0.5 0.5</probabilities>
+		</cpt>
+	</nodes>
+	<extensions>
+		<genie version="1.0" app="GeNIe 2.0.5079.0" name="Network5" faultnameformat="nodestate">
+			<node id="karnofsky_performance_score">
+				<name>karnofsky_performance_score</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>105 237 146 262</position>
+				<barchart active="true" width="197" height="144" />
+			</node>
+			<node id="age_at_initial_pathologic_diagnosis">
+				<name>age_at_initial_pathologic_diagnosis</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>227 52 275 82</position>
+				<barchart active="true" width="242" height="64" />
+			</node>
+			<node id="Survived12Months">
+				<name>Survived12Months</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>314 217 415 280</position>
+				<barchart active="true" width="131" height="64" />
+			</node>
+			<node id="MetageneScore">
+				<name>MetageneScore</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>323 399 411 454</position>
+				<barchart active="true" width="128" height="64" />
+			</node>
+		</genie>
+	</extensions>
+</smile>

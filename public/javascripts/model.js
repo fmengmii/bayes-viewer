@@ -80,7 +80,7 @@ function clearEvidence()
 
 function setEvidence()
 {
-	var outcomeID = $('input[name=outcomeids]:checked').val()
+   var outcomeID = $('input[name=outcomeids]:checked').val()
    console.log(outcomeID);
    
    var form = document.getElementById("setEvidenceForm");
@@ -204,6 +204,7 @@ function setAsTarget()
 		//cy.getElementById(nodeID).css('background-color', 'yellow');
 		setNodeColor(nodeID, 'yellow');
 		$('#chartDiv').trigger('resize');
+
 	}).fail(function() {
 	});
 }
@@ -227,6 +228,18 @@ function clearAllTargets()
 		setNodeColorAll('lightblue');
 		$('#chartDiv').trigger('resize');
 
+	}).fail(function() {
+	});
+}
+
+function getCPT(nodeID)
+{
+	var getCPTAjax = jsRoutes.controllers.Application.getCPT(nodeID);
+	$.ajax({
+		url: getCPTAjax.url
+	}).done(function(data) {		
+		cptArray = JSON.parse(data);
+		console.log(cptArray);
 	}).fail(function() {
 	});
 }

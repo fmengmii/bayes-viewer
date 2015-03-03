@@ -40,7 +40,8 @@
               routes.javascript.Application.clearAllEvidence,
               routes.javascript.Application.clearEvidence,
               routes.javascript.Application.setAsTarget,
-              routes.javascript.Application.clearAllTargets
+              routes.javascript.Application.clearAllTargets,
+              routes.javascript.Application.getCPT
               )
 
 	</head>
@@ -97,8 +98,8 @@
     </div>
     <div id="nodeMenu">
 	    <input id="nodeID" type="hidden"/>
-		<ul>
-			<li onclick="setAsTarget()">Set As Target</li>
+		<ul >
+			<li id="target" onclick="setAsTarget()">Set As Target</li>
 		</ul>
     </div>
     </body>

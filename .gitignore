@@ -14,4 +14,9 @@ dist
 /RUNNING_PID
 /.settings
 /bin
+<<<<<<< HEAD
 /.DS_Store
+=======
+
+.DS_Store
+>>>>>>> branch 'master' of https://github.com/fmengmii/bayes-viewer.git

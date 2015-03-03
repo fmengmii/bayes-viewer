@@ -10,12 +10,15 @@ import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.Gson;
 
 public class Application extends Controller
 {
+	private Gson gson;
 	
 	public Application()
 	{
+		gson = new Gson();
 	}
 	
 	
@@ -118,5 +121,17 @@ public class Application extends Controller
     	String modelStr = modelReader.clearAllTargets(modelName);
     	
     	return ok(modelStr);
+    }
+    
+    public static Result getCPT(String nodeID)
+    {
+    	ModelReader modelReader = new ModelReader();
+    	modelReader.setNetwork(Cache.get("network"));
+    	String modelName = session("modelName");
+    	
+    	String cptStr = modelReader.getCPT(modelName, nodeID);
+    	//System.out.println(cptStr);
+    	
+    	return ok(cptStr);
     }
 }
