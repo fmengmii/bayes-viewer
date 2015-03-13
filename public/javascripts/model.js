@@ -5,16 +5,16 @@ function loadModel(model)
 {
 	var loadModelAjax = jsRoutes.controllers.Application.loadModel(model);
 	$.ajax({
-		   url: loadModelAjax.url
-		}).done(function(data) {
-			console.log(data);
-			networkInfoArray = JSON.parse(data);
-			//cy.load(networkInfoArray[0]);
-			networkLoadModel(networkInfoArray[0]);
-			drawCharts(networkInfoArray[1]);
-		}).fail(function() {
-		});
-	
+		url: loadModelAjax.url
+	}).done(function(data) {
+		console.log(data);
+		networkInfoArray = JSON.parse(data);
+		//cy.load(networkInfoArray[0]);
+		networkLoadModel(networkInfoArray[0]);
+		drawCharts(networkInfoArray[1]);
+	}).fail(function() {
+	});
+
 	//cy.load({nodes:[{data: {id:'a'}},{data: {id:'b'}}],edges:[{data:{id:'ab',source:'a',target:'b'}}]});
 }
 
@@ -22,16 +22,16 @@ function clearAllEvidence()
 {
 	var clearAllEvidenceAjax = jsRoutes.controllers.Application.clearAllEvidence();
 	$.ajax({
-		   url: clearAllEvidenceAjax.url
-		}).done(function(data) {
-			console.log(data);
-			networkInfoArray = JSON.parse(data);
-			drawCharts(networkInfoArray[1]);
-			
-			$('#chartDiv').trigger('resize');
+		url: clearAllEvidenceAjax.url
+	}).done(function(data) {
+		console.log(data);
+		networkInfoArray = JSON.parse(data);
+		drawCharts(networkInfoArray[1]);
 
-		}).fail(function() {
-		});
+		$('#chartDiv').trigger('resize');
+
+	}).fail(function() {
+	});
 
 }
 
@@ -40,64 +40,64 @@ function clearEvidence()
 	var form = document.getElementById("setEvidenceForm");
 	var i;
 	var nodeID = '';
-   for (i = 0; i < form.length; i++) {
-	   if (form.elements[i].id == 'nodeID') {
-	   		nodeID = form.elements[i].value;
-	   		break;
-	   }
-   }
-	
+	for (i = 0; i < form.length; i++) {
+		if (form.elements[i].id == 'nodeID') {
+			nodeID = form.elements[i].value;
+			break;
+		}
+	}
+
 	var clearEvidenceAjax = jsRoutes.controllers.Application.clearEvidence(nodeID);
 	$.ajax({
-		   url: clearEvidenceAjax.url
-		}).done(function(data) {
-			console.log(data);
-			networkInfoArray = JSON.parse(data);
-			drawCharts(networkInfoArray[1]);
-			
-			var outcomeValues = networkInfoArray[1];
-			var nodeOutcomes = outcomeValues.filter(function(e) {
-				if (e.id == nodeID)
-					return e;
-			});
-			
-			$('.chartEvidence').empty();
-			drawChart(nodeOutcomes[0], '.chartEvidence');
-			
-			var formV = document.getElementById("setVirtualEvidenceForm");
-			var j = 0;
-			for (i = 0; i < formV.length; i++) {
-				if (formV.elements[i].id != 'nodeID') {
-					formV.elements[i].value = nodeOutcomes[0].values[j].value;
-					j++;
-				}
-		   }
-			
-			$('input[name=outcomeids]').attr('checked',false);
-		}).fail(function() {
+		url: clearEvidenceAjax.url
+	}).done(function(data) {
+		console.log(data);
+		networkInfoArray = JSON.parse(data);
+		drawCharts(networkInfoArray[1]);
+
+		var outcomeValues = networkInfoArray[1];
+		var nodeOutcomes = outcomeValues.filter(function(e) {
+			if (e.id == nodeID)
+				return e;
 		});
+
+		$('.chartEvidence').empty();
+		drawChart(nodeOutcomes[0], '.chartEvidence');
+
+		var formV = document.getElementById("setVirtualEvidenceForm");
+		var j = 0;
+		for (i = 0; i < formV.length; i++) {
+			if (formV.elements[i].id != 'nodeID') {
+				formV.elements[i].value = nodeOutcomes[0].values[j].value;
+				j++;
+			}
+		}
+
+		$('input[name=outcomeids]').attr('checked',false);
+	}).fail(function() {
+	});
 }
 
 function setEvidence()
 {
-   var outcomeID = $('input[name=outcomeids]:checked').val()
-   console.log(outcomeID);
-   
-   var form = document.getElementById("setEvidenceForm");
-   var i;
-   var nodeID = '';
-   for (i = 0; i < form.length; i++) {
-	   if (form.elements[i].id == 'nodeID') {
-	   		nodeID = form.elements[i].value;
-	   		break;
-	   }
-   }
-   
-   console.log(nodeID);
-   
-   var values = {nodeID:nodeID, outcomeID:outcomeID};
-   
-   var setEvidenceAjax = jsRoutes.controllers.Application.setEvidence();
+	var outcomeID = $('input[name=outcomeids]:checked').val()
+	console.log(outcomeID);
+
+	var form = document.getElementById("setEvidenceForm");
+	var i;
+	var nodeID = '';
+	for (i = 0; i < form.length; i++) {
+		if (form.elements[i].id == 'nodeID') {
+			nodeID = form.elements[i].value;
+			break;
+		}
+	}
+
+	console.log(nodeID);
+
+	var values = {nodeID:nodeID, outcomeID:outcomeID};
+
+	var setEvidenceAjax = jsRoutes.controllers.Application.setEvidence();
 	$.ajax({
 		type: 'POST',
 		url: setEvidenceAjax.url,
@@ -105,16 +105,16 @@ function setEvidence()
 	}).done(function(data) {
 		networkInfoArray = JSON.parse(data);
 		drawCharts(networkInfoArray[1]);
-		
+
 		var outcomeValues = networkInfoArray[1];
 		var nodeOutcomes = outcomeValues.filter(function(e) {
 			if (e.id == nodeID)
 				return e;
 		});
-		
+
 		$('.chartEvidence').empty();
-		drawChart(nodeOutcomes[0], '.chartEvidence');		
-		
+		drawChart(nodeOutcomes[0], '.chartEvidence');
+
 		var formV = document.getElementById("setVirtualEvidenceForm");
 		var j = 0;
 		for (i = 0; i < formV.length; i++) {
@@ -122,33 +122,33 @@ function setEvidence()
 				formV.elements[i].value = nodeOutcomes[0].values[j].value;
 				j++;
 			}
-	   }
-		
+		}
+
 		$('#chartDiv').trigger('resize');
 	}).fail(function() {
 	});
 }
 
 function setVirtualEvidence()
-{   
-   var form = document.getElementById("setVirtualEvidenceForm");
-   var i;
-   var nodeID = '';
-   var outcomeVals = [];
-   for (i = 0; i < form.length; i++) {
-	   if (form.elements[i].id == 'nodeID') {
-	   		nodeID = form.elements[i].value;
-	   }
-	   else {
-		   outcomeVals.push(form.elements[i].value);
-	   }
-   }
-   
-   console.log(nodeID);
-   
-   var values = {nodeID:nodeID, outcomeVals:outcomeVals};
-   
-   var setVirtualEvidenceAjax = jsRoutes.controllers.Application.setVirtualEvidence();
+{
+	var form = document.getElementById("setVirtualEvidenceForm");
+	var i;
+	var nodeID = '';
+	var outcomeVals = [];
+	for (i = 0; i < form.length; i++) {
+		if (form.elements[i].id == 'nodeID') {
+			nodeID = form.elements[i].value;
+		}
+		else {
+			outcomeVals.push(form.elements[i].value);
+		}
+	}
+
+	console.log(nodeID);
+
+	var values = {nodeID:nodeID, outcomeVals:outcomeVals};
+
+	var setVirtualEvidenceAjax = jsRoutes.controllers.Application.setVirtualEvidence();
 	$.ajax({
 		type: 'POST',
 		url: setVirtualEvidenceAjax.url,
@@ -156,16 +156,16 @@ function setVirtualEvidence()
 	}).done(function(data) {
 		networkInfoArray = JSON.parse(data);
 		drawCharts(networkInfoArray[1]);
-		
+
 		var outcomeValues = networkInfoArray[1];
 		var nodeOutcomes = outcomeValues.filter(function(e) {
 			if (e.id == nodeID)
 				return e;
 		});
-		
+
 		$('.chartEvidence').empty();
 		drawChart(nodeOutcomes[0], '.chartEvidence');
-		
+
 		var formV = document.getElementById("setVirtualEvidenceForm");
 		var j = 0;
 		for (i = 0; i < formV.length; i++) {
@@ -173,8 +173,8 @@ function setVirtualEvidence()
 				formV.elements[i].value = nodeOutcomes[0].values[j].value;
 				j++;
 			}
-	   }
-		
+		}
+
 		$('#chartDiv').trigger('resize');
 	}).fail(function() {
 	});
@@ -184,20 +184,20 @@ function setAsTarget()
 {
 	var nodeID = $('#nodeMenu #nodeID').val();
 	console.log(nodeID);
-	
+
 	var setAsTargetAjax = jsRoutes.controllers.Application.setAsTarget(nodeID);
 	$.ajax({
 		url: setAsTargetAjax.url
 	}).done(function(data) {
 		networkInfoArray = JSON.parse(data);
 		drawCharts(networkInfoArray[1]);
-		
+
 		var outcomeValues = networkInfoArray[1];
 		var nodeOutcomes = outcomeValues.filter(function(e) {
 			if (e.id == nodeID)
 				return e;
 		});
-		
+
 		$('.chartEvidence').empty();
 		drawChart(nodeOutcomes[0], '.chartEvidence');
 
@@ -214,16 +214,16 @@ function clearAllTargets()
 	var clearAllTargetsAjax = jsRoutes.controllers.Application.clearAllTargets();
 	$.ajax({
 		url: clearAllTargetsAjax.url
-	}).done(function(data) {		
+	}).done(function(data) {
 		networkInfoArray = JSON.parse(data);
 		drawCharts(networkInfoArray[1]);
-		
+
 		var outcomeValues = networkInfoArray[1];
 		var nodeOutcomes = outcomeValues.filter(function(e) {
 			if (e.id == nodeID)
 				return e;
 		});
-		
+
 		//cy.$('node').css('background-color', 'lightblue');
 		setNodeColorAll('lightblue');
 		$('#chartDiv').trigger('resize');
@@ -237,9 +237,48 @@ function getCPT(nodeID)
 	var getCPTAjax = jsRoutes.controllers.Application.getCPT(nodeID);
 	$.ajax({
 		url: getCPTAjax.url
-	}).done(function(data) {		
+	}).done(function(data) {
+		console.log(data);
 		cptArray = JSON.parse(data);
-		console.log(cptArray);
+
+		var numCols = 0;
+		var numRows = 2 + cptArray.outcomeIDs.length;
+		for (var i = 0; i < cptArray.parents.length; i++) {
+			numCols = numCols + cptArray.parents[i].outcomeIDs.length;
+		}
+		console.log(numCols);
+
+		$("#dialogDefinitionPanel").jqxPanel('append', '<div id="CPT"></div>');
+		var data = new Array();
+
+		var firstNames =
+			[
+				"Andrew", "Nancy", "Shelley", "Regina", "Yoshi", "Antoni", "Mayumi", "Ian", "Peter", "Lars", "Petra", "Martin", "Sven", "Elio", "Beate", "Cheryl", "Michael", "Guylene"
+			];
+		for (var i = 0; i < firstNames.length; i++) {
+			var row = {};
+			row["firstname"] = firstNames[i];
+			data[i] = row;
+		}
+
+		var source = {
+			localdata: data,
+			datatype: "array"
+		};
+		var dataAdapter = new $.jqx.dataAdapter(source, {
+			loadComplete: function (data) { },
+			loadError: function (xhr, status, error) { }
+		});
+		$("#dialogDefinitionPanel #CPT").jqxGrid( {
+			source: dataAdapter,
+			width: '100%',
+			height: '100%',
+			columns: [
+				{ text: 'First Name', datafield: 'firstname', width: 100 },
+				{ text: 'Last Name', datafield: 'lastname', width: 100 },
+				{ text: 'Product', datafield: 'productname', width: 180 }
+			]
+		});
 	}).fail(function() {
 	});
 }
