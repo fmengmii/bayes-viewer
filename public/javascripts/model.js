@@ -239,27 +239,61 @@ function getCPT(nodeID)
 		url: getCPTAjax.url
 	}).done(function(data) {
 		console.log(data);
-		cptArray = JSON.parse(data);
+		var cpt = JSON.parse(data);
+		var numParents = cpt.parents.length;
+		var numOutcomes = cpt.outcomeIDs.length;
 
-		var numCols = 0;
-		var numRows = 2 + cptArray.outcomeIDs.length;
-		for (var i = 0; i < cptArray.parents.length; i++) {
-			numCols = numCols + cptArray.parents[i].outcomeIDs.length;
+		// get column names
+		var colIter = 0;
+		var colTitles = [];
+		var col = [];
+
+		for (var i=0; i<numParents; i++) {
+			if (numParents == 0) {
+				break;
+			}
+			else if (numParents == 1) {
+				for (j=0; j<cpt.parents[0].outcomeIDs.length; j++) {
+					var title = cpt.parents[0].parentID + ',' + cpt.parents[0].outcomeIDs[j];
+					colTitles[colIter] = title;
+					colIter++;
+				}
+			}
+			else {
+				for (var j=0; j<cpt.parents[i].outcomeIDs.length; j++) {
+					for (var k=i+1; k<numParents; k++) {
+						for (var l=0; l<cpt.parents[k].outcomeIDs.length; l++) {
+
+							var title = cpt.parents[i].parentID + ',' + cpt.parents[i].outcomeIDs[j]
+								+ '\n' + cpt.parents[k].parentID + ',' + cpt.parents[k].outcomeIDs[l];
+
+							col[colIter] =
+
+							colTitles[colIter] = title;
+							colIter++;
+						}
+					}
+				}
+			}
 		}
-		console.log(numCols);
 
 		$("#dialogDefinitionPanel").jqxPanel('append', '<div id="CPT"></div>');
 		var data = new Array();
+		var numCols = colIter+1;
 
-		var firstNames =
-			[
-				"Andrew", "Nancy", "Shelley", "Regina", "Yoshi", "Antoni", "Mayumi", "Ian", "Peter", "Lars", "Petra", "Martin", "Sven", "Elio", "Beate", "Cheryl", "Michael", "Guylene"
-			];
-		for (var i = 0; i < firstNames.length; i++) {
-			var row = {};
-			row["firstname"] = firstNames[i];
-			data[i] = row;
+		for (i=0; i<numCols; i++) {
+			
 		}
+
+		//var firstNames =
+		//	[
+		//		"Andrew", "Nancy", "Shelley", "Regina", "Yoshi", "Antoni", "Mayumi", "Ian", "Peter", "Lars", "Petra", "Martin", "Sven", "Elio", "Beate", "Cheryl", "Michael", "Guylene"
+		//	];
+		//for (var i = 0; i < firstNames.length; i++) {
+		//	var row = {};
+		//	row["firstname"] = firstNames[i];
+		//	data[i] = row;
+		//}
 
 		var source = {
 			localdata: data,
@@ -273,11 +307,11 @@ function getCPT(nodeID)
 			source: dataAdapter,
 			width: '100%',
 			height: '100%',
-			columns: [
-				{ text: 'First Name', datafield: 'firstname', width: 100 },
-				{ text: 'Last Name', datafield: 'lastname', width: 100 },
-				{ text: 'Product', datafield: 'productname', width: 180 }
-			]
+		//	columns: [
+		//		{ text: 'First Name', datafield: 'firstname', width: 100 },
+		//		{ text: 'Last Name', datafield: 'lastname', width: 100 },
+		//		{ text: 'Product', datafield: 'productname', width: 180 }
+		//	]
 		});
 	}).fail(function() {
 	});
