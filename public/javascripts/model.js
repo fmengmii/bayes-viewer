@@ -248,7 +248,7 @@ function getCPT(nodeID)
 		var colTitles = [];
 		var col = [];
 
-		// below for loop never enters when there are no parents
+		// get CPTs
 		for (var i=0; i<numParents; i++) {
 			if (numParents == 1) {
 				for (j=0; j<cpt.parents[0].outcomeIDs.length; j++) {
@@ -274,6 +274,8 @@ function getCPT(nodeID)
 				}
 			}
 		}
+
+		// show node values when there is no CPTs
 		if (numParents == 0) {
 			var title = "self value";
 			colTitles[0] = title;
@@ -281,14 +283,12 @@ function getCPT(nodeID)
 			console.log("BOO");
 		}
 
-
-		// fill grid
+		// fill grid data
 		col.unshift({text: " ", datafield: "rowTitle", width: 100});
 		var data = [];
 		var numCols = colIter+1;
 		var defIter = 0;
 		var start = 0;
-
 		for (i=0; i<numOutcomes; i++) {
 			data[i] = {};
 			data[i]["rowTitle"] = cpt.outcomeIDs[i];
@@ -301,21 +301,11 @@ function getCPT(nodeID)
 			defIter = start;
 		}
 
-		//var firstNames =
-		//	[
-		//		"Andrew", "Nancy", "Shelley", "Regina", "Yoshi", "Antoni", "Mayumi", "Ian", "Peter", "Lars", "Petra", "Martin", "Sven", "Elio", "Beate", "Cheryl", "Michael", "Guylene"
-		//	];
-		//for (var i = 0; i < firstNames.length; i++) {
-		//	var row = {};
-		//	row["firstname"] = firstNames[i];
-		//	data[i] = row;
-		//}
-
+		// display grid
 		var source = {
 			localdata: data,
 			datatype: "array"
 		};
-
 		var dataAdapter = new $.jqx.dataAdapter(source, {
 			loadComplete: function (data) { },
 			loadError: function (xhr, status, error) { }
@@ -326,11 +316,6 @@ function getCPT(nodeID)
 			height: '100%',
 			columnsheight: 50,
 			columns: col
-		//	columns: [
-		//		{ text: 'First Name', datafield: 'firstname', width: 100 },
-		//		{ text: 'Last Name', datafield: 'lastname', width: 100 },
-		//		{ text: 'Product', datafield: 'productname', width: 180 }
-		//	]
 		});
 	}).fail(function() {
 	});
