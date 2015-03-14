@@ -31,8 +31,9 @@ $(document).ready(function () {
    $("#dialogGeneralPanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
    $("#dialogSetEvidencePanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
    $("#dialogSetVirtualEvidencePanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
-   
-   //freewall
+	$("#dialogDefinitionPanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
+
+	//freewall
    	wall = new freewall("#chartDiv");
 	wall.reset({
 		selector: '.cell',
@@ -53,7 +54,7 @@ function nodeSelected(nodeID, nodeName)
 	$("#dialogGeneralPanel").jqxPanel('clearcontent');
 	$("#dialogSetEvidencePanel #formDiv").empty();
 	$("#dialogSetVirtualEvidencePanel #formDiv").empty();
-	$("#dialogDefinition #formDiv").empty();
+	$("#dialogDefinitionPanel").jqxPanel('clearcontent');
 	
 	$("#dialogGeneralPanel").jqxPanel('append', '<div id="evidenceChart"></div>');
 	var chartDiv = d3.select("#evidenceChart");
@@ -85,4 +86,6 @@ function nodeSelected(nodeID, nodeName)
 	$("#dialogSetVirtualEvidencePanel #formDiv").append($formVirtual);
 	//$('#dialogTabs').jqxTabs('focus');
 	$('#dialogSetValues').jqxWindow('open');
+
+	getCPT(nodeID);
 }
