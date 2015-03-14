@@ -263,8 +263,8 @@ function getCPT(nodeID)
 					for (var k=i+1; k<numParents; k++) {
 						for (var l=0; l<cpt.parents[k].outcomeIDs.length; l++) {
 
-							var title = cpt.parents[i].parentID + ',' + cpt.parents[i].outcomeIDs[j]
-								+ '\n' + cpt.parents[k].parentID + ',' + cpt.parents[k].outcomeIDs[l];
+							var title = cpt.parents[i].parentID + '\n :' + cpt.parents[i].outcomeIDs[j]
+								+ '\n' + cpt.parents[k].parentID + '\n :' + cpt.parents[k].outcomeIDs[l];
 
 							colTitles[colIter] = title;
 							col[colIter] = { text: title, datafield: title, width: 300 };
@@ -324,6 +324,7 @@ function getCPT(nodeID)
 			source: dataAdapter,
 			width: '100%',
 			height: '100%',
+			columnsheight: 50,
 			columns: col
 		//	columns: [
 		//		{ text: 'First Name', datafield: 'firstname', width: 100 },
