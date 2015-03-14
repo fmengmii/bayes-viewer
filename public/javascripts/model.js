@@ -248,14 +248,13 @@ function getCPT(nodeID)
 		var colTitles = [];
 		var col = [];
 
+		// below for loop never enters when there are no parents
 		for (var i=0; i<numParents; i++) {
-			if (numParents == 0) {
-				break;
-			}
-			else if (numParents == 1) {
+			if (numParents == 1) {
 				for (j=0; j<cpt.parents[0].outcomeIDs.length; j++) {
 					var title = cpt.parents[0].parentID + ',' + cpt.parents[0].outcomeIDs[j];
 					colTitles[colIter] = title;
+					col[colIter] = { text: title, datafield: title, width: 300 };
 					colIter++;
 				}
 			}
@@ -267,22 +266,39 @@ function getCPT(nodeID)
 							var title = cpt.parents[i].parentID + ',' + cpt.parents[i].outcomeIDs[j]
 								+ '\n' + cpt.parents[k].parentID + ',' + cpt.parents[k].outcomeIDs[l];
 
-							col[colIter] =
-
 							colTitles[colIter] = title;
+							col[colIter] = { text: title, datafield: title, width: 300 };
 							colIter++;
 						}
 					}
 				}
 			}
 		}
+		if (numParents == 0) {
+			var title = "self value";
+			colTitles[0] = title;
+			col[0] = { text: "node has no parents", datafield: title, width: 300 };
+			console.log("BOO");
+		}
 
-		$("#dialogDefinitionPanel").jqxPanel('append', '<div id="CPT"></div>');
-		var data = new Array();
+
+		// fill grid
+		col.unshift({text: " ", datafield: "rowTitle", width: 100});
+		var data = [];
 		var numCols = colIter+1;
+		var defIter = 0;
+		var start = 0;
 
-		for (i=0; i<numCols; i++) {
-			
+		for (i=0; i<numOutcomes; i++) {
+			data[i] = {};
+			data[i]["rowTitle"] = cpt.outcomeIDs[i];
+			for (j = 0; j < numCols; j++) {
+				data[i][colTitles[j]] = cpt.definition[defIter];
+				defIter = defIter + numOutcomes;
+			}
+			console.log(data[i]);
+			start++;
+			defIter = start;
 		}
 
 		//var firstNames =
@@ -299,14 +315,16 @@ function getCPT(nodeID)
 			localdata: data,
 			datatype: "array"
 		};
+
 		var dataAdapter = new $.jqx.dataAdapter(source, {
 			loadComplete: function (data) { },
 			loadError: function (xhr, status, error) { }
 		});
-		$("#dialogDefinitionPanel #CPT").jqxGrid( {
+		$("#dialogDefinitionPanel").jqxGrid( {
 			source: dataAdapter,
 			width: '100%',
 			height: '100%',
+			columns: col
 		//	columns: [
 		//		{ text: 'First Name', datafield: 'firstname', width: 100 },
 		//		{ text: 'Last Name', datafield: 'lastname', width: 100 },
