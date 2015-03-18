@@ -209,6 +209,33 @@ function setAsTarget()
 	});
 }
 
+function removeTarget()
+{
+	var nodeID = $('#nodeMenu #nodeID').val();
+	console.log(nodeID);
+
+	var removeTargetAjax = jsRoutes.controllers.Application.removeTarget(nodeID);
+	$.ajax({
+		url: removeTargetAjax.url
+	}).done(function(data) {
+		networkInfoArray = JSON.parse(data);
+		drawCharts(networkInfoArray[1]);
+
+		var outcomeValues = networkInfoArray[1];
+		var nodeOutcomes = outcomeValues.filter(function(e) {
+			if (e.id == nodeID)
+				return e;
+		});
+
+		$('.chartEvidence').empty();
+		drawChart(nodeOutcomes[0], '.chartEvidence');
+
+		setNodeColor(nodeID, 'lightblue');
+		$('#chartDiv').trigger('resize');
+	}).fail(function() {
+	});
+}
+
 function clearAllTargets()
 {
 	var clearAllTargetsAjax = jsRoutes.controllers.Application.clearAllTargets();

@@ -25,7 +25,7 @@ $(document).ready(function () {
    
    $('#dialogSetValues').jqxWindow('close');
    
-   $("#nodeMenu").jqxMenu({ width: '120px', height: '140px', autoOpenPopup: false, mode: 'popup'});
+   $("#nodeMenu").jqxMenu({ width: '140px', height: '120px', autoOpenPopup: false, mode: 'popup'});
    
    $('#dialogTabs').jqxTabs({ width: '100%', height: 300, position: 'top'});
    $("#dialogGeneralPanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});

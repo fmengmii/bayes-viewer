@@ -3,15 +3,17 @@
 # ~~~~
 
 # Home page
-GET     /                           	controllers.Application.index()
-GET		/model/load/:name				controllers.Application.loadModel(name : String)
-POST	/model/setevidence				controllers.Application.setEvidence()
-POST	/model/setvirtualevidence		controllers.Application.setVirtualEvidence()
-GET		/model/clearallevidence			controllers.Application.clearAllEvidence()
-GET		/model/clearevidence/:nodeID	controllers.Application.clearEvidence(nodeID: String)
-GET		/model/setastarget/:nodeID		controllers.Application.setAsTarget(nodeID: String)
-GET		/model/clearalltargets			controllers.Application.clearAllTargets()
-GET		/model/cpt/:nodeID				controllers.Application.getCPT(nodeID: String)
+GET         /                                   controllers.Application.index()
+GET         /model/load/:name                   controllers.Application.loadModel(name : String)
+POST        /model/setevidence                  controllers.Application.setEvidence()
+POST        /model/setvirtualevidence           controllers.Application.setVirtualEvidence()
+GET         /model/clearallevidence             controllers.Application.clearAllEvidence()
+GET         /model/clearevidence/:nodeID        controllers.Application.clearEvidence(nodeID: String)
+GET         /model/setastarget/:nodeID          controllers.Application.setAsTarget(nodeID: String)
+GET         /model/removetarget/:nodeID         controllers.Application.removeTarget(nodeID: String)
+GET         /model/clearalltargets              controllers.Application.clearAllTargets()
+GET         /model/cpt/:nodeID                  controllers.Application.getCPT(nodeID: String)
+
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET         /assets/*file                       controllers.Assets.at(path="/public", file)

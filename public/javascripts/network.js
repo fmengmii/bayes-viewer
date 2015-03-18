@@ -42,12 +42,16 @@ $(function() { // on dom ready
 		var color = cy.getElementById(evt.cyTarget.id()).css('background-color');
 		if (color == 'yellow') {
 			console.log(color);
-			$('#nodeMenu').css({'color':'#F8F8F8'});
+			$('#nodeMenu #target').css({'color':'#F8F8F8'});
+			$('#nodeMenu #offTarget').css({'color':'black'});
 			$('#nodeMenu').jqxMenu('disable', 'target', true);
+			$('#nodeMenu').jqxMenu('disable', 'offTarget', false);
 		} else {
 			console.log(color);
-			$('#nodeMenu').css({'color':'black'});
+			$('#nodeMenu #target').css({'color':'black'});
+			$('#nodeMenu #offTarget').css({'color':'#F8F8F8'});
 			$('#nodeMenu').jqxMenu('disable', 'target', false);
+			$('#nodeMenu').jqxMenu('disable', 'offTarget', true);
 		}
 		var scrollTop = $(window).scrollTop();
         var scrollLeft = $(window).scrollLeft();

@@ -168,6 +168,14 @@ public class ModelReader
 		
 		return getModelStr();
 	}
+
+	public String removeTarget(String modelName, String nodeID)
+	{
+		loadModel(modelName);
+		network.setTarget(nodeID, false);
+
+		return getModelStr();
+	}
 	
 	public String clearAllTargets(String modelName)
 	{
