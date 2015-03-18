@@ -112,7 +112,17 @@ public class Application extends Controller
     	
     	return ok(modelStr);
     }
-    
+
+	public static Result removeTarget(String nodeID)
+	{
+		ModelReader modelReader = new ModelReader();
+		modelReader.setNetwork(Cache.get("network"));
+		String modelName = session("modelName");
+		String modelStr = modelReader.removeTarget(modelName, nodeID);
+
+		return ok(modelStr);
+	}
+
     public static Result clearAllTargets()
     {
     	ModelReader modelReader = new ModelReader();
