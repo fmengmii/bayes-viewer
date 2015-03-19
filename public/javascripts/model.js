@@ -267,63 +267,57 @@ function getCPT(nodeID)
 	}).done(function(data) {
 		console.log(data);
 		var cpt = JSON.parse(data);
-		var numParents = cpt.parents.length;
-		var numOutcomes = cpt.outcomeIDs.length;
 
-		// get column names
-		var colIter = 0;
-		var colTitles = [];
-		var col = [];
-
-		// get CPTs
-		for (var i=0; i<numParents; i++) {
-			if (numParents == 1) {
-				for (j=0; j<cpt.parents[0].outcomeIDs.length; j++) {
-					var title = cpt.parents[0].parentID + ',' + cpt.parents[0].outcomeIDs[j];
-					colTitles[colIter] = title;
-					col[colIter] = { text: title, datafield: title, width: 300 };
-					colIter++;
+		function getMoreTitles(parents, titles) {
+			parents.shift();
+			console.log(parents.length);
+			if (parents.length == 0) {
+				return titles;
+			}
+			var columnTitles = [];
+			var count = 0;
+			for (i = 0; i<titles.length; i++) {
+				for (j = 0; j<parents[0].outcomeIDs.length; j++) {
+					var title =  titles[i] + '<br>' + parents[0].parentID + ': ' + parents[0].outcomeIDs[j];
+					columnTitles[count] = title;
+					columnStruct[i] = { text: title, datafield: title, width: 300 };
+					count ++;
 				}
 			}
-			else {
-				for (var j=0; j<cpt.parents[i].outcomeIDs.length; j++) {
-					for (var k=i+1; k<numParents; k++) {
-						for (var l=0; l<cpt.parents[k].outcomeIDs.length; l++) {
-
-							var title = cpt.parents[i].parentID + '\n :' + cpt.parents[i].outcomeIDs[j]
-								+ '\n' + cpt.parents[k].parentID + '\n :' + cpt.parents[k].outcomeIDs[l];
-
-							colTitles[colIter] = title;
-							col[colIter] = { text: title, datafield: title, width: 300 };
-							colIter++;
-						}
-					}
-				}
-			}
+			return (getMoreTitles(parents, columnTitles));
 		}
 
-		// show node values when there is no CPTs
-		if (numParents == 0) {
-			var title = "self value";
-			colTitles[0] = title;
-			col[0] = { text: "node has no parents", datafield: title, width: 300 };
-			console.log("BOO");
+		var parents = cpt.parents;
+		var columnTitles = [];
+		var columnStruct = [];
+		if (parents.length > 0) {
+			var titles = [];
+			for (i = 0; i < parents[0].outcomeIDs.length; i++){
+				var title = parents[0].parentID + ': ' + parents[0].outcomeIDs[i];
+				titles[i] = title;
+				columnStruct[i] = { text: titles[i], datafield: titles[i], width: 300 };
+			}
+			columnTitles = getMoreTitles(parents, titles);
+		}
+		else {
+			columnTitles[0] = "self value";
+			columnStruct[0] = { text: "node has no parents", datafield: columnTitles, width: 300 };
 		}
 
 		// fill grid data
-		col.unshift({text: " ", datafield: "rowTitle", width: 100});
+		columnStruct.unshift({text: " ", datafield: "rowTitle", width: 100});
 		var data = [];
-		var numCols = colIter+1;
 		var defIter = 0;
 		var start = 0;
-		for (i=0; i<numOutcomes; i++) {
+		var numOutcomes = cpt.outcomeIDs.length;
+		for (i = 0; i < numOutcomes; i++) {
 			data[i] = {};
 			data[i]["rowTitle"] = cpt.outcomeIDs[i];
-			for (j = 0; j < numCols; j++) {
-				data[i][colTitles[j]] = cpt.definition[defIter];
+			for (j = 0; j < columnTitles.length; j++) {
+				data[i][columnTitles[j]] = cpt.definition[defIter];
+				console.log(data[i]);
 				defIter = defIter + numOutcomes;
 			}
-			console.log(data[i]);
 			start++;
 			defIter = start;
 		}
@@ -341,8 +335,8 @@ function getCPT(nodeID)
 			source: dataAdapter,
 			width: '100%',
 			height: '100%',
-			columnsheight: 50,
-			columns: col
+			columnsheight: 100,
+			columns: columnStruct
 		});
 	}).fail(function() {
 	});
