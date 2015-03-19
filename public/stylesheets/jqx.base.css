@@ -274,7 +274,6 @@ button.jqx-button, input[type=button].jqx-button,  input[type=submit].jqx-button
     border-color: transparent;
     white-space:normal !important;
     height:auto !important;
-    padding:2px;
     border-style: solid;
     font-weight: normal;  
     overflow: hidden;

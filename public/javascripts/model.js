@@ -279,7 +279,6 @@ function getCPT(nodeID)
 			for (i = 0; i<titles.length; i++) {
 				for (j = 0; j<parents[0].outcomeIDs.length; j++) {
 					var title =  titles[i] + '<br>' + parents[0].parentID + ': ' + parents[0].outcomeIDs[j];
-					console.log(title);
 					columnTitles[count] = title;
 					columnStruct[i] = { text: title, datafield: title, width: 300 };
 					count ++;
@@ -296,7 +295,7 @@ function getCPT(nodeID)
 			for (i = 0; i < parents[0].outcomeIDs.length; i++){
 				var title = parents[0].parentID + ': ' + parents[0].outcomeIDs[i];
 				titles[i] = title;
-				columnStruct[i] = { text: columnTitles[i], datafield: columnTitles[i], width: 300 };
+				columnStruct[i] = { text: titles[i], datafield: titles[i], width: 300 };
 			}
 			columnTitles = getMoreTitles(parents, titles);
 		}
@@ -316,6 +315,7 @@ function getCPT(nodeID)
 			data[i]["rowTitle"] = cpt.outcomeIDs[i];
 			for (j = 0; j < columnTitles.length; j++) {
 				data[i][columnTitles[j]] = cpt.definition[defIter];
+				console.log(data[i]);
 				defIter = defIter + numOutcomes;
 			}
 			start++;
