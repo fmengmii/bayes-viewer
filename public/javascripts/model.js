@@ -268,9 +268,12 @@ function getCPT(nodeID)
 		console.log(data);
 		var cpt = JSON.parse(data);
 
+		var columnrenderer = function (value) {
+			return '<div style="text-align: left; vertical-align: top; margin-top: 5px; margin-left: 5px; margin-bottom: 5px;">' + value + '</div>';
+		}
+
 		function getMoreTitles(parents, titles) {
 			parents.shift();
-			console.log(parents.length);
 			if (parents.length == 0) {
 				return titles;
 			}
@@ -280,7 +283,7 @@ function getCPT(nodeID)
 				for (j = 0; j<parents[0].outcomeIDs.length; j++) {
 					var title =  titles[i] + '<br>' + parents[0].parentID + ': ' + parents[0].outcomeIDs[j];
 					columnTitles[count] = title;
-					columnStruct[i] = { text: title, datafield: title, width: 300 };
+					columnStruct[i] = { text: title, renderer: columnrenderer, datafield: title, width: 300 };
 					count ++;
 				}
 			}
@@ -288,6 +291,7 @@ function getCPT(nodeID)
 		}
 
 		var parents = cpt.parents;
+		var numParents = cpt.parents.length;
 		var columnTitles = [];
 		var columnStruct = [];
 		if (parents.length > 0) {
@@ -295,17 +299,17 @@ function getCPT(nodeID)
 			for (i = 0; i < parents[0].outcomeIDs.length; i++){
 				var title = parents[0].parentID + ': ' + parents[0].outcomeIDs[i];
 				titles[i] = title;
-				columnStruct[i] = { text: titles[i], datafield: titles[i], width: 300 };
+				columnStruct[i] = { text: titles[i], renderer: columnrenderer, datafield: titles[i], width: 300 };
 			}
 			columnTitles = getMoreTitles(parents, titles);
 		}
 		else {
 			columnTitles[0] = "self value";
-			columnStruct[0] = { text: "node has no parents", datafield: columnTitles, width: 300 };
+			columnStruct[0] = { text: "node has no parents", renderer: columnrenderer, datafield: columnTitles, width: 300 };
 		}
 
 		// fill grid data
-		columnStruct.unshift({text: " ", datafield: "rowTitle", width: 100});
+		columnStruct.unshift({text: " ", renderer: columnrenderer, datafield: "rowTitle", width: 100});
 		var data = [];
 		var defIter = 0;
 		var start = 0;
@@ -315,7 +319,6 @@ function getCPT(nodeID)
 			data[i]["rowTitle"] = cpt.outcomeIDs[i];
 			for (j = 0; j < columnTitles.length; j++) {
 				data[i][columnTitles[j]] = cpt.definition[defIter];
-				console.log(data[i]);
 				defIter = defIter + numOutcomes;
 			}
 			start++;
@@ -327,15 +330,20 @@ function getCPT(nodeID)
 			localdata: data,
 			datatype: "array"
 		};
+
 		var dataAdapter = new $.jqx.dataAdapter(source, {
 			loadComplete: function (data) { },
 			loadError: function (xhr, status, error) { }
 		});
+		var colHeight = 20*numParents;
+		if (numParents==0 || numParents==1) {
+			colHeight = 30;
+		}
 		$("#dialogDefinitionPanel").jqxGrid( {
 			source: dataAdapter,
 			width: '100%',
 			height: '100%',
-			columnsheight: 100,
+			columnsheight: colHeight,
 			columns: columnStruct
 		});
 	}).fail(function() {

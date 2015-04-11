@@ -266,6 +266,7 @@ button.jqx-button, input[type=button].jqx-button,  input[type=submit].jqx-button
     border-color: transparent;
     margin: 0px;
     padding: 0px;
+    vertical-align: top;
  }
  /*applied to the columns.*/
 .jqx-grid-column-header, .jqx-grid-columngroup-header {
@@ -280,6 +281,7 @@ button.jqx-button, input[type=button].jqx-button,  input[type=submit].jqx-button
     text-align: left;
     padding: 0px;
     margin: 0px;
+    vertical-align: top;
  }
 .jqx-grid-column-header-rtl, .jqx-grid-columngroup-header-rtl {
     border-width: 0px 0px 0px 1px;
