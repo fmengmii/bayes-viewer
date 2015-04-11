@@ -3339,7 +3339,7 @@ of the horizontal scrollbar.*/
 .jqx-item{-ms-touch-action: none; -moz-box-sizing: content-box; box-sizing: content-box;  color: inherit; -webkit-text-size-adjust: none;}
 
 /*applied to containers to set a background and border color. Tabs, NavigationBar, Calendar content.*/
-.jqx-widget-content {-moz-box-sizing: content-box; box-sizing: content-box; -ms-touch-action: none; -moz-background-clip: padding; -webkit-text-size-adjust: none; background-clip: padding-box; -webkit-background-clip: padding-box; -webkit-tap-highlight-color: rgba(0,0,0,0); font-style: normal; font-size: 13px; border-color: #c7c7c7; background: #fff; }
+.jqx-widget-content {-moz-box-sizing: content-box; box-sizing: content-box; -ms-touch-action: none; -moz-background-clip: padding; -webkit-text-size-adjust: none; background-clip: padding-box; -webkit-background-clip: padding-box; -webkit-tap-highlight-color: rgba(0,0,0,0); font-style: normal; font-size: 10px; border-color: #c7c7c7; background: #fff; }
 /*applied to header areas. Tabs, Menu, Window, Calendar.*/
 .jqx-widget-header {-moz-box-sizing: content-box; box-sizing: content-box; -ms-touch-action: none;-moz-background-clip: padding; -webkit-text-size-adjust: none; background-clip: padding-box; -webkit-background-clip: padding-box; -webkit-tap-highlight-color: rgba(0,0,0,0); border-color: #c5c5c5; background: #e8e8e8; }
 

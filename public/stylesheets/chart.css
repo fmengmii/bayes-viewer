@@ -22,7 +22,7 @@ svg[class^='chart'] rect {
 
 svg[class^='chart'] text {
   fill: black;
-  font: 10px ;
+  font: 12px ;
   text-anchor: end;
 }
 
@@ -33,5 +33,5 @@ svg[class^='chart'] text {
 }
 
 .axis text {
-    font-size: 11px;
+    font-size: 10px;
 }
