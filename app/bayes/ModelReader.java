@@ -196,7 +196,7 @@ public class ModelReader
 			if (i > 0)
 				strBlder.append(",");
 			
-			strBlder.append("{\"parentID\":\"" + parentName + "\",\"outcomeIDs\":[");
+			strBlder.append("{\"parentName\":\"" + parentName + "\",\"outcomeIDs\":[");
 			String[] outcomeIDs  = network.getOutcomeIds(parentIDs[i]);
 			
 			for (int j=0; j<outcomeIDs.length; j++) {
