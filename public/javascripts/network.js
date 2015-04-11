@@ -13,7 +13,8 @@ $(function() { // on dom ready
 	      .css({
 	        'content': 'data(name)',
 	        'background-color': 'lightblue',
-	        'font-size': 12
+	        'font-size': 12,
+			'font-family': "Helvetica"
 	        
 	      })
 	      

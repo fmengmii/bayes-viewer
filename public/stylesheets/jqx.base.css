@@ -185,7 +185,6 @@ button.jqx-button, input[type=button].jqx-button,  input[type=submit].jqx-button
     fill: #333333;
     color: #333333;
     font-size: 11px;
-    font-family: Verdana;
 }
 /*jqxChart Style*/
 .jqx-chart-axis-text,
@@ -196,14 +195,12 @@ button.jqx-button, input[type=button].jqx-button,  input[type=submit].jqx-button
     fill: #333333;
     color: #333333;
     font-size: 11px;
-    font-family: Verdana;
 }
 .jqx-chart-axis-description
 {
     fill: #555555;
     color: #555555;
     font-size: 11px;
-    font-family: Verdana;
 }
 .jqx-chart-title-text
 {
@@ -211,7 +208,6 @@ button.jqx-button, input[type=button].jqx-button,  input[type=submit].jqx-button
     color: #111111;
     font-size: 14px;
     font-weight: bold;
-    font-family: Verdana;
 }
 .jqx-chart-title-description
 {
@@ -219,7 +215,6 @@ button.jqx-button, input[type=button].jqx-button,  input[type=submit].jqx-button
     color: #111111;
     font-size: 12px;
     font-weight: normal;
-    font-family: Verdana;
 }
 
 /*applied to the Grid's element.*/
@@ -2860,7 +2855,6 @@ of the horizontal scrollbar.*/
     cursor: pointer;
     padding-left: 5px;
     padding-right: 5px;
-    font-family: Verdana;
     font-size: 13px;
     border: 1px solid #6E0000;
     background-color: #942724;
@@ -2907,7 +2901,6 @@ of the horizontal scrollbar.*/
 .jqx-switchbutton-label
 {
     font-size: 15px;
-    font-family: Sans-Serif;
     text-align: center;
     text-transform: uppercase;
     font-weight: bold;
@@ -3343,16 +3336,16 @@ of the horizontal scrollbar.*/
 }
 
 /*applied to all widgets*/
-.jqx-widget{-moz-box-sizing: content-box; box-sizing: content-box; -ms-touch-action: none; zoom: 1; color: #000000; -moz-background-clip: padding; background-clip: padding-box; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; -webkit-appearance: none; -webkit-background-clip: padding-box; direction: ltr !important; -webkit-tap-highlight-color: rgba(0,0,0,0); font-family: Verdana,Arial,sans-serif; font-style: normal; font-size: 13px;}
+.jqx-widget{-moz-box-sizing: content-box; box-sizing: content-box; -ms-touch-action: none; zoom: 1; color: #000000; -moz-background-clip: padding; background-clip: padding-box; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; -webkit-appearance: none; -webkit-background-clip: padding-box; direction: ltr !important; -webkit-tap-highlight-color: rgba(0,0,0,0); font-style: normal; font-size: 13px;}
 
 .jqx-item{-ms-touch-action: none; -moz-box-sizing: content-box; box-sizing: content-box;  color: inherit; -webkit-text-size-adjust: none;}
 
 /*applied to containers to set a background and border color. Tabs, NavigationBar, Calendar content.*/
-.jqx-widget-content {-moz-box-sizing: content-box; box-sizing: content-box; -ms-touch-action: none; -moz-background-clip: padding; -webkit-text-size-adjust: none; background-clip: padding-box; -webkit-background-clip: padding-box; -webkit-tap-highlight-color: rgba(0,0,0,0); font-family: Verdana,Arial,sans-serif; font-style: normal; font-size: 13px; border-color: #c7c7c7; background: #fff; }
+.jqx-widget-content {-moz-box-sizing: content-box; box-sizing: content-box; -ms-touch-action: none; -moz-background-clip: padding; -webkit-text-size-adjust: none; background-clip: padding-box; -webkit-background-clip: padding-box; -webkit-tap-highlight-color: rgba(0,0,0,0); font-style: normal; font-size: 10px; border-color: #c7c7c7; background: #fff; }
 /*applied to header areas. Tabs, Menu, Window, Calendar.*/
 .jqx-widget-header {-moz-box-sizing: content-box; box-sizing: content-box; -ms-touch-action: none;-moz-background-clip: padding; -webkit-text-size-adjust: none; background-clip: padding-box; -webkit-background-clip: padding-box; -webkit-tap-highlight-color: rgba(0,0,0,0); border-color: #c5c5c5; background: #e8e8e8; }
 
-.jqx-fill-state-normal{-moz-box-sizing: content-box; box-sizing: content-box; -ms-touch-action: none;font-family: Verdana,Arial,sans-serif; font-style: normal; font-size: 13px; border-color:#aaa; background: #efefef; }
+.jqx-fill-state-normal{-moz-box-sizing: content-box; box-sizing: content-box; -ms-touch-action: none; font-style: normal; font-size: 13px; border-color:#aaa; background: #efefef; }
 .jqx-fill-state-hover {-moz-box-sizing: content-box; box-sizing: content-box; border-color:#999;  background: #e8e8e8;}
 .jqx-fill-state-pressed{-moz-box-sizing: content-box; box-sizing: content-box; border-color:#999; background: #d1d1d1;}
 .jqx-fill-state-focus {border-color: #555; }
@@ -3812,7 +3805,6 @@ ol li .jqx-listmenu-item-label:before
 .jqx-treemap-rectangle-parent {
     color: #222;
     font-size: 15px;
-    font-family: Verdana;
     font-weight: bold;
 }
 .jqx-treemap-legend-label {

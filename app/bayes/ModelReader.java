@@ -192,11 +192,11 @@ public class ModelReader
 		StringBuilder strBlder = new StringBuilder("{\"parents\":[");				
 		String[] parentIDs = network.getParentIds(nodeID);
 		for (int i=0; i<parentIDs.length; i++) {
-			
+			String parentName = network.getNodeName(parentIDs[i]);
 			if (i > 0)
 				strBlder.append(",");
 			
-			strBlder.append("{\"parentID\":\"" + parentIDs[i] + "\",\"outcomeIDs\":[");
+			strBlder.append("{\"parentName\":\"" + parentName + "\",\"outcomeIDs\":[");
 			String[] outcomeIDs  = network.getOutcomeIds(parentIDs[i]);
 			
 			for (int j=0; j<outcomeIDs.length; j++) {
@@ -235,6 +235,21 @@ public class ModelReader
 		if (network == null) {
 			network = new Network();
 			network.readFile("public/models/" + modelName);
+
+			int[] nodes = network.getAllNodes();
+			int maxLength = 10;
+			for (int i=0; i<nodes.length; i++) {
+				int node = nodes[i];
+				String nodeID = network.getNodeId(node);
+				String nodeName = network.getNodeName(node);
+
+				if (nodeName.length() > maxLength) {
+					nodeName = nodeName.substring(0, maxLength);
+				} else {
+					nodeName = String.format("%-" + maxLength + "s", nodeName);
+				}
+				network.setNodeName(nodeID, nodeName);
+			}
 		}
 	}
 }

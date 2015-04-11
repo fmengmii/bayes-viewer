@@ -281,7 +281,7 @@ function getCPT(nodeID)
 			var count = 0;
 			for (i = 0; i<titles.length; i++) {
 				for (j = 0; j<parents[0].outcomeIDs.length; j++) {
-					var title =  titles[i] + '<br>' + parents[0].parentID + ': ' + parents[0].outcomeIDs[j];
+					var title =  titles[i] + '<br>' + parents[0].parentName + ': ' + parents[0].outcomeIDs[j];
 					columnTitles[count] = title;
 					columnStruct[i] = { text: title, renderer: columnrenderer, datafield: title, width: 300 };
 					count ++;
@@ -297,7 +297,7 @@ function getCPT(nodeID)
 		if (parents.length > 0) {
 			var titles = [];
 			for (i = 0; i < parents[0].outcomeIDs.length; i++){
-				var title = parents[0].parentID + ': ' + parents[0].outcomeIDs[i];
+				var title = parents[0].parentName + ': ' + parents[0].outcomeIDs[i];
 				titles[i] = title;
 				columnStruct[i] = { text: titles[i], renderer: columnrenderer, datafield: titles[i], width: 300 };
 			}

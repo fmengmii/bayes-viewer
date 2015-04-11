@@ -51,15 +51,16 @@
 
 	</head>
 
-	
+
 	<body>
 	<div id="buttonsDiv">
 	<select id="load" onChange="loadModel(this.options[this.selectedIndex].value)">
 		<option selected disabled hidden value=''></option>
 		@for(model <- models) {
 		<option value="@model">@model</option>
-		}			
+		}
 	</select>
+		<button type="button" onclick="renameNodes()"
 		<button type="button" onclick="clearAllEvidence()">Clear All Evidence</button>
 		<button type="button" onclick="clearAllTargets()">Clear All Targets</button>
 		<button type="button" onclick="centerNetwork()">Center Network</button>
