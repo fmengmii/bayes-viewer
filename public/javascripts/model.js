@@ -269,8 +269,10 @@ function getCPT(nodeID)
 		var cpt = JSON.parse(data);
 
 		var columnrenderer = function (value) {
-			return '<div style="text-align: left; vertical-align: top; margin-top: 5px; margin-left: 5px; margin-bottom: 5px;">' + value + '</div>';
+			return '<div style="text-align: left; vertical-align: middle; margin-top: 5px; margin-left: 5px;margin-right: 5px;">' + value + '</div>';
 		}
+
+		var widthSize = 5*15*2;
 
 		function getMoreTitles(parents, titles) {
 			parents.shift();
@@ -283,7 +285,7 @@ function getCPT(nodeID)
 				for (j = 0; j<parents[0].outcomeIDs.length; j++) {
 					var title =  titles[i] + '<br>' + parents[0].parentName + ': ' + parents[0].outcomeIDs[j];
 					columnTitles[count] = title;
-					columnStruct[i] = { text: title, renderer: columnrenderer, datafield: title, width: 300 };
+					columnStruct[i] = { text: title, renderer: columnrenderer, datafield: title, width: widthSize };
 					count ++;
 				}
 			}
@@ -299,17 +301,17 @@ function getCPT(nodeID)
 			for (i = 0; i < parents[0].outcomeIDs.length; i++){
 				var title = parents[0].parentName + ': ' + parents[0].outcomeIDs[i];
 				titles[i] = title;
-				columnStruct[i] = { text: titles[i], renderer: columnrenderer, datafield: titles[i], width: 300 };
+				columnStruct[i] = { text: titles[i], renderer: columnrenderer, datafield: titles[i], width: widthSize };
 			}
 			columnTitles = getMoreTitles(parents, titles);
 		}
 		else {
 			columnTitles[0] = "self value";
-			columnStruct[0] = { text: "node has no parents", renderer: columnrenderer, datafield: columnTitles, width: 300 };
+			columnStruct[0] = { text: "node has no parents", renderer: columnrenderer, datafield: columnTitles, width: widthSize };
 		}
 
 		// fill grid data
-		columnStruct.unshift({text: " ", renderer: columnrenderer, datafield: "rowTitle", width: 100});
+		columnStruct.unshift({text: " ", renderer: columnrenderer, datafield: "rowTitle", width: widthSize/2});
 		var data = [];
 		var defIter = 0;
 		var start = 0;
