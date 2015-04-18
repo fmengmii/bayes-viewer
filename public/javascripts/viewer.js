@@ -11,7 +11,7 @@ $(document).ready(function () {
    
    $('#dialogSetValues').jqxWindow({  width: 600,
        height: 400, resizable: true,
-       okButton: $('#doneButton'),
+       okButton: $('#doneButton'), autoOpen: false,
        initContent: function () {
            $("#dialogGeneralPanel").jqxPanel({ width: 590, height: 300});
            $("#dialogSetEvidencePanel").jqxPanel({ width: 590, height: 300});
@@ -78,8 +78,8 @@ function nodeSelected(nodeID, nodeName)
 	var i;
 	for (i=0; i<nodeOutcomes[0].values.length; i++) {
 		//$form.append(nodeOutcomes[0].values[i].outcomeid + ": ");
-		$form.append('<input name="outcomeids" type="radio" value="' + nodeOutcomes[0].values[i].outcomeid + '" />' + nodeOutcomes[0].values[i].outcomeid + '<br>');
-		$formVirtual.append(nodeOutcomes[0].values[i].outcomeid + ': <input name="voutcomeids" type="text" value="' + nodeOutcomes[0].values[i].value + '"/><br>');
+		$form.append('<input name="outcomeids" type="radio" value="' + nodeOutcomes[0].values[i].outcomeid + '" />' + truncateOutcome(nodeOutcomes[0].values[i].outcomeid) + '<br>');
+		$formVirtual.append(truncateOutcome(nodeOutcomes[0].values[i].outcomeid) + ': <input name="voutcomeids" type="text" value="' + nodeOutcomes[0].values[i].value + '"/><br>');
 	}
 	
 	$("#dialogSetEvidencePanel #formDiv").append($form);
@@ -88,4 +88,20 @@ function nodeSelected(nodeID, nodeName)
 	$('#dialogSetValues').jqxWindow('open');
 
 	getCPT(nodeID);
+}
+
+function truncateOutcome(name)
+{
+	var maxLength = 10;
+	var truncated;
+	if (name.length > maxLength) {
+		truncated = name.substring(0,maxLength);
+	}
+	else {
+		truncated = name;
+		for (var i=name.length; i<maxLength; i++) {
+			truncated = truncated.concat(" ");
+		}
+	}
+	return truncated;
 }
