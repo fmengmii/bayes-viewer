@@ -26,7 +26,8 @@ function drawChart(nodeInfoArray, divSelect)
 	var nodeOutcomes = nodeInfoArray["values"];
 	var i;
 	for (i=0; i<nodeOutcomes.length; i++) {
-		outcomes.push((nodeOutcomes[i])["outcomeid"]);
+		outcomes.push(truncateOutcome((nodeOutcomes[i])["outcomeid"]));
+		//outcomes.push((nodeOutcomes[i])["outcomeid"]);
 		data.push((nodeOutcomes[i])["value"]);
 	}
 	

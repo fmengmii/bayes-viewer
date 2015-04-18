@@ -265,7 +265,7 @@ function getCPT(nodeID)
 	$.ajax({
 		url: getCPTAjax.url
 	}).done(function(data) {
-		console.log(data);
+		//console.log(data);
 		var cpt = JSON.parse(data);
 
 		var columnrenderer = function (value) {
@@ -281,9 +281,9 @@ function getCPT(nodeID)
 			}
 			var columnTitles = [];
 			var count = 0;
-			for (i = 0; i<titles.length; i++) {
+			for (var i = 0; i<titles.length; i++) {
 				for (j = 0; j<parents[0].outcomeIDs.length; j++) {
-					var title =  titles[i] + '<br>' + parents[0].parentName + ': ' + parents[0].outcomeIDs[j];
+					var title =  titles[i] + '<br>' + parents[0].parentName + ': ' + truncateOutcome(parents[0].outcomeIDs[j]);
 					columnTitles[count] = title;
 					columnStruct[i] = { text: title, renderer: columnrenderer, datafield: title, width: widthSize };
 					count ++;
@@ -298,8 +298,8 @@ function getCPT(nodeID)
 		var columnStruct = [];
 		if (parents.length > 0) {
 			var titles = [];
-			for (i = 0; i < parents[0].outcomeIDs.length; i++){
-				var title = parents[0].parentName + ': ' + parents[0].outcomeIDs[i];
+			for (var i = 0; i < parents[0].outcomeIDs.length; i++){
+				var title = parents[0].parentName + ': ' + truncateOutcome(parents[0].outcomeIDs[i]);
 				titles[i] = title;
 				columnStruct[i] = { text: titles[i], renderer: columnrenderer, datafield: titles[i], width: widthSize };
 			}
@@ -316,9 +316,9 @@ function getCPT(nodeID)
 		var defIter = 0;
 		var start = 0;
 		var numOutcomes = cpt.outcomeIDs.length;
-		for (i = 0; i < numOutcomes; i++) {
+		for (var i = 0; i < numOutcomes; i++) {
 			data[i] = {};
-			data[i]["rowTitle"] = cpt.outcomeIDs[i];
+			data[i]["rowTitle"] = truncateOutcome(cpt.outcomeIDs[i]);
 			for (j = 0; j < columnTitles.length; j++) {
 				data[i][columnTitles[j]] = cpt.definition[defIter];
 				defIter = defIter + numOutcomes;
