@@ -43,7 +43,7 @@ public class ModelReader
 		StringBuilder strBlder = new StringBuilder("[");
 		try {
 			//System.out.println(System.getProperty("java.library.path"));
-			
+			//System.out.println(network.getName());
 			network.updateBeliefs();
 			
 			//nodes
@@ -116,9 +116,9 @@ public class ModelReader
 				strBlder.append(entry.getValue());
 				count++;
 			}
-			
-			
-			strBlder.append("]");			
+
+			strBlder.append("]");
+			strBlder.append(", [{\"modelname\":\"" + network.getName() +"\"}]");
 		}
 		catch(Exception e)
 		{
@@ -250,6 +250,7 @@ public class ModelReader
 				}
 				network.setNodeName(nodeID, nodeName);
 			}
+			network.setName(modelName);
 		}
 	}
 }

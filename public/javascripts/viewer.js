@@ -24,7 +24,13 @@ $(document).ready(function () {
    });
    
    $('#dialogSetValues').jqxWindow('close');
-   
+
+	$('#rawData').jqxWindow({
+		width: 600, height: 400, resizable: true,
+		okButton: $("#rawDoneButton"), autoOpen: false
+	});
+
+
    $("#nodeMenu").jqxMenu({ width: '140px', height: '120px', autoOpenPopup: false, mode: 'popup'});
    
    $('#dialogTabs').jqxTabs({ width: '100%', height: 300, position: 'top'});
@@ -46,6 +52,23 @@ $(document).ready(function () {
 	wall.fitWidth();
 });
 
+function showRawDataButton()
+{
+	$("#buttonsDiv").append('<input type="button" onclick="showRawData()" value="Raw Data" id="rawDataButton" />');
+}
+
+function showRawData()
+{
+	var name = networkInfoArray[2][0].modelname;
+	name = name.substring(0,name.length-5);
+	console.log(name);
+	$('#rawData').jqxWindow('title', name);
+
+
+
+
+	$("#rawData").jqxWindow('open');
+}
 
 function nodeSelected(nodeID, nodeName)
 {

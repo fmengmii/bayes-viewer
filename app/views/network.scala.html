@@ -60,7 +60,6 @@
 		<option value="@model">@model</option>
 		}
 	</select>
-		<button type="button" onclick="renameNodes()"
 		<button type="button" onclick="clearAllEvidence()">Clear All Evidence</button>
 		<button type="button" onclick="clearAllTargets()">Clear All Targets</button>
 		<button type="button" onclick="centerNetwork()">Center Network</button>
@@ -109,5 +108,10 @@
 			<li id="offTarget" onclick="removeTarget()">Remove Target</li>
 		</ul>
     </div>
-    </body>
+    <div id="rawData">
+		<div style="float: right">
+			<input type="button" value="Done" id="rawDoneButton" />
+		</div>
+	</div>
+	</body>
 </html>
