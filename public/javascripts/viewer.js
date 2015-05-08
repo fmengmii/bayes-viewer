@@ -25,12 +25,6 @@ $(document).ready(function () {
    
    $('#dialogSetValues').jqxWindow('close');
 
-	$('#rawData').jqxWindow({
-		width: 600, height: 400, resizable: true,
-		okButton: $("#rawDoneButton"), autoOpen: false
-	});
-
-
    $("#nodeMenu").jqxMenu({ width: '140px', height: '120px', autoOpenPopup: false, mode: 'popup'});
    
    $('#dialogTabs').jqxTabs({ width: '100%', height: 300, position: 'top'});
@@ -52,19 +46,58 @@ $(document).ready(function () {
 	wall.fitWidth();
 });
 
-function showRawDataButton()
+function getRawDataOptions()
 {
 	$("#buttonsDiv").append('<input type="button" onclick="showRawData()" value="Raw Data" id="rawDataButton" />');
+
+	$("#rawData").append('<div id="rawTable"></div>');
+	$("#rawData").append('<div style="float: right"> <input type="button" value="Done" id="rawDoneButton" /> </div>');
+
+	$('#rawData').jqxWindow({
+		width: 600, height: 400, resizable: true,
+		okButton: $("#rawDoneButton"), autoOpen: false
+	});
 }
 
 function showRawData()
 {
 	var name = networkInfoArray[2][0].modelname;
-	name = name.substring(0,name.length-5);
-	console.log(name);
+	var columns = networkInfoArray[3][0].columnnames;
+	console.log(columns);
 	$('#rawData').jqxWindow('title', name);
 
+	var url = 'public/raw-data/' + name + ".csv";
+	var data = [];
+	var columnStruct = [];
+	for (var i=0; i<columns.length; i++) {
+		data[i] = {};
+		data[i]["name"] = columns[i];
+		data[i]["type"] = "float";
 
+		columnStruct[i] = {};
+		columnStruct[i]["text"] = columns[i];
+		columnStruct[i]["dataField"] = columns[i];
+		columnStruct[i]["cellsFormat"] = 'f';
+	}
+
+	var source =
+	{
+		dataType: "csv",
+		dataFields: data,
+		url: url
+	};
+
+	var dataAdapter = new $.jqx.dataAdapter(source);
+	$("#rawTable").jqxDataTable(
+		{
+			width: 850,
+			source: dataAdapter,
+			columnsResize: true,
+			columns: columnStruct
+		});
+
+
+	$("#rawData").jqxWindow('open');
 
 
 	$("#rawData").jqxWindow('open');

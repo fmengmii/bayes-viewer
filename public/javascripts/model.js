@@ -15,7 +15,7 @@ function loadModel(model)
 	}).fail(function() {
 	});
 
-	showRawDataButton();
+	getRawDataOptions();
 
 	//cy.load({nodes:[{data: {id:'a'}},{data: {id:'b'}}],edges:[{data:{id:'ab',source:'a',target:'b'}}]});
 }

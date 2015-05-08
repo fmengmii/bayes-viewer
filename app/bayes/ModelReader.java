@@ -104,7 +104,6 @@ public class ModelReader
 					outcomeBlder.append("{\"outcomeid\":\"" + outcomeIDs[j] + "\",\"value\":" + formatter.format((values[j])) + "}");
 				}
 				
-				
 				outcomeBlder.append("]}");
 				outcomeMap.put(nodeName, outcomeBlder.toString());
 			}
@@ -118,7 +117,49 @@ public class ModelReader
 			}
 
 			strBlder.append("]");
-			strBlder.append(", [{\"modelname\":\"" + network.getName() +"\"}]");
+
+			String modelName = network.getName();
+			modelName = modelName.substring(0,modelName.length()-5);
+
+			//model name
+			strBlder.append(", [{\"modelname\":\"" + modelName +"\"}]");
+
+			//raw data column names
+			strBlder.append(", [{\"columnnames\":[");
+
+			String csvFile = "public/raw-data/" + modelName + ".csv";
+			BufferedReader br = null;
+			String line = "";
+
+			try {
+
+				br = new BufferedReader(new FileReader(csvFile));
+				line = br.readLine();
+				String[] columnNames = line.split(",");
+
+				for (int i=0; i<columnNames.length; i++) {
+					if (i > 0) {
+						strBlder.append(",");
+					}
+					strBlder.append("\"" + columnNames[i] + "\"");
+				}
+
+				strBlder.append("]}]");
+
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				if (br != null) {
+					try {
+						br.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+
 		}
 		catch(Exception e)
 		{
