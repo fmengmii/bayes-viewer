@@ -12,6 +12,14 @@ function loadModel(model)
 		//cy.load(networkInfoArray[0]);
 		networkLoadModel(networkInfoArray[0]);
 		drawCharts(networkInfoArray[1]);
+
+		//console.log(networkInfoArray);
+
+		emptyRawDataOptions();
+		if (networkInfoArray.length > 3) {
+			getRawData();
+		}
+
 	}).fail(function() {
 	});
 
@@ -80,7 +88,7 @@ function clearEvidence()
 
 function setEvidence()
 {
-	var outcomeID = $('input[name=outcomeids]:checked').val()
+	var outcomeID = $('input[name=outcomeids]:checked').val();
 	console.log(outcomeID);
 
 	var form = document.getElementById("setEvidenceForm");

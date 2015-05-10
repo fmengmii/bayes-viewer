@@ -43,25 +43,25 @@ public class ModelReader
 		StringBuilder strBlder = new StringBuilder("[");
 		try {
 			//System.out.println(System.getProperty("java.library.path"));
-			
+			//System.out.println(network.getName());
 			network.updateBeliefs();
-			
+
 			//nodes
 			strBlder.append("{\"nodes\":[");
 			List<int[]> edgeList = new ArrayList<int[]>();
-			
+
 			int[] nodes = network.getAllNodes();
 			for (int i=0; i<nodes.length; i++) {
 				int node = nodes[i];
 				String nodeID = network.getNodeId(node);
 				String nodeName = network.getNodeName(node);
 				Rectangle rect = network.getNodePosition(node);
-				
+
 				if (i > 0)
 					strBlder.append(",");
-				
+
 				strBlder.append("{\"data\":{\"id\":\"" + nodeID + "\",\"name\":\"" + nodeName + "\"}, \"position\":{\"x\":" + rect.x + ", \"y\":" + rect.y + "}}");
-				
+
 				//edges
 				int[] childrenIDs = network.getChildren(node);
 				for (int j=0; j<childrenIDs.length; j++) {
@@ -72,8 +72,8 @@ public class ModelReader
 				}
 			}
 			strBlder.append("], \"edges\":[");
-			
-			
+
+
 			//edges
 			int count = 0;
 			for (int[] arcIDs : edgeList) {
@@ -82,18 +82,18 @@ public class ModelReader
 				strBlder.append("{\"data\":{\"id\":\"" + arcIDs[0] + "|" + arcIDs[1] + "\",\"source\":\"" + network.getNodeId(arcIDs[0]) + "\",\"target\":\"" + network.getNodeId(arcIDs[1]) + "\"}}");
 				count++;
 			}
-			
+
 			strBlder.append("]},");
-			
-			
+
+
 			//node values
 			strBlder.append("[");
 			Map<String, String> outcomeMap = new TreeMap<String, String>();
-			
+
 			for (int i=0; i<nodes.length; i++) {
 				StringBuilder outcomeBlder = new StringBuilder();
 				String nodeName = network.getNodeName(nodes[i]);
-				
+
 				outcomeBlder.append("{\"nodename\":\"" + nodeName + "\", \"id\":\"" + network.getNodeId(nodes[i]) + "\", \"values\":[");
 				String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
 				double[] values = network.getNodeValue(nodes[i]);
@@ -103,12 +103,11 @@ public class ModelReader
 						outcomeBlder.append(",");
 					outcomeBlder.append("{\"outcomeid\":\"" + outcomeIDs[j] + "\",\"value\":" + formatter.format((values[j])) + "}");
 				}
-				
-				
+
 				outcomeBlder.append("]}");
 				outcomeMap.put(nodeName, outcomeBlder.toString());
 			}
-			
+
 			count = 0;
 			for (Map.Entry<String, String> entry : outcomeMap.entrySet()) {
 				if (count > 0)
@@ -116,9 +115,49 @@ public class ModelReader
 				strBlder.append(entry.getValue());
 				count++;
 			}
-			
-			
-			strBlder.append("]");			
+
+			strBlder.append("]");
+
+			String modelName = network.getName();
+			modelName = modelName.substring(0,modelName.length()-5);
+
+			//model name
+			strBlder.append(", [{\"modelname\":\"" + modelName +"\"}]");
+
+			//raw data column names
+			String csvFile = "public/raw-data/" + modelName + ".csv";
+			BufferedReader br = null;
+			String line = "";
+
+			try {
+
+				br = new BufferedReader(new FileReader(csvFile));
+				line = br.readLine();
+				String[] columnNames = line.split(",");
+
+				strBlder.append(", [{\"columnnames\":[");
+				for (int i=0; i<columnNames.length; i++) {
+					if (i > 0) {
+						strBlder.append(",");
+					}
+					strBlder.append("\"" + columnNames[i] + "\"");
+				}
+				strBlder.append("]}]");
+
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				if (br != null) {
+					try {
+						br.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+
 		}
 		catch(Exception e)
 		{
@@ -250,6 +289,7 @@ public class ModelReader
 				}
 				network.setNodeName(nodeID, nodeName);
 			}
+			network.setName(modelName);
 		}
 	}
 }
