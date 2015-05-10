@@ -11,11 +11,7 @@ $(document).ready(function () {
    
    $('#dialogSetValues').jqxWindow({  width: 600,
        height: 400, resizable: true,
-       okButton: $('#doneButton'), autoOpen: false,
-       initContent: function () {
-           $("#dialogGeneralPanel").jqxPanel({ width: 590, height: 300});
-           $("#dialogSetEvidencePanel").jqxPanel({ width: 590, height: 300});
-       }
+       okButton: $('#doneButton'), autoOpen: false
    });
    $('#dialogSetValues').on('close', function (event) {
 	   if (event.args.dialogResult.OK) {
@@ -23,7 +19,7 @@ $(document).ready(function () {
 	   }
    });
    
-   $('#dialogSetValues').jqxWindow('close');
+   //$('#dialogSetValues').jqxWindow('close');
 
    $("#nodeMenu").jqxMenu({ width: '140px', height: '120px', autoOpenPopup: false, mode: 'popup'});
    
@@ -45,18 +41,6 @@ $(document).ready(function () {
 	});
 	wall.fitWidth();
 });
-
-function getRawDataOptions()
-{
-	$("#rawData").empty();
-
-	$("#rawData").append('<div id="rawTable"></div>');
-	$("#rawData").append('<div style="float: right"> <input type="button" value="Done" id="rawDoneButton" /> </div>');
-	$('#rawData').jqxWindow({
-		width: 600, height: 400, resizable: true,
-		okButton: $("#rawDoneButton"), autoOpen: false
-	});
-}
 
 function nodeSelected(nodeID, nodeName)
 {
@@ -117,11 +101,22 @@ function truncateOutcome(name)
 	return truncated;
 }
 
-function showRawData()
+function getRawData()
 {
-	var name = networkInfoArray[2][0].modelname;
+	$("#buttonsDiv").append('<input type="button" onclick="showRawData()" value="Raw Data" id="rawDataButton" />');
+
+	$("#rawData").append('<div id="rawTable"></div>');
+	$("#rawData").append('<div style="float: right"> <input type="button" onclick="turnRawButtonOn()" value="Done" id="rawDoneButton" /> </div>');
+	turnRawButtonOn();
+	$('#rawData').jqxWindow({
+		width: 600, height: 400, resizable: true,
+		okButton: $("#rawDoneButton"), autoOpen: false
+
+	});
+
 	var columns = networkInfoArray[3][0].columnnames;
 	console.log(columns);
+	var name = networkInfoArray[2][0].modelname;
 	$('#rawData').jqxWindow("setTitle", name);
 
 	var url = "assets/raw-data/" + name + ".csv";
@@ -148,12 +143,30 @@ function showRawData()
 	var dataAdapter = new $.jqx.dataAdapter(source);
 	$("#rawTable").jqxDataTable(
 		{
-			width: "100%",
-			height: "100%",
+			width: '99%',
+			height: '90%',
 			source: dataAdapter,
 			columnsResize: true,
 			columns: columnStruct
 		});
+	$("#rawTable").on('bindingComplete', function () {
+		$("#rawTable").jqxDataTable('deleteRow', 0);
+	});
+}
 
+function emptyRawDataOptions()
+{
+	$("#rawData").empty();
+	$("#rawDataButton").remove();
+}
+
+function showRawData()
+{
+	$("#rawDataButton").attr("disabled", true);
 	$("#rawData").jqxWindow('open');
+}
+
+function turnRawButtonOn()
+{
+	$("#rawDataButton").attr("disabled", false);
 }
