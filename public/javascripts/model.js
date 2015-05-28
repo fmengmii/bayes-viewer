@@ -273,7 +273,7 @@ function getCPT(nodeID)
 	$.ajax({
 		url: getCPTAjax.url
 	}).done(function(data) {
-		//console.log(data);
+		console.log(data);
 		var cpt = JSON.parse(data);
 
 		var columnrenderer = function (value) {
@@ -293,7 +293,6 @@ function getCPT(nodeID)
 				for (j = 0; j<parents[0].outcomeIDs.length; j++) {
 					var title =  titles[i] + '<br>' + parents[0].parentName + ': ' + truncateOutcome(parents[0].outcomeIDs[j]);
 					columnTitles[count] = title;
-					columnStruct[i] = { text: title, renderer: columnrenderer, datafield: title, width: widthSize };
 					count ++;
 				}
 			}
@@ -309,9 +308,11 @@ function getCPT(nodeID)
 			for (var i = 0; i < parents[0].outcomeIDs.length; i++){
 				var title = parents[0].parentName + ': ' + truncateOutcome(parents[0].outcomeIDs[i]);
 				titles[i] = title;
-				columnStruct[i] = { text: titles[i], renderer: columnrenderer, datafield: titles[i], width: widthSize };
 			}
 			columnTitles = getMoreTitles(parents, titles);
+			for (var j = 0; j<columnTitles.length; j++) {
+				columnStruct[j] = { text: columnTitles[j], renderer: columnrenderer, datafield: columnTitles[j], width: widthSize };
+			}
 		}
 		else {
 			columnTitles[0] = "self value";
