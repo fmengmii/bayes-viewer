@@ -292,4 +292,30 @@ public class ModelReader
 			network.setName(modelName);
 		}
 	}
+
+	public String upload(String modelPath, String modelName)
+	{
+		if (network == null) {
+			network = new Network();
+			network.readFile(modelPath + modelName);
+
+			int[] nodes = network.getAllNodes();
+			int maxLength = 10;
+			for (int i=0; i<nodes.length; i++) {
+				int node = nodes[i];
+				String nodeID = network.getNodeId(node);
+				String nodeName = network.getNodeName(node);
+
+				if (nodeName.length() > maxLength) {
+					nodeName = nodeName.substring(0, maxLength);
+				} else {
+					nodeName = String.format("%-" + maxLength + "s", nodeName);
+				}
+				network.setNodeName(nodeID, nodeName);
+			}
+			network.setName(modelName);
+		}
+		return getModelStr();
+	}
+
 }

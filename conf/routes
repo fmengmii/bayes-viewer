@@ -13,6 +13,7 @@ GET         /model/setastarget/:nodeID          controllers.Application.setAsTar
 GET         /model/removetarget/:nodeID         controllers.Application.removeTarget(nodeID: String)
 GET         /model/clearalltargets              controllers.Application.clearAllTargets()
 GET         /model/cpt/:nodeID                  controllers.Application.getCPT(nodeID: String)
+POST        /model/uploadmodel                  controllers.Application.uploadModel()
 
 
 # Map static resources from the /public folder to the /assets URL path

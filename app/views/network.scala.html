@@ -47,7 +47,8 @@
               routes.javascript.Application.setAsTarget,
 			  routes.javascript.Application.removeTarget,
               routes.javascript.Application.clearAllTargets,
-              routes.javascript.Application.getCPT
+              routes.javascript.Application.getCPT,
+		      routes.javascript.Application.uploadModel
               )
 
 	</head>
@@ -61,6 +62,7 @@
 		<option value="@model">@model</option>
 		}
 	</select>
+		<button type="button" onclick="showUpload()">Upload</button>
 		<button type="button" onclick="clearAllEvidence()">Clear All Evidence</button>
 		<button type="button" onclick="clearAllTargets()">Clear All Targets</button>
 		<button type="button" onclick="centerNetwork()">Center Network</button>
@@ -110,5 +112,13 @@
 		</ul>
     </div>
     <div id="rawData"></div>
+	<div id="uploadDiv">
+		<form enctype="multipart/form-data" id="uploadForm">
+			<input id="modelFile" name="file" type="file" />
+			<input id="upButton" type="button" value="Upload" />
+		</form>
+		<progress></progress>
+		<div style="float: right"> <input type="button" value="Done" id="uploadDone" /> </div>
+	</div>
 	</body>
 </html>

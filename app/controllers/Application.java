@@ -4,6 +4,8 @@ import bayes.ModelReader;
 import play.*;
 import play.cache.Cache;
 import play.mvc.*;
+import play.mvc.Http.*;
+import play.mvc.Http.MultipartFormData.*;
 import views.html.*;
 
 import java.io.*;
@@ -43,6 +45,25 @@ public class Application extends Controller
 
     	return ok(modelStr);
     }
+
+	public static Result uploadModel()
+	{
+		MultipartFormData body = request().body().asMultipartFormData();
+		FilePart picture = body.getFile("file");
+		if (picture != null) {
+			String fileName = picture.getFilename();
+			File file = picture.getFile();
+//			System.out.println(file.getAbsolutePath());
+//			System.out.println(file.getName());
+//			System.out.println(file.get);
+//			ModelReader modelReader = new ModelReader();
+//			String modelStr = modelReader.upload(file.getAbsolutePath(),fileName);
+			return ok("File Uploaded");
+		} else {
+			flash("error", "Missing file");
+			return ok("File NOT uploaded");
+		}
+	}
  
     public static Result setEvidence()
     {
@@ -138,7 +159,6 @@ public class Application extends Controller
     	ModelReader modelReader = new ModelReader();
     	modelReader.setNetwork(Cache.get("network"));
     	String modelName = session("modelName");
-    	
     	String cptStr = modelReader.getCPT(modelName, nodeID);
     	//System.out.println(cptStr);
     	
