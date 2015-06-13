@@ -183,42 +183,22 @@ function showUpload()
 
 	var fileName;
 
-	//$(':file').change(function(){
-	//	var file = this.files[0];
-	//	fileName = file.name;
-	//	var type = file.type;
-	//	if (type != ".xdsl") {
-	//		alert("only .xdsl file extensions will be accepted")
-	//	}
-	//});
-
-	function progressHandlingFunction(e){
-		if(e.lengthComputable){
-			$('progress').attr({value:e.loaded,max:e.total});
+	$('#modelFile').change(function(){
+		var file = this.files[0];
+		fileName = file.name;
+		if (fileName.substring(fileName.length-5,fileName.length) !== ".xdsl") {
+			alert("only .xdsl file extensions will be accepted")
 		}
-	}
-
-	$('#upButton').click(function(){
-		var formData = new FormData($('#uploadForm')[0]);
-		//console.log(formData);
-		var uploadModelAjax = jsRoutes.controllers.Application.uploadModel();
-		$.ajax({
-			url: uploadModelAjax.url,
-			type: 'POST',
-			data: formData,
-			cache: false,
-			contentType: false,
-			processData: false
-		}).done(function(data) {
-			console.log(data);
-			networkInfoArray = JSON.parse(data);
-			networkLoadModel(networkInfoArray[0]);
-			drawCharts(networkInfoArray[1]);
-
-		}).fail(function() {
-		});
+		else {
+			getUpload();
+		}
 	});
+}
 
+function progressHandlingFunction(e){
+	if(e.lengthComputable){
+		$('progress').attr({value:e.loaded,max:e.total});
+	}
 }
 
 

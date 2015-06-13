@@ -362,4 +362,32 @@ function getCPT(nodeID)
 	});
 }
 
+function getUpload()
+{
+	$('#upButton').click(function(){
+		var formData = new FormData($('#uploadForm')[0]);
+		var uploadModelAjax = jsRoutes.controllers.Application.uploadModel();
+		$.ajax({
+			url: uploadModelAjax.url,
+			type: 'POST',
+			xhr: function() {  // Custom XMLHttpRequest
+				var myXhr = $.ajaxSettings.xhr();
+				if(myXhr.upload){ // Check if upload property exists
+					myXhr.upload.addEventListener('progress',progressHandlingFunction, false); // For handling the progress of the upload
+				}
+				return myXhr;
+			},
+			data: formData,
+			cache: false,
+			contentType: false,
+			processData: false
+		}).done(function(data) {
+			console.log(data);
+			networkInfoArray = JSON.parse(data);
+			networkLoadModel(networkInfoArray[0]);
+			drawCharts(networkInfoArray[1]);
 
+		}).fail(function() {
+		});
+	});
+}
