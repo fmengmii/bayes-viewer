@@ -211,18 +211,6 @@ function showUpload()
 			processData: false
 		}).done(function(data) {
 			console.log(data);
-			//networkInfoArray = JSON.parse(data);
-			////cy.load(networkInfoArray[0]);
-			//networkLoadModel(networkInfoArray[0]);
-			//drawCharts(networkInfoArray[1]);
-            //
-			////console.log(networkInfoArray);
-            //
-			//emptyRawDataOptions();
-			//if (networkInfoArray.length > 3) {
-			//	getRawData();
-			//}
-
 			networkInfoArray = JSON.parse(data);
 			networkLoadModel(networkInfoArray[0]);
 			drawCharts(networkInfoArray[1]);
@@ -233,9 +221,4 @@ function showUpload()
 
 }
 
-function uploadModel()
-{
-	var model = document.getElementById("modelFile");
-	console.log(model.value)
 
-}

@@ -51,23 +51,18 @@ public class Application extends Controller
 		MultipartFormData body = request().body().asMultipartFormData();
 		FilePart upload = body.getFile("file");
 		if (upload != null) {
-			String fileName = upload.getFilename();
 			File file = upload.getFile();
 
 			File newFile = null;
 			try {
 				newFile = File.createTempFile("tempmodel", ".xdsl");
-//				System.out.println(newFile.getAbsoluteFile());
-//				System.out.println(file.renameTo(newFile));
 				file.renameTo(newFile);
-//				System.out.println(file.getAbsoluteFile());
-//				System.out.println(newFile.getAbsoluteFile());
 			} catch (IOException e){
 				e.printStackTrace();
 			}
 
 			ModelReader modelReader = new ModelReader();
-			String modelStr = modelReader.readUpload(newFile.getAbsolutePath(), fileName);
+			String modelStr = modelReader.readUpload(newFile.getAbsolutePath(), upload.getFilename());
 			return ok(modelStr);
 		} else {
 			flash("error", "Missing file");

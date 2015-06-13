@@ -281,7 +281,7 @@ public class ModelReader
 			network = new Network();
 			network.readFile("public/models/" + modelName);
 
-			truncateNames();;
+			truncateNames();
 			network.setName(modelName);
 		}
 	}
