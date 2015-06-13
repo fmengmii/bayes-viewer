@@ -46,25 +46,35 @@ public class Application extends Controller
     	return ok(modelStr);
     }
 
-	public static Result uploadModel()
+	public static Result uploadModel() throws IOException
 	{
 		MultipartFormData body = request().body().asMultipartFormData();
-		FilePart picture = body.getFile("file");
-		if (picture != null) {
-			String fileName = picture.getFilename();
-			File file = picture.getFile();
-//			System.out.println(file.getAbsolutePath());
-//			System.out.println(file.getName());
-//			System.out.println(file.get);
-//			ModelReader modelReader = new ModelReader();
-//			String modelStr = modelReader.upload(file.getAbsolutePath(),fileName);
-			return ok("File Uploaded");
+		FilePart upload = body.getFile("file");
+		if (upload != null) {
+			String fileName = upload.getFilename();
+			File file = upload.getFile();
+
+			File newFile = null;
+			try {
+				newFile = File.createTempFile("tempmodel", ".xdsl");
+//				System.out.println(newFile.getAbsoluteFile());
+//				System.out.println(file.renameTo(newFile));
+				file.renameTo(newFile);
+//				System.out.println(file.getAbsoluteFile());
+//				System.out.println(newFile.getAbsoluteFile());
+			} catch (IOException e){
+				e.printStackTrace();
+			}
+
+			ModelReader modelReader = new ModelReader();
+			String modelStr = modelReader.readUpload(newFile.getAbsolutePath(), fileName);
+			return ok(modelStr);
 		} else {
 			flash("error", "Missing file");
 			return ok("File NOT uploaded");
 		}
 	}
- 
+
     public static Result setEvidence()
     {
     	Map<String, String[]> values = request().body().asFormUrlEncoded();

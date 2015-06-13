@@ -223,6 +223,10 @@ function showUpload()
 			//	getRawData();
 			//}
 
+			networkInfoArray = JSON.parse(data);
+			networkLoadModel(networkInfoArray[0]);
+			drawCharts(networkInfoArray[1]);
+
 		}).fail(function() {
 		});
 	});

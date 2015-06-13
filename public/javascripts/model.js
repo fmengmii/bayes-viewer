@@ -34,6 +34,7 @@ function clearAllEvidence()
 	}).done(function(data) {
 		console.log(data);
 		networkInfoArray = JSON.parse(data);
+		networkLoadModel(networkInfoArray[0]);
 		drawCharts(networkInfoArray[1]);
 
 		$('#chartDiv').trigger('resize');
