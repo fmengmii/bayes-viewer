@@ -196,8 +196,15 @@ function showUpload()
 
 function progressHandlingFunction(e){
 	if(e.lengthComputable){
-		$('progress').attr({value:e.loaded,max:e.total});
+		var pc = parseInt(100 - (e.loaded/ e.total *100));
+		$('progress').attr({value:pc});
+		//console.log(e.loaded);
 	}
+}
+
+function closeUpload()
+{
+	$('#uploadDiv').jqxWindow('close');
 }
 
 

@@ -30,19 +30,26 @@ function getUpload()
 		$.ajax({
 			url: uploadModelAjax.url,
 			type: 'POST',
-			xhr: function() {  // Custom XMLHttpRequest
-				var myXhr = $.ajaxSettings.xhr();
-				if(myXhr.upload){ // Check if upload property exists
-					myXhr.upload.addEventListener('progress',progressHandlingFunction, false); // For handling the progress of the upload
-				}
-				return myXhr;
+			xhr: function() {
+				var xhr = new window.XMLHttpRequest();
+				xhr.upload.addEventListener("progress", function(e) {
+					if (e.lengthComputable) {
+						var pc = e.loaded/e.total*100;
+						$('progress').attr({value:pc});
+						console.log(pc);
+					}
+				}, false);
+
+				return xhr;
 			},
 			data: formData,
 			cache: false,
 			contentType: false,
 			processData: false
 		}).done(function(data) {
+			closeUpload();
 			console.log(data);
+
 			networkInfoArray = JSON.parse(data);
 			networkLoadModel(networkInfoArray[0]);
 			drawCharts(networkInfoArray[1]);
