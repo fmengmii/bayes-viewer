@@ -12,13 +12,9 @@ function loadModel(model)
 		//cy.load(networkInfoArray[0]);
 		networkLoadModel(networkInfoArray[0]);
 		drawCharts(networkInfoArray[1]);
+		getRawDataOptions();
 
 		//console.log(networkInfoArray);
-
-		emptyRawDataOptions();
-		if (networkInfoArray.length > 3) {
-			getRawData();
-		}
 
 	}).fail(function() {
 	});
@@ -26,6 +22,36 @@ function loadModel(model)
 	//cy.load({nodes:[{data: {id:'a'}},{data: {id:'b'}}],edges:[{data:{id:'ab',source:'a',target:'b'}}]});
 }
 
+function getUpload()
+{
+	$('#upButton').click(function(){
+		var formData = new FormData($('#uploadForm')[0]);
+		var uploadModelAjax = jsRoutes.controllers.Application.uploadModel();
+		$.ajax({
+			url: uploadModelAjax.url,
+			type: 'POST',
+			xhr: function() {  // Custom XMLHttpRequest
+				var myXhr = $.ajaxSettings.xhr();
+				if(myXhr.upload){ // Check if upload property exists
+					myXhr.upload.addEventListener('progress',progressHandlingFunction, false); // For handling the progress of the upload
+				}
+				return myXhr;
+			},
+			data: formData,
+			cache: false,
+			contentType: false,
+			processData: false
+		}).done(function(data) {
+			console.log(data);
+			networkInfoArray = JSON.parse(data);
+			networkLoadModel(networkInfoArray[0]);
+			drawCharts(networkInfoArray[1]);
+			getRawDataOptions();
+
+		}).fail(function() {
+		});
+	});
+}
 function clearAllEvidence()
 {
 	var clearAllEvidenceAjax = jsRoutes.controllers.Application.clearAllEvidence();
@@ -362,32 +388,10 @@ function getCPT(nodeID)
 	});
 }
 
-function getUpload()
+function getRawDataOptions()
 {
-	$('#upButton').click(function(){
-		var formData = new FormData($('#uploadForm')[0]);
-		var uploadModelAjax = jsRoutes.controllers.Application.uploadModel();
-		$.ajax({
-			url: uploadModelAjax.url,
-			type: 'POST',
-			xhr: function() {  // Custom XMLHttpRequest
-				var myXhr = $.ajaxSettings.xhr();
-				if(myXhr.upload){ // Check if upload property exists
-					myXhr.upload.addEventListener('progress',progressHandlingFunction, false); // For handling the progress of the upload
-				}
-				return myXhr;
-			},
-			data: formData,
-			cache: false,
-			contentType: false,
-			processData: false
-		}).done(function(data) {
-			console.log(data);
-			networkInfoArray = JSON.parse(data);
-			networkLoadModel(networkInfoArray[0]);
-			drawCharts(networkInfoArray[1]);
-
-		}).fail(function() {
-		});
-	});
+	emptyRawDataOptions();
+	if (networkInfoArray.length > 3) {
+		getRawData();
+	}
 }

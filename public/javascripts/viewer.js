@@ -104,7 +104,6 @@ function truncateOutcome(name)
 function getRawData()
 {
 	$("#buttonsDiv").append('<input type="button" onclick="showRawData()" value="Raw Data" id="rawDataButton" />');
-
 	$("#rawData").append('<div id="rawTable"></div>');
 	$("#rawData").append('<div style="float: right"> <input type="button" onclick="turnRawButtonOn()" value="Done" id="rawDoneButton" /> </div>');
 	turnRawButtonOn();
