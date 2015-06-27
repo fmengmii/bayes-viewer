@@ -187,11 +187,19 @@ function showUpload()
 		fileName = file.name;
 		if (fileName.substring(fileName.length-5,fileName.length) !== ".xdsl") {
 			alert("only .xdsl file extensions will be accepted")
+		}else {
+			getModelUpload();
 		}
-		else {
-			getUpload();
-		}
+
 	});
+
+	$('#dataFile').change(function(){
+		var dataFile = this.files[0];
+		fileName = dataFile.name;
+		if (fileName.substring(fileName.length-4, fileName.length) !== ".csv") {
+			alert("only .csv file extensions will be accepted")
+		}
+	})
 }
 
 function progressHandlingFunction(e){

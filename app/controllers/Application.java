@@ -49,7 +49,8 @@ public class Application extends Controller
 	public static Result uploadModel() throws IOException
 	{
 		MultipartFormData body = request().body().asMultipartFormData();
-		FilePart upload = body.getFile("file");
+		List<FilePart> files = body.getFiles();
+		FilePart upload = files.get(0);
 		if (upload != null) {
 			File file = upload.getFile();
 
@@ -63,9 +64,9 @@ public class Application extends Controller
 
 			ModelReader modelReader = new ModelReader();
 			String modelStr = modelReader.readUpload(newFile.getAbsolutePath(), upload.getFilename());
+
 			return ok(modelStr);
 		} else {
-			flash("error", "Missing file");
 			return ok("File NOT uploaded");
 		}
 	}
