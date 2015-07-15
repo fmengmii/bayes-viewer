@@ -1,9 +1,10 @@
 var networkInfoArray;
 
-
-function loadModel(model)
+function loadModel(modelName)
 {
-	var loadModelAjax = jsRoutes.controllers.Application.loadModel(model);
+	var modelPath = "public/models/" + modelName;
+	console.log(modelPath);
+	var loadModelAjax = jsRoutes.controllers.Application.loadModel(modelPath);
 	$.ajax({
 		url: loadModelAjax.url
 	}).done(function(data) {
@@ -21,16 +22,10 @@ function loadModel(model)
 
 	//cy.load({nodes:[{data: {id:'a'}},{data: {id:'b'}}],edges:[{data:{id:'ab',source:'a',target:'b'}}]});
 }
+
 function getModelUpload()
 {
 	$('#uploadButton').click(function(){
-		console.log("HI");
-		var file_data = $('#modelFile')[0].files; // for multiple files
-		var file_data2 = $('#dataFile')[0].files; // for multiple files
-		console.log(file_data.length);
-		console.log(file_data2.length);
-
-		//var formData = new FormData($('#modelForm')[0]);
 		var formData = new FormData();
 		formData.append('modelFile', $('#modelFile')[0].files[0]);
 		formData.append('dataFile', $('#dataFile')[0].files[0]);
@@ -67,82 +62,6 @@ function getModelUpload()
 		});
 	});
 }
-
-//function getModelUpload()
-//{
-//	$('#upModelButton').click(function(){
-//		var formData = new FormData($('#modelForm')[0]);
-//		var uploadModelAjax = jsRoutes.controllers.Application.uploadModel();
-//		$.ajax({
-//			url: uploadModelAjax.url,
-//			type: 'POST',
-//			xhr: function() {
-//				var xhr = new window.XMLHttpRequest();
-//				xhr.upload.addEventListener("progress", function(e) {
-//					if (e.lengthComputable) {
-//						var pc = e.loaded/e.total*100;
-//						$('modelProgress').attr({value:pc});
-//						console.log(pc);
-//					}
-//				}, false);
-//
-//				return xhr;
-//			},
-//			data: formData,
-//			cache: false,
-//			contentType: false,
-//			processData: false
-//		}).done(function(data) {
-//			//closeUpload();
-//			console.log(data);
-//
-//			networkInfoArray = JSON.parse(data);
-//			networkLoadModel(networkInfoArray[0]);
-//			drawCharts(networkInfoArray[1]);
-//			getRawDataOptions();
-//
-//		}).fail(function() {
-//		});
-//	});
-//}
-//
-//function getDataUpload()
-//{
-//	$('#upDataButton').click(function(){
-//		var formData = new FormData($('dataForm')[0]);
-//		var uploadDataAjax = jsRoutes.controllers.Application.uploadData();
-//		$.ajax({
-//			url: uploadDataAjax.url,
-//			type: 'POST',
-//			xhr: function() {
-//				var xhr = new window.XMLHttpRequest();
-//				xhr.upload.addEventListener("progress", function(e) {
-//					if (e.lengthComputable) {
-//						var pc = e.loaded/e.total*100;
-//						$('dataProgress').attr({value:pc});
-//						console.log(pc);
-//					}
-//				}, false);
-//
-//				return xhr;
-//			},
-//			data: formData,
-//			cache: false,
-//			contentType: false,
-//			processData: false
-//		}).done(function(data) {
-//			//closeUpload();
-//			console.log(data);
-//
-//			networkInfoArray = JSON.parse(data);
-//			networkLoadModel(networkInfoArray[0]);
-//			drawCharts(networkInfoArray[1]);
-//			getRawDataOptions();
-//
-//		}).fail(function() {
-//		});
-//	})
-//}
 
 function clearAllEvidence()
 {
@@ -487,3 +406,4 @@ function getRawDataOptions()
 		getRawData();
 	}
 }
+

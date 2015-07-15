@@ -35,39 +35,66 @@ public class Application extends Controller
         return ok(network.render(fileList));
     }
     
-    public static Result loadModel(String modelName)
+    public static Result loadModel(String modelPath)
     {
     	ModelReader modelReader = new ModelReader();
-    	String modelStr = modelReader.read(modelName);
+		modelReader.setModelPath(modelPath);
+    	String modelStr = modelReader.read(modelPath);
     	Object network = modelReader.getNetwork();
     	Cache.set("network", network);
-    	session("modelName", modelName);
+    	session("modelName", modelPath);
 
     	return ok(modelStr);
     }
 
 	public static Result uploadModel() throws IOException
 	{
+		ModelReader modelReader = new ModelReader();
+
 		MultipartFormData body = request().body().asMultipartFormData();
 		List<FilePart> files = body.getFiles();
-		FilePart upload = files.get(0);
-		if (upload != null) {
-			File file = upload.getFile();
 
-			File newFile = null;
-			try {
-				newFile = File.createTempFile("tempmodel", ".xdsl");
-				file.renameTo(newFile);
+		//data
+		if (files.size() > 1) {
+			FilePart dataUpload = files.get(1);
+			if (dataUpload != null) {
+				File file = dataUpload.getFile();
+				System.out.println(file.getName());
+
+				File dataTemp = null;
+				try {
+					dataTemp = File.createTempFile("tempdata", ".cvs");
+					file.renameTo(dataTemp);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+				modelReader.setDataUploadPath(dataTemp.getAbsolutePath());
+
+			}
+		}
+
+		//model
+		FilePart modelUpload = files.get(0);
+		if (modelUpload != null)
+		{
+			File file = modelUpload.getFile();
+			File modelTemp = null;
+			try
+			{
+				modelTemp = File.createTempFile("tempmodel", ".xdsl");
+				file.renameTo(modelTemp);
 			} catch (IOException e){
 				e.printStackTrace();
 			}
-
-			ModelReader modelReader = new ModelReader();
-			String modelStr = modelReader.readUpload(newFile.getAbsolutePath(), upload.getFilename());
+			String modelStr = modelReader.readUpload(modelTemp.getAbsolutePath(), modelUpload.getFilename());
+			Object network = modelReader.getNetwork();
+			Cache.set("network", network);
+			session("modelName", modelTemp.getAbsolutePath());
 
 			return ok(modelStr);
 		} else {
-			return ok("File NOT uploaded");
+			return ok("Model file NOT uploaded");
 		}
 	}
 
@@ -115,6 +142,7 @@ public class Application extends Controller
     	ModelReader modelReader = new ModelReader();
     	modelReader.setNetwork(Cache.get("network"));
     	String modelName = session("modelName");
+		System.out.println(modelName);
     	String modelStr = modelReader.clearAllEvidence(modelName);
     	
     	return ok(modelStr);
@@ -170,4 +198,5 @@ public class Application extends Controller
     	
     	return ok(cptStr);
     }
+
 }

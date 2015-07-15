@@ -13,6 +13,8 @@ public class ModelReader
 {
 	private Network network;
 	private Gson gson;
+	private String modelPath;
+	private String rawDataPath;
 
 	public ModelReader()
 	{
@@ -28,10 +30,14 @@ public class ModelReader
 	{
 		this.network = (Network) network;
 	}
+
+	public void setModelPath(String path) {this.modelPath = path;}
+
+	public void setDataUploadPath(String path) { this.rawDataPath = path;}
 	
-	public String read(String modelName)
+	public String read(String modelPath)
 	{
-		loadModel(modelName);
+		loadModel(modelPath);
 		return getModelStr();
 	}
 
@@ -131,18 +137,16 @@ public class ModelReader
 			strBlder.append(", [{\"modelname\":\"" + modelName +"\"}]");
 
 			//raw data column names
-			String csvFile = "public/raw-data/" + modelName + ".csv";
+			String csvFile = rawDataPath;
 			BufferedReader br = null;
 			String line = "";
-
 			try {
-
 				br = new BufferedReader(new FileReader(csvFile));
 				line = br.readLine();
-				String[] columnNames = line.split(",");
 
+				String[] columnNames = line.split(",");
 				strBlder.append(", [{\"columnnames\":[");
-				for (int i=0; i<columnNames.length; i++) {
+				for (int i = 0; i < columnNames.length; i++) {
 					if (i > 0) {
 						strBlder.append(",");
 					}
@@ -173,7 +177,7 @@ public class ModelReader
 		strBlder.append("]");
 		return strBlder.toString();
 	}
-	
+
 	public String setEvidence(String modelName, String nodeID, String outcomeID)
 	{
 		loadModel(modelName);
@@ -279,7 +283,7 @@ public class ModelReader
 	{
 		if (network == null) {
 			network = new Network();
-			network.readFile("public/models/" + modelName);
+			network.readFile(modelName);
 
 			truncateNames();
 			network.setName(modelName);

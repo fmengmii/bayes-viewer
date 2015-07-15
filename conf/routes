@@ -4,7 +4,7 @@
 
 # Home page
 GET         /                                   controllers.Application.index()
-GET         /model/load/:name                   controllers.Application.loadModel(name : String)
+GET         /model/load/:path                   controllers.Application.loadModel(path : String)
 POST        /model/setevidence                  controllers.Application.setEvidence()
 POST        /model/setvirtualevidence           controllers.Application.setVirtualEvidence()
 GET         /model/clearallevidence             controllers.Application.clearAllEvidence()
