@@ -63,7 +63,7 @@ public class Application extends Controller
 
 				File dataTemp = null;
 				try {
-					dataTemp = File.createTempFile("tempdata", ".cvs");
+					dataTemp = File.createTempFile("tempdata", ".csv");
 					file.renameTo(dataTemp);
 				} catch (IOException e) {
 					e.printStackTrace();

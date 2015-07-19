@@ -173,8 +173,9 @@ public class ModelReader
 		{
 			e.printStackTrace();
 		}
-		
+
 		strBlder.append("]");
+
 		return strBlder.toString();
 	}
 
@@ -279,6 +280,13 @@ public class ModelReader
 		return strBlder.toString();
 	}
 	
+	public String getRawDataPath(String modelName)
+	{
+		loadModel(modelName);
+
+		String path = "";
+		return path;
+	}
 	private void loadModel(String modelName)
 	{
 		if (network == null) {

@@ -13,7 +13,7 @@ function loadModel(modelName)
 		//cy.load(networkInfoArray[0]);
 		networkLoadModel(networkInfoArray[0]);
 		drawCharts(networkInfoArray[1]);
-		getRawDataOptions();
+		getRawDataOptions("load");
 
 		//console.log(networkInfoArray);
 
@@ -25,10 +25,12 @@ function loadModel(modelName)
 
 function getModelUpload()
 {
+	//var loaded = "no";
 	$('#uploadButton').click(function(){
 		var formData = new FormData();
 		formData.append('modelFile', $('#modelFile')[0].files[0]);
-		formData.append('dataFile', $('#dataFile')[0].files[0]);
+		//formData.append('dataFile', $('#dataFile')[0].files[0]);
+		console.log($('#dataFile')[0].files[0]);
 		var uploadModelAjax = jsRoutes.controllers.Application.uploadModel();
 		$.ajax({
 			url: uploadModelAjax.url,
@@ -56,7 +58,7 @@ function getModelUpload()
 			networkInfoArray = JSON.parse(data);
 			networkLoadModel(networkInfoArray[0]);
 			drawCharts(networkInfoArray[1]);
-			getRawDataOptions();
+			//getRawDataOptions("upload");
 
 		}).fail(function() {
 		});
@@ -399,11 +401,4 @@ function getCPT(nodeID)
 	});
 }
 
-function getRawDataOptions()
-{
-	emptyRawDataOptions();
-	if (networkInfoArray.length > 3) {
-		getRawData();
-	}
-}
 
