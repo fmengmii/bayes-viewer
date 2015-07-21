@@ -56,7 +56,7 @@
 
 	<body>
 	<div id="buttonsDiv">
-	<select id="load" onclick="loadModel(this.options[this.selectedIndex].value)">
+	<select id="load" onChange="loadModel(this.options[this.selectedIndex].value)">
 		<option selected disabled hidden value=''></option>
 		@for(model <- models) {
 		<option value="@model">@model</option>

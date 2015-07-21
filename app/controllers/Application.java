@@ -54,27 +54,6 @@ public class Application extends Controller
 		MultipartFormData body = request().body().asMultipartFormData();
 		List<FilePart> files = body.getFiles();
 
-		//data
-		if (files.size() > 1) {
-			FilePart dataUpload = files.get(1);
-			if (dataUpload != null) {
-				File file = dataUpload.getFile();
-				System.out.println(file.getName());
-
-				File dataTemp = null;
-				try {
-					dataTemp = File.createTempFile("tempdata", ".csv");
-					file.renameTo(dataTemp);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-				modelReader.setDataUploadPath(dataTemp.getAbsolutePath());
-
-			}
-		}
-
-		//model
 		FilePart modelUpload = files.get(0);
 		if (modelUpload != null)
 		{

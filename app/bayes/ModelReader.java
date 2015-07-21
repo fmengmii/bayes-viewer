@@ -14,7 +14,6 @@ public class ModelReader
 	private Network network;
 	private Gson gson;
 	private String modelPath;
-	private String rawDataPath;
 
 	public ModelReader()
 	{
@@ -33,7 +32,6 @@ public class ModelReader
 
 	public void setModelPath(String path) {this.modelPath = path;}
 
-	public void setDataUploadPath(String path) { this.rawDataPath = path;}
 	
 	public String read(String modelPath)
 	{
@@ -130,14 +128,15 @@ public class ModelReader
 
 			strBlder.append("]");
 
-			String modelName = network.getName();
-			modelName = modelName.substring(0,modelName.length()-5);
-
 			//model name
+			String modelPath = network.getName();
+			String[]tokens = modelPath.split("/|\\\\");
+			String modelName = tokens[tokens.length-1];
+			modelName = modelName.substring(0,modelName.length()-5);
 			strBlder.append(", [{\"modelname\":\"" + modelName +"\"}]");
 
 			//raw data column names
-			String csvFile = rawDataPath;
+			String csvFile = "public/raw-data/" + modelName + ".csv";
 			BufferedReader br = null;
 			String line = "";
 			try {
@@ -279,14 +278,7 @@ public class ModelReader
 		
 		return strBlder.toString();
 	}
-	
-	public String getRawDataPath(String modelName)
-	{
-		loadModel(modelName);
 
-		String path = "";
-		return path;
-	}
 	private void loadModel(String modelName)
 	{
 		if (network == null) {
