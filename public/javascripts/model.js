@@ -3,7 +3,7 @@ var networkInfoArray;
 function loadModel(modelName)
 {
 	var modelPath = "public/models/" + modelName;
-	console.log(modelPath);
+	//console.log(modelPath);
 	var loadModelAjax = jsRoutes.controllers.Application.loadModel(modelPath);
 	$.ajax({
 		url: loadModelAjax.url
@@ -25,12 +25,12 @@ function loadModel(modelName)
 
 function getModelUpload()
 {
-	//var loaded = "no";
-	$('#uploadButton').click(function(){
+
+	//$('#uploadButton').click(function(){
 		var formData = new FormData();
 		formData.append('modelFile', $('#modelFile')[0].files[0]);
 		//formData.append('dataFile', $('#dataFile')[0].files[0]);
-		console.log($('#dataFile')[0].files[0]);
+		//console.log($('#dataFile')[0].files[0]);
 		var uploadModelAjax = jsRoutes.controllers.Application.uploadModel();
 		$.ajax({
 			url: uploadModelAjax.url,
@@ -53,7 +53,7 @@ function getModelUpload()
 			processData: false
 		}).done(function(data) {
 			//closeUpload();
-			console.log(data);
+			//console.log(data);
 
 			networkInfoArray = JSON.parse(data);
 			networkLoadModel(networkInfoArray[0]);
@@ -62,7 +62,7 @@ function getModelUpload()
 
 		}).fail(function() {
 		});
-	});
+	//});
 }
 
 function clearAllEvidence()

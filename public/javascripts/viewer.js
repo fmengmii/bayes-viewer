@@ -105,8 +105,9 @@ function getRawData(type)
 {
 	$("#buttonsDiv").append('<input type="button" onclick="showRawData()" value="Raw Data" id="rawDataButton" />');
 	$("#rawData").append('<div id="rawTable"></div>');
-	$("#rawData").append('<div style="float: right"> <input type="button" onclick="turnRawButtonOn()" value="Done" id="rawDoneButton" /> </div>');
-	turnRawButtonOn();
+	$("#rawData").append('<div style="float: right"> <input type="button" value="Done" id="rawDoneButton" /> </div>');
+	$("#rawDataButton").attr("disabled", false);
+
 	$('#rawData').jqxWindow({
 		width: 600, height: 400, resizable: true,
 		okButton: $("#rawDoneButton"), autoOpen: false
@@ -193,24 +194,22 @@ function emptyRawDataOptions()
 function getRawDataOptions(type)
 {
 	emptyRawDataOptions();
-	if (networkInfoArray.length > 3 || type==="upload") {
+	if (type==="upload" || networkInfoArray.length > 3 ) {
 		getRawData(type);
 	}
 }
 
 function showRawData()
 {
-	$("#rawDataButton").attr("disabled", true);
 	$("#rawData").jqxWindow('open');
 }
 
-function turnRawButtonOn()
-{
-	$("#rawDataButton").attr("disabled", false);
-}
 
 function showUpload()
 {
+	$('#modelForm').trigger("reset");
+	$('#dataForm').trigger("reset");
+
 	$('#uploadDiv').jqxWindow({
 		width: 400, height: 100, resizable: true,
 		okButton: $("#uploadDone"),
@@ -227,6 +226,7 @@ function showUpload()
 		fileName = file.name;
 		if (fileName.substring(fileName.length-5,fileName.length) !== ".xdsl") {
 			alert("only .xdsl file extensions will be accepted")
+			$('#modelForm').trigger("reset");
 		}
 		else {
 			getModelUpload();
@@ -240,6 +240,7 @@ function showUpload()
 		if (dataFileName.substring(dataFileName.length-4, dataFileName.length) !== ".csv") {
 			alert("only .csv file extensions will be accepted")
 			emptyRawDataOptions();
+			$('#dataForm').trigger('reset');
 		}
 		else {
 			getRawDataOptions("upload");
@@ -255,10 +256,6 @@ function progressHandlingFunction(e){
 	}
 }
 
-function closeUpload()
-{
-	$('#uploadDiv').jqxWindow('close');
-}
 
 function csvToJSON(csv){
 
