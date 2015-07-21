@@ -221,7 +221,7 @@ function showUpload()
 
 	var fileName;
 
-	$('#modelFile').change(function(){
+	$('#modelFile').one('change', function() {
 		var file = this.files[0];
 		fileName = file.name;
 		if (fileName.substring(fileName.length-5,fileName.length) !== ".xdsl") {
@@ -234,7 +234,7 @@ function showUpload()
 
 	});
 
-	$('#dataFile').change(function(){
+	$('#dataFile').one('change', function() {
 		var dataFile = this.files[0];
 		var dataFileName = dataFile.name;
 		if (dataFileName.substring(dataFileName.length-4, dataFileName.length) !== ".csv") {
