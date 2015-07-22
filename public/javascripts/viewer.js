@@ -211,7 +211,7 @@ function showUpload()
 	$('#dataForm').trigger("reset");
 
 	$('#uploadDiv').jqxWindow({
-		width: 400, height: 100, resizable: true,
+		width: 400, height: 175, resizable: true,
 		okButton: $("#uploadDone"),
 		autoOpen: true
 	});

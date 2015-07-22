@@ -113,13 +113,21 @@
     </div>
     <div id="rawData"></div>
 	<div id="uploadDiv">
-		<form enctype="multipart/form-data" id="modelForm">
-			<input id="modelFile" name="modelFile" type="file" />
-			@*<input id="dataFile" name="dataFile" type="file" />*@
-		</form>
-		<form enctype="multipart/form-data" id="dataForm">
-			<input id="dataFile" name="dataFile" type="file" />
-		</form>
+		<ol type="1">
+			<li>
+				<p> Select your model file: </p>
+				<form enctype="multipart/form-data" id="modelForm">
+					<input id="modelFile" name="modelFile" type="file" />
+					@*<input id="dataFile" name="dataFile" type="file" />*@
+				</form>
+			</li>
+			<li>
+				<p> Select your model's raw data file (optional): </p>
+				<form enctype="multipart/form-data" id="dataForm">
+					<input id="dataFile" name="dataFile" type="file" />
+				</form>
+			</li>
+		</ol>
 		@*<progress id ="modelProgress" value="0" max="100"></progress>*@
 		@*<input id="uploadButton" type="button" value="Upload" />*@
 		<div style="float: right"> <input type="button" value="Done" id="uploadDone" /> </div>
