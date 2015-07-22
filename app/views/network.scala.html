@@ -118,7 +118,6 @@
 				<p> Select your model file: </p>
 				<form enctype="multipart/form-data" id="modelForm">
 					<input id="modelFile" name="modelFile" type="file" />
-					@*<input id="dataFile" name="dataFile" type="file" />*@
 				</form>
 			</li>
 			<li>
@@ -129,7 +128,7 @@
 			</li>
 		</ol>
 		@*<progress id ="modelProgress" value="0" max="100"></progress>*@
-		@*<input id="uploadButton" type="button" value="Upload" />*@
+		<input id="uploadButton" type="button" onClick="getModelUpload()" value="Upload" />
 		<div style="float: right"> <input type="button" value="Done" id="uploadDone" /> </div>
 	</div>
 	</body>

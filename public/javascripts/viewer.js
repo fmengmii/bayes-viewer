@@ -211,7 +211,7 @@ function showUpload()
 	$('#dataForm').trigger("reset");
 
 	$('#uploadDiv').jqxWindow({
-		width: 400, height: 175, resizable: true,
+		width: 400, height: 200, resizable: true,
 		okButton: $("#uploadDone"),
 		autoOpen: true
 	});
@@ -221,20 +221,20 @@ function showUpload()
 
 	var fileName;
 
-	$('#modelFile').one('change', function() {
+	$('#modelFile').change(function() {
 		var file = this.files[0];
 		fileName = file.name;
 		if (fileName.substring(fileName.length-5,fileName.length) !== ".xdsl") {
 			alert("only .xdsl file extensions will be accepted")
 			$('#modelForm').trigger("reset");
 		}
-		else {
-			getModelUpload();
-		}
+		//else {
+		//	getModelUpload();
+		//}
 
 	});
 
-	$('#dataFile').one('change', function() {
+	$('#dataFile').change(function() {
 		var dataFile = this.files[0];
 		var dataFileName = dataFile.name;
 		if (dataFileName.substring(dataFileName.length-4, dataFileName.length) !== ".csv") {
@@ -242,20 +242,11 @@ function showUpload()
 			emptyRawDataOptions();
 			$('#dataForm').trigger('reset');
 		}
-		else {
-			getRawDataOptions("upload");
-		}
+		//else {
+		//	getRawDataOptions("upload");
+		//}
 	});
 }
-
-function progressHandlingFunction(e){
-	if(e.lengthComputable){
-		var pc = parseInt(100 - (e.loaded/ e.total *100));
-		$('progress').attr({value:pc});
-		//console.log(e.loaded);
-	}
-}
-
 
 function csvToJSON(csv){
 

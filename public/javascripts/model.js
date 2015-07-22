@@ -3,7 +3,6 @@ var networkInfoArray;
 function loadModel(modelName)
 {
 	var modelPath = "public/models/" + modelName;
-	//console.log(modelPath);
 	var loadModelAjax = jsRoutes.controllers.Application.loadModel(modelPath);
 	$.ajax({
 		url: loadModelAjax.url
@@ -25,44 +24,24 @@ function loadModel(modelName)
 
 function getModelUpload()
 {
-
-	//$('#uploadButton').click(function(){
-		var formData = new FormData();
-		formData.append('modelFile', $('#modelFile')[0].files[0]);
-		//formData.append('dataFile', $('#dataFile')[0].files[0]);
-		//console.log($('#dataFile')[0].files[0]);
-		var uploadModelAjax = jsRoutes.controllers.Application.uploadModel();
-		$.ajax({
-			url: uploadModelAjax.url,
-			type: 'POST',
-			xhr: function() {
-				var xhr = new window.XMLHttpRequest();
-				xhr.upload.addEventListener("progress", function(e) {
-					if (e.lengthComputable) {
-						var pc = e.loaded/e.total*100;
-						$('modelProgress').attr({value:pc});
-						console.log(pc);
-					}
-				}, false);
-
-				return xhr;
-			},
-			data: formData,
-			cache: false,
-			contentType: false,
-			processData: false
-		}).done(function(data) {
-			//closeUpload();
-			//console.log(data);
-
-			networkInfoArray = JSON.parse(data);
-			networkLoadModel(networkInfoArray[0]);
-			drawCharts(networkInfoArray[1]);
-			//getRawDataOptions("upload");
-
-		}).fail(function() {
-		});
-	//});
+	var formData = new FormData();
+	formData.append('modelFile', $('#modelFile')[0].files[0]);
+	var uploadModelAjax = jsRoutes.controllers.Application.uploadModel();
+	$.ajax({
+		url: uploadModelAjax.url,
+		type: 'POST',
+		data: formData,
+		cache: false,
+		contentType: false,
+		processData: false
+	}).done(function(data) {
+		console.log(data);
+		networkInfoArray = JSON.parse(data);
+		networkLoadModel(networkInfoArray[0]);
+		drawCharts(networkInfoArray[1]);
+		getRawDataOptions("upload");
+	}).fail(function() {
+	});
 }
 
 function clearAllEvidence()
