@@ -101,45 +101,79 @@ function truncateOutcome(name)
 	return truncated;
 }
 
-function getRawData()
+function getRawData(type)
 {
 	$("#buttonsDiv").append('<input type="button" onclick="showRawData()" value="Raw Data" id="rawDataButton" />');
-
 	$("#rawData").append('<div id="rawTable"></div>');
-	$("#rawData").append('<div style="float: right"> <input type="button" onclick="turnRawButtonOn()" value="Done" id="rawDoneButton" /> </div>');
-	turnRawButtonOn();
+	$("#rawData").append('<div style="float: right"> <input type="button" value="Done" id="rawDoneButton" /> </div>');
+	$("#rawDataButton").attr("disabled", false);
+
 	$('#rawData').jqxWindow({
 		width: 600, height: 400, resizable: true,
 		okButton: $("#rawDoneButton"), autoOpen: false
-
 	});
-
-	var columns = networkInfoArray[3][0].columnnames;
-	console.log(columns);
 	var name = networkInfoArray[2][0].modelname;
 	$('#rawData').jqxWindow("setTitle", name);
 
-	var url = "assets/raw-data/" + name + ".csv";
-	var data = [];
+	var fields = [];
 	var columnStruct = [];
+
+	if (type === "load"){
+		var url = "assets/raw-data/" + name + ".csv";
+		var columns = networkInfoArray[3][0].columnnames;
+
+		createColumnStruct(columns,fields,columnStruct);
+
+		var source = {
+			dataType: "csv",
+			dataFields: fields,
+			url: url
+		};
+
+		createRawTable(source,columnStruct);
+	}
+	else {
+		var reader = new FileReader();
+		reader.onload = function(e)
+		{
+			var lines = reader.result.split('\n');
+			var colNames = lines[0].split(',');
+
+			createColumnStruct(colNames,fields,columnStruct);
+
+			var data = csvToJSON(reader.result);
+			var source =
+			{
+				dataType: "json",
+				dataFields: fields,
+				localData: data
+
+			};
+
+			createRawTable(source,columnStruct);
+		};
+		reader.readAsText($('#dataFile')[0].files[0]);
+	}
+
+	$("#rawTable").on('bindingComplete', function () {
+		$("#rawTable").jqxDataTable('deleteRow', 0);
+	});
+}
+
+function createColumnStruct(columns,fields,columnStruct) {
 	for (var i=0; i<columns.length; i++) {
-		data[i] = {};
-		data[i]["name"] = columns[i];
-		data[i]["type"] = "float";
+		fields[i] = {};
+		fields[i]["name"] = columns[i];
+		fields[i]["type"] = "float";
 
 		columnStruct[i] = {};
 		columnStruct[i]["text"] = columns[i];
 		columnStruct[i]["dataField"] = columns[i];
 		columnStruct[i]["cellsFormat"] = 'f';
 	}
+}
 
-	var source =
-	{
-		dataType: "csv",
-		dataFields: data,
-		url: url
-	};
-
+function createRawTable(source, columnStruct) {
 	var dataAdapter = new $.jqx.dataAdapter(source);
 	$("#rawTable").jqxDataTable(
 		{
@@ -149,9 +183,6 @@ function getRawData()
 			columnsResize: true,
 			columns: columnStruct
 		});
-	$("#rawTable").on('bindingComplete', function () {
-		$("#rawTable").jqxDataTable('deleteRow', 0);
-	});
 }
 
 function emptyRawDataOptions()
@@ -160,13 +191,82 @@ function emptyRawDataOptions()
 	$("#rawDataButton").remove();
 }
 
+function getRawDataOptions(type)
+{
+	emptyRawDataOptions();
+	if (type==="upload" || networkInfoArray.length > 3 ) {
+		getRawData(type);
+	}
+}
+
 function showRawData()
 {
-	$("#rawDataButton").attr("disabled", true);
 	$("#rawData").jqxWindow('open');
 }
 
-function turnRawButtonOn()
+
+function showUpload()
 {
-	$("#rawDataButton").attr("disabled", false);
+	$('#modelForm').trigger("reset");
+	$('#dataForm').trigger("reset");
+
+	$('#uploadDiv').jqxWindow({
+		width: 400, height: 200, resizable: true,
+		okButton: $("#uploadDone"),
+		autoOpen: true
+	});
+	$('#uploadDiv').jqxWindow("setTitle", "Upload a model");
+
+	$('#uploadDiv').jqxWindow('open');
+
+	var fileName;
+
+	$('#modelFile').change(function() {
+		var file = this.files[0];
+		fileName = file.name;
+		if (fileName.substring(fileName.length-5,fileName.length) !== ".xdsl") {
+			alert("only .xdsl file extensions will be accepted")
+			$('#modelForm').trigger("reset");
+		}
+		//else {
+		//	getModelUpload();
+		//}
+
+	});
+
+	$('#dataFile').change(function() {
+		var dataFile = this.files[0];
+		var dataFileName = dataFile.name;
+		if (dataFileName.substring(dataFileName.length-4, dataFileName.length) !== ".csv") {
+			alert("only .csv file extensions will be accepted")
+			emptyRawDataOptions();
+			$('#dataForm').trigger('reset');
+		}
+		//else {
+		//	getRawDataOptions("upload");
+		//}
+	});
+}
+
+function csvToJSON(csv){
+
+	var lines=csv.split("\n");
+	var result = [];
+	var headers=lines[0].split(",");
+
+	for(var i=1;i<lines.length;i++){
+		var obj = {};
+		var currentline=lines[i].split(",");
+
+		for(var j=0;j<headers.length;j++){
+			obj[headers[j]] = currentline[j];
+		}
+
+		result.push(obj);
+
+	}
+
+	console.log(result);
+	//return result; //JavaScript object
+	return JSON.stringify(result); //JSON
 }

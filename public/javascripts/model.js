@@ -1,9 +1,9 @@
 var networkInfoArray;
 
-
-function loadModel(model)
+function loadModel(modelName)
 {
-	var loadModelAjax = jsRoutes.controllers.Application.loadModel(model);
+	var modelPath = "public/models/" + modelName;
+	var loadModelAjax = jsRoutes.controllers.Application.loadModel(modelPath);
 	$.ajax({
 		url: loadModelAjax.url
 	}).done(function(data) {
@@ -12,18 +12,36 @@ function loadModel(model)
 		//cy.load(networkInfoArray[0]);
 		networkLoadModel(networkInfoArray[0]);
 		drawCharts(networkInfoArray[1]);
+		getRawDataOptions("load");
 
 		//console.log(networkInfoArray);
-
-		emptyRawDataOptions();
-		if (networkInfoArray.length > 3) {
-			getRawData();
-		}
 
 	}).fail(function() {
 	});
 
 	//cy.load({nodes:[{data: {id:'a'}},{data: {id:'b'}}],edges:[{data:{id:'ab',source:'a',target:'b'}}]});
+}
+
+function getModelUpload()
+{
+	var formData = new FormData();
+	formData.append('modelFile', $('#modelFile')[0].files[0]);
+	var uploadModelAjax = jsRoutes.controllers.Application.uploadModel();
+	$.ajax({
+		url: uploadModelAjax.url,
+		type: 'POST',
+		data: formData,
+		cache: false,
+		contentType: false,
+		processData: false
+	}).done(function(data) {
+		console.log(data);
+		networkInfoArray = JSON.parse(data);
+		networkLoadModel(networkInfoArray[0]);
+		drawCharts(networkInfoArray[1]);
+		getRawDataOptions("upload");
+	}).fail(function() {
+	});
 }
 
 function clearAllEvidence()
@@ -34,6 +52,7 @@ function clearAllEvidence()
 	}).done(function(data) {
 		console.log(data);
 		networkInfoArray = JSON.parse(data);
+		networkLoadModel(networkInfoArray[0]);
 		drawCharts(networkInfoArray[1]);
 
 		$('#chartDiv').trigger('resize');
@@ -360,3 +379,5 @@ function getCPT(nodeID)
 	}).fail(function() {
 	});
 }
+
+

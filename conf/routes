@@ -4,7 +4,7 @@
 
 # Home page
 GET         /                                   controllers.Application.index()
-GET         /model/load/:name                   controllers.Application.loadModel(name : String)
+GET         /model/load/:path                   controllers.Application.loadModel(path : String)
 POST        /model/setevidence                  controllers.Application.setEvidence()
 POST        /model/setvirtualevidence           controllers.Application.setVirtualEvidence()
 GET         /model/clearallevidence             controllers.Application.clearAllEvidence()
@@ -13,7 +13,7 @@ GET         /model/setastarget/:nodeID          controllers.Application.setAsTar
 GET         /model/removetarget/:nodeID         controllers.Application.removeTarget(nodeID: String)
 GET         /model/clearalltargets              controllers.Application.clearAllTargets()
 GET         /model/cpt/:nodeID                  controllers.Application.getCPT(nodeID: String)
-
+POST        /model/uploadmodel                  controllers.Application.uploadModel()
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                       controllers.Assets.at(path="/public", file)

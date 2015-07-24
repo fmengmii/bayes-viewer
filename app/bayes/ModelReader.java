@@ -13,6 +13,7 @@ public class ModelReader
 {
 	private Network network;
 	private Gson gson;
+	private String modelPath;
 
 	public ModelReader()
 	{
@@ -28,10 +29,19 @@ public class ModelReader
 	{
 		this.network = (Network) network;
 	}
+
+	public void setModelPath(String path) {this.modelPath = path;}
+
 	
-	public String read(String modelName)
+	public String read(String modelPath)
 	{
-		loadModel(modelName);
+		loadModel(modelPath);
+		return getModelStr();
+	}
+
+	public String readUpload(String modelPath, String modelName)
+	{
+		uploadModel(modelPath, modelName);
 		return getModelStr();
 	}
 	
@@ -118,25 +128,24 @@ public class ModelReader
 
 			strBlder.append("]");
 
-			String modelName = network.getName();
-			modelName = modelName.substring(0,modelName.length()-5);
-
 			//model name
+			String modelPath = network.getName();
+			String[]tokens = modelPath.split("/|\\\\");
+			String modelName = tokens[tokens.length-1];
+			modelName = modelName.substring(0,modelName.length()-5);
 			strBlder.append(", [{\"modelname\":\"" + modelName +"\"}]");
 
 			//raw data column names
 			String csvFile = "public/raw-data/" + modelName + ".csv";
 			BufferedReader br = null;
 			String line = "";
-
 			try {
-
 				br = new BufferedReader(new FileReader(csvFile));
 				line = br.readLine();
-				String[] columnNames = line.split(",");
 
+				String[] columnNames = line.split(",");
 				strBlder.append(", [{\"columnnames\":[");
-				for (int i=0; i<columnNames.length; i++) {
+				for (int i = 0; i < columnNames.length; i++) {
 					if (i > 0) {
 						strBlder.append(",");
 					}
@@ -163,11 +172,12 @@ public class ModelReader
 		{
 			e.printStackTrace();
 		}
-		
+
 		strBlder.append("]");
+
 		return strBlder.toString();
 	}
-	
+
 	public String setEvidence(String modelName, String nodeID, String outcomeID)
 	{
 		loadModel(modelName);
@@ -268,28 +278,44 @@ public class ModelReader
 		
 		return strBlder.toString();
 	}
-	
+
 	private void loadModel(String modelName)
 	{
 		if (network == null) {
 			network = new Network();
-			network.readFile("public/models/" + modelName);
+			network.readFile(modelName);
 
-			int[] nodes = network.getAllNodes();
-			int maxLength = 10;
-			for (int i=0; i<nodes.length; i++) {
-				int node = nodes[i];
-				String nodeID = network.getNodeId(node);
-				String nodeName = network.getNodeName(node);
-
-				if (nodeName.length() > maxLength) {
-					nodeName = nodeName.substring(0, maxLength);
-				} else {
-					nodeName = String.format("%-" + maxLength + "s", nodeName);
-				}
-				network.setNodeName(nodeID, nodeName);
-			}
+			truncateNames();
 			network.setName(modelName);
 		}
 	}
+
+	private void uploadModel(String modelPath, String modelName)
+	{
+		if (network == null) {
+			network = new Network();
+			network.readFile(modelPath);
+
+			truncateNames();
+			network.setName(modelName);
+		}
+	}
+
+	private void truncateNames() {
+		int[] nodes = network.getAllNodes();
+		int maxLength = 10;
+		for (int i=0; i<nodes.length; i++) {
+			int node = nodes[i];
+			String nodeID = network.getNodeId(node);
+			String nodeName = network.getNodeName(node);
+
+			if (nodeName.length() > maxLength) {
+				nodeName = nodeName.substring(0, maxLength);
+			} else {
+				nodeName = String.format("%-" + maxLength + "s", nodeName);
+			}
+			network.setNodeName(nodeID, nodeName);
+		}
+	}
+
 }
