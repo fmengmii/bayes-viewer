@@ -216,7 +216,7 @@ function getRawData(type)
 	$("#rawDataButton").attr("disabled", false);
 
 	$('#rawData').jqxWindow({
-		width: 600, height: 400, resizable: true,
+		width: 600, height: 400, resizable: false,
 		okButton: $("#rawDoneButton"), autoOpen: false
 	});
 	var name = networkInfoArray[2][0].modelname;
@@ -261,10 +261,6 @@ function getRawData(type)
 		};
 		reader.readAsText($('#dataFile')[0].files[0]);
 	}
-
-	$("#rawTable").on('bindingComplete', function () {
-		$("#rawTable").jqxDataTable('deleteRow', 0);
-	});
 }
 
 function createColumnStruct(columns,fields,columnStruct) {
@@ -282,7 +278,7 @@ function createColumnStruct(columns,fields,columnStruct) {
 
 function createRawTable(source, columnStruct) {
 	var dataAdapter = new $.jqx.dataAdapter(source);
-	$("#rawTable").jqxDataTable(
+	$("#rawTable").jqxGrid(
 		{
 			width: 550,
 			height: 350,
