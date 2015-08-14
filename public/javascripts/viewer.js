@@ -198,6 +198,7 @@ function showRawData()
 {
 	$("#rawData").jqxWindow('open');
 }
+
 function getRawDataOptions(type)
 {
 	$("#rawDataButton").remove();
@@ -256,6 +257,7 @@ function getRawData(type)
 }
 
 function createColumnStruct(columns,fields,columnStruct) {
+	// specific for raw data table view
 	for (var i=0; i<columns.length; i++) {
 		fields[i] = {};
 		fields[i]["name"] = columns[i];
