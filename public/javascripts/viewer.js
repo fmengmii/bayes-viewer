@@ -2,35 +2,39 @@
 $(document).ready(function () {
 //$(function() {
 	//init widgets (dialog window, split pane, etc)
-   $('#splitter').jqxSplitter({ width: '100%', height: '100%', panels: [{ size: '80%', min: 250 }, { size: '20%', min: 300}] });
-   $('#splitter').on('resize', function(ev) {
-	  cy.resize(); 
-   });
-   $("#chartJQXPanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
-   
-   
-   $('#dialogSetValues').jqxWindow({  width: 600,
-       height: 400, resizable: true,
-       okButton: $('#doneButton'), autoOpen: false
-   });
-   $('#dialogSetValues').on('close', function (event) {
-	   if (event.args.dialogResult.OK) {
-		   console.log("OK!");
-	   }
-   });
-   
-   //$('#dialogSetValues').jqxWindow('close');
+	$('#splitter').jqxSplitter({ width: '100%', height: '100%', panels: [{ size: '80%', min: 250 }, { size: '20%', min: 300}] });
+	$('#splitter').on('resize', function(ev) {
+		cy.resize();
+	});
+	$("#chartJQXPanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
 
-   $("#nodeMenu").jqxMenu({ width: '140px', height: '120px', autoOpenPopup: false, mode: 'popup'});
-   
-   $('#dialogTabs').jqxTabs({ width: '100%', height: 300, position: 'top'});
-   $("#dialogGeneralPanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
-   $("#dialogSetEvidencePanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
-   $("#dialogSetVirtualEvidencePanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
+
+	$('#dialogSetValues').jqxWindow({  width: 600,
+		height: 400, resizable: true,
+		okButton: $('#doneButton'), autoOpen: false
+	});
+	$('#dialogSetValues').on('close', function (event) {
+		if (event.args.dialogResult.OK) {
+			console.log("OK!");
+		}
+	});
+	$('#rawData').jqxWindow({
+		width: 600, height: 400, resizable: true,
+		okButton: $("#rawDoneButton"), autoOpen: false
+	});
+
+	//$('#dialogSetValues').jqxWindow('close');
+
+	$("#nodeMenu").jqxMenu({ width: '140px', height: '120px', autoOpenPopup: false, mode: 'popup'});
+
+	$('#dialogTabs').jqxTabs({ width: '100%', height: 300, position: 'top'});
+	$("#dialogGeneralPanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
+	$("#dialogSetEvidencePanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
+	$("#dialogSetVirtualEvidencePanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
 	$("#dialogDefinitionPanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
 
 	//freewall
-   	wall = new freewall("#chartDiv");
+	wall = new freewall("#chartDiv");
 	wall.reset({
 		selector: '.cell',
 		animate: true,
@@ -51,33 +55,33 @@ function nodeSelected(nodeID, nodeName)
 	$("#dialogSetVirtualEvidencePanel #formDiv").empty();
 	$("#dialogDefinitionPanel").jqxPanel('clearcontent');
 	$('#dialogDefinitionPanel').jqxGrid('clear');
-	
+
 	$("#dialogGeneralPanel").jqxPanel('append', '<div id="evidenceChart"></div>');
 	var chartDiv = d3.select("#evidenceChart");
 	var oneChartDiv = chartDiv.append("div").attr("class", "chart");
 	oneChartDiv.append("svg").attr("class", "chartEvidence");
-	
+
 	$form = $("<form id='setEvidenceForm'></form>");
 	$form.append('<input id="nodeID" type="hidden" value="' + nodeID + '" />');
-	
+
 	$formVirtual = $("<form id='setVirtualEvidenceForm'></form>");
 	$formVirtual.append('<input id="nodeID" type="hidden" value="' + nodeID + '" />');
-	
+
 	var outcomeValues = networkInfoArray[1];
 	var nodeOutcomes = outcomeValues.filter(function(e) {
 		if (e.id == nodeID)
 			return e;
 	});
-	
+
 	drawChart(nodeOutcomes[0], '.chartEvidence');
-	
+
 	var i;
 	for (i=0; i<nodeOutcomes[0].values.length; i++) {
 		//$form.append(nodeOutcomes[0].values[i].outcomeid + ": ");
 		$form.append('<input name="outcomeids" type="radio" value="' + nodeOutcomes[0].values[i].outcomeid + '" />' + truncateOutcome(nodeOutcomes[0].values[i].outcomeid) + '<br>');
 		$formVirtual.append(truncateOutcome(nodeOutcomes[0].values[i].outcomeid) + ': <input name="voutcomeids" type="text" value="' + nodeOutcomes[0].values[i].value + '"/><br>');
 	}
-	
+
 	$("#dialogSetEvidencePanel #formDiv").append($form);
 	$("#dialogSetVirtualEvidencePanel #formDiv").append($formVirtual);
 	//$('#dialogTabs').jqxTabs('focus');
@@ -90,8 +94,8 @@ function createCPTGrid(cpt)
 {
 	$('#dialogDefinitionPanel').jqxGrid('clear');
 	var columnrenderer = function (value) {
-		return '<div style="text-align: left; vertical-align: middle; margin-top: 5px; margin-left: 5px;margin-right: 5px;">' + value + '</div>';
-	}
+		return '<div style="text-align: center; vertical-align: middle;">' + value + '</div>';
+	};
 
 	var widthSize = 5*15*2;
 
@@ -105,9 +109,9 @@ function createCPTGrid(cpt)
 		for (var i = 0; i<titles.length; i++) {
 			for (j = 0; j<parents[0].outcomeIDs.length; j++) {
 				var title =  titles[i] + '<br>' + parents[0].parentName + ': ' + truncateOutcome(parents[0].outcomeIDs[j]);
-				if (parents.length == 1) {
-					title = (count+1).toString().concat(". <br>").concat(title);
-				}
+				//if (parents.length == 1) {
+				//	title = (count+1).toString().concat(". <br>").concat(title);
+				//}
 				columnTitles[count] = title;
 				count ++;
 			}
@@ -117,44 +121,37 @@ function createCPTGrid(cpt)
 
 	var parents = cpt.parents;
 	var numParents = cpt.parents.length;
+	var numOutcomes = cpt.outcomeIDs.length;
 	var columnTitles = [];
 	var columnStruct = [];
+	var titles = [];
+	var count = 1;
 	if (parents.length > 0) {
-		var titles = [];
-		var count = 1;
-		for (var i = 0; i < parents[0].outcomeIDs.length; i++){
+		for (var i = 0; i < parents[0].outcomeIDs.length; i++) {
 			var title = parents[0].parentName + ': ' + truncateOutcome(parents[0].outcomeIDs[i]);
-			if (parents.length == 1) {
-				title = count.toString().concat(". <br>").concat(title);
-				count++;
-			}
 			titles[i] = title;
 		}
 		columnTitles = getMoreTitles(parents, titles);
-		for (var j = 0; j<columnTitles.length; j++) {
-			columnStruct[j] = { text: columnTitles[j], renderer: columnrenderer, datafield: columnTitles[j], width: widthSize };
-		}
 	}
 	else {
-		columnTitles[0] = "self value";
-		columnStruct[0] = { text: "node has no parents", renderer: columnrenderer, datafield: columnTitles, width: widthSize };
+		columnTitles[0] = "node has no parents";
+	}
+
+	for (var j = 0; j<numOutcomes; j++) {
+		columnStruct[j] = { text: truncateOutcome(cpt.outcomeIDs[j]), renderer: columnrenderer, datafield:cpt.outcomeIDs[j] , width: widthSize };
 	}
 
 	// fill grid data
-	columnStruct.unshift({text: " ", renderer: columnrenderer, datafield: "rowTitle", width: widthSize/2});
+	columnStruct.unshift({text: " ", renderer: columnrenderer, datafield: "rowTitle", width: widthSize});
 	var data = [];
 	var defIter = 0;
-	var start = 0;
-	var numOutcomes = cpt.outcomeIDs.length;
-	for (var i = 0; i < numOutcomes; i++) {
+	for (var i = 0; i < columnTitles.length; i++) {
 		data[i] = {};
-		data[i]["rowTitle"] = truncateOutcome(cpt.outcomeIDs[i]);
-		for (j = 0; j < columnTitles.length; j++) {
-			data[i][columnTitles[j]] = cpt.definition[defIter];
-			defIter = defIter + numOutcomes;
+		data[i]["rowTitle"] = columnTitles[i];
+		for (j = 0; j < numOutcomes; j++) {
+			data[i][cpt.outcomeIDs[j]] = cpt.definition[defIter];
+			defIter++;
 		}
-		start++;
-		defIter = start;
 	}
 
 	// display grid
@@ -167,16 +164,17 @@ function createCPTGrid(cpt)
 		loadComplete: function (data) { },
 		loadError: function (xhr, status, error) { }
 	});
-	var colHeight = 24*numParents;
-	if (numParents==0 || numParents==1) {
-		colHeight = 30;
+	var rowHeight = 24*(numParents);
+	if (numParents == 0 || numParents == 1) {
+		rowHeight = 24;
 	}
+
 	$("#dialogDefinitionPanel").jqxGrid( {
 		source: dataAdapter,
 		width: '100%',
 		height: '100%',
-		columnsheight: colHeight,
-		columns: columnStruct
+		columns: columnStruct,
+		rowsheight: rowHeight
 	});
 }
 
@@ -211,14 +209,8 @@ function getRawDataOptions(type)
 function getRawData(type)
 {
 	$("#buttonsDiv").append('<input type="button" onclick="showRawData()" value="Raw Data" id="rawDataButton" />');
-	//$("#rawData").append('<div id="rawTable"></div>');
-	//$("#rawData").append('<div style="float: right"> <input type="button" value="Done" id="rawDoneButton" /> </div>');
 	$("#rawDataButton").attr("disabled", false);
 
-	$('#rawData').jqxWindow({
-		width: 600, height: 400, resizable: false,
-		okButton: $("#rawDoneButton"), autoOpen: false
-	});
 	var name = networkInfoArray[2][0].modelname;
 	$('#rawData').jqxWindow("setTitle", name);
 
@@ -268,7 +260,6 @@ function createColumnStruct(columns,fields,columnStruct) {
 		fields[i] = {};
 		fields[i]["name"] = columns[i];
 		fields[i]["type"] = "float";
-
 		columnStruct[i] = {};
 		columnStruct[i]["text"] = columns[i];
 		columnStruct[i]["dataField"] = columns[i];
@@ -280,8 +271,8 @@ function createRawTable(source, columnStruct) {
 	var dataAdapter = new $.jqx.dataAdapter(source);
 	$("#rawTable").jqxGrid(
 		{
-			width: 550,
-			height: 350,
+			width: "99%",
+			height: "95%",
 			source: dataAdapter,
 			columnsResize: true,
 			columns: columnStruct
@@ -311,10 +302,6 @@ function showUpload()
 			alert("only .xdsl file extensions will be accepted")
 			$('#modelForm').trigger("reset");
 		}
-		//else {
-		//	getModelUpload();
-		//}
-
 	});
 
 	$('#dataFile').change(function() {
@@ -325,14 +312,11 @@ function showUpload()
 			$("#rawDataButton").remove();
 			$('#dataForm').trigger('reset');
 		}
-		//else {
-		//	getRawDataOptions("upload");
-		//}
 	});
 }
 
-function csvToJSON(csv){
-
+function csvToJSON(csv)
+{
 	var lines=csv.split("\n");
 	var result = [];
 	var headers=lines[0].split(",");
@@ -346,10 +330,6 @@ function csvToJSON(csv){
 		}
 
 		result.push(obj);
-
 	}
-
-	console.log(result);
-	//return result; //JavaScript object
-	return JSON.stringify(result); //JSON
+	return JSON.stringify(result);
 }
