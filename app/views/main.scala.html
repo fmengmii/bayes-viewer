@@ -1,15 +1,149 @@
-@(title: String)(content: Html)
-
+@(content: Html)
 <!DOCTYPE html>
-
 <html>
-    <head>
-        <title>@title</title>
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
-        <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
-        <script src="@routes.Assets.at("javascripts/hello.js")" type="text/javascript"></script>
-    </head>
+	<head>
+		<link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" />
+		<link href="@routes.Assets.at("stylesheets/chart.css")" rel="stylesheet" />
+		<link href="@routes.Assets.at("stylesheets/network.css")" rel="stylesheet" />
+		<link href="@routes.Assets.at("stylesheets/jqx.base.css")" rel="stylesheet" />
+        <link href="@routes.Assets.at("bootstrap-3.3.6-dist/css/bootstrap.min.css")" rel="stylesheet" media="screen">
+
+		<meta charset=utf-8 />
+
+		<link rel="shortcut icon" type="image/icon" href="@routes.Assets.at("images/favicon.ico")"/>
+		<title>BN Viewer</title>
+
+		<script src="@routes.Assets.at("javascripts/jquery-2.1.3.min.js")"></script>
+
+		<script src="@routes.Assets.at("javascripts/d3.min.js")"></script>
+		<script src="@routes.Assets.at("javascripts/cytoscape.js")"></script>
+		<script src="@routes.Assets.at("javascripts/jqxcore.js")"></script>
+	    <script src="@routes.Assets.at("javascripts/jqxsplitter.js")"></script>
+	    <script src="@routes.Assets.at("javascripts/jqxpanel.js")"></script>
+	    <script src="@routes.Assets.at("javascripts/jqxbuttons.js")"></script>
+	    <script src="@routes.Assets.at("javascripts/jqxscrollbar.js")"></script>
+	    <script src="@routes.Assets.at("javascripts/jqxwindow.js")"></script>
+	    <script src="@routes.Assets.at("javascripts/jqxmenu.js")"></script>
+   	    <script src="@routes.Assets.at("javascripts/jqxtabs.js")"></script>
+	    <script src="@routes.Assets.at("javascripts/freewall.js")"></script>
+		<script src="@routes.Assets.at("javascripts/jqxgrid.js")"></script>
+		<script src="@routes.Assets.at("javascripts/jqxgrid.selection.js")"></script>
+		<script src="@routes.Assets.at("javascripts/jqxgrid.columnsresize.js")"></script>
+		<script src="@routes.Assets.at("javascripts/jqxdata.js")"></script>
+		<script src="@routes.Assets.at("javascripts/jqxdatatable.js")"></script>
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                //alert("widow height=" + $(window).height() );
+                var maxContentHeight=$(window).height()-$("#headerDiv").height()-$("#buttonDiv").height()-$('#footerDiv').height();
+                if( $("#contentDiv").height() > maxContentHeight ) {
+                    $("#contentDiv").css("height", maxContentHeight );
+                }
+
+                //alert("contentH=" + $("#contentDiv").height() +" and maxH=" + maxContentHeight );
+                /*
+                if( window.location.search ) {
+                    var definedLoadFile = window.location.search.split('loadFile=')[1];
+                    if( definedLoadFile ) {
+                        $("#load option[value=definedLoadFile]").attr('selected', true);
+                        alert("browserLoadValue=" + definedLoadFile);
+                    }
+                }*/
+                $("#txtConfirmPassword").keyup(function() {
+                    var password = $("#txtNewPassword").val();
+                    $("#divCheckPasswordMatch").html(password == $(this).val() ? "Passwords match." : "Passwords do not match!");
+                });
+                /*
+                $('input[type="file"]').change(function(){
+                    alert("file uploaded.");
+                });*/
+               /* $('input[type="file"]'.on('change', function() { $(this).append('<input type="file" name="file[]"/>'}); */
+
+            });
+        </script>
+
+		<!-- our own scripts -->
+
+	    <script src="@routes.Assets.at("javascripts/network.js")"></script>
+		<script src="@routes.Assets.at("javascripts/chart.js")"></script>
+		<script src="@routes.Assets.at("javascripts/model.js")"></script>
+		<script src="@routes.Assets.at("javascripts/viewer.js")"></script>
+
+	    <!-- Embedded Javascript router -->
+        @helper.javascriptRouter("jsRoutes")(
+              routes.javascript.Application.index,
+              routes.javascript.Application.network,
+              routes.javascript.Application.loadModel,
+              routes.javascript.Application.setEvidence,
+              routes.javascript.Application.setVirtualEvidence,
+              routes.javascript.Application.clearAllEvidence,
+              routes.javascript.Application.clearEvidence,
+              routes.javascript.Application.setAsTarget,
+			  routes.javascript.Application.removeTarget,
+              routes.javascript.Application.clearAllTargets,
+              routes.javascript.Application.getCPT,
+              routes.javascript.Application.checkModel,
+		      routes.javascript.Application.uploadModel
+              )
+	</head>
+
     <body>
-        @content
+         <div id="headerDiv">
+             <table>
+                 <tr>
+                     <td class="leftTop">
+                         <a alt="ucla-mii-logo" align="middle" href="http://www.mii.ucla.edu">
+                             <img src="@routes.Assets.at("images/ucla-mii.png")">
+                         </a>
+                     </td>
+                     <td class="center" rowspan="2">
+                         Bayesian Network Viewer
+                     </td>
+                     <td class="right" rowspan="2">
+                         @if(session.containsKey("user")){
+                            User: @session.get("user")
+                         @**| <a href="/changePassword">Change password </a> **@
+                            | <a href="/logout">Sign out</a>
+                         } else {
+                            <a href="/login">Sign in</a>
+                            | <a href="/register">Sign up</a>
+                         }
+                     </td>
+                 </tr>
+                 <tr>
+                     <td class="leftBottom">
+                         <div id="buttonsDiv">
+                             <button type="button" onclick="location.href='/';">Home</button>
+                             <button type="button" onclick="location.href='/network/public';">Public Bayesian Network</button>
+                             <button type="button" onclick="location.href='/network/private';">Private Bayesian Network</button>
+                         </div>
+                     </td>
+                 </tr>
+             </table>
+         </div>
+         <hr class="bayesHrTop">
+
+         <div id="contentDiv">
+
+             @if(flash.containsKey("success")){
+                 <div class="alert alert-success" >
+                     <a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                     <strong>Success!</strong>&nbsp;@flash.get("success")
+                 </div>
+             }
+             @if(flash.containsKey("error")){
+                 <div class="alert alert-danger">
+                     <strong>Error:</strong>&nbsp;@flash.get("error")
+                 </div>
+             }
+
+            @content
+
+         </div>
+
+         <div id="footDiv">
+             <hr class="bayesHrBottom">
+             &nbsp;&nbsp;&#169;2016 Medical Imaging Informatics Group | Department of Radiological Sciences, UCLA | Regents of the University of California. All rights reserved.
+         </div>
     </body>
 </html>

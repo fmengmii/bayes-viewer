@@ -1,12 +1,94 @@
 
-html, body 
-{
+html, body{
     height: 100%;
     width: 100%;
     margin: 0px;
     padding: 0px;
     overflow: hidden;
-
     font-family: Helvetica;
 }
 
+#headerDiv {
+    padding-left:10px;
+}
+
+#buttonsDiv {
+   padding-top:20px;
+}
+
+#headerDiv table{
+    width:100%;
+}
+
+#headerDiv td.leftTop {
+	width:450px;
+	height:50px;
+	vertical-align:middle;
+	padding-left:10px;
+	padding-top:5px;
+}
+
+#headerDiv td.leftBottom {
+	/*width:205px;*/
+	height:30px;
+	vertical-align:bottom;
+	padding-left:10px;
+}
+
+
+#headerDiv td.center {
+	/*border-left: 1px solid #22578B;*/
+	display:table-cell;
+	vertical-align:middle;
+	margin-left:20px;
+	padding-left:20px;
+	text-align:center;
+	height:100%;
+	/*font-family:Segoe UI, Segoe UI Semilight;*/
+	font-family:'Brush Script MT',Phyllis,'Lucida Handwriting',cursive;
+	font-size:60px;
+}
+
+#headerDiv td.right {
+	text-align:right;
+	vertical-align:bottom;
+	font-size:18px;
+	padding-right:10px;
+	color:#337ab7;
+}
+#contentDiv {
+    /*overflow: auto;*/
+    width:90%;
+    height:70%;
+    padding-left:20px;
+}
+
+.bayesHrTop {
+    height: 2px;
+    background:#000000;
+    margin-bottom:0;
+    margin-top: 5px;
+}
+
+.bayesHrBottom {
+    height: 2px;
+    background:#000000;
+    margin-bottom:0;
+    margin-top: 0;
+}
+
+#footDiv, .push {
+	position:absolute;
+	width:100%;
+	height:2em;
+	font-family:Segoe UI;
+	background-color:#ffffff;
+	color:#000000;
+	font-size:16px;
+	bottom:0;
+}
+
+#helpCancelButton {
+    width:65px;
+    float: right;
+}

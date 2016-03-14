@@ -1,7 +1,108 @@
-@(message: String)
+@main {
+	<br>
+	<p>&nbsp;&nbsp;&nbsp;&nbsp;Introduction to Bayesian Network Viewer</p>
+	<ul>functions:</ul>
+}
 
-@main("Welcome to Play") {
+@**
 
-    @play20.welcome(message, style = "Java")
+@(models: List[String])
+
+@main(models){
+    <div id='splitter'>
+        <div>
+        	<div id="network"></div>
+        </div>
+        <div>
+	        <div id="chartJQXPanel">
+		        <div id="chartDiv">
+		        </div>
+	        </div>
+        </div>
+    </div>
+
+
+    <div id="dialogSetValues">
+
+		<div id="customWindowContent" style="overflow: hidden">
+
+			<div id="dialogTabs">
+				<ul>
+	                <li>General</li>
+	                <li>Set Evidence</li>
+	                <li>Set Virtual Evidence</li>
+	                <li>Definition</li>
+	            </ul>
+				<div id="dialogGeneralPanel"></div>
+				<div id="dialogSetEvidencePanel">
+					<div id="formDiv"></div>
+					<input type="button" onclick="setEvidence()" value="Set Evidence" id="setEvidenceButton" />
+				</div>
+				<div id="dialogSetVirtualEvidencePanel">
+					<div id="formDiv"></div>
+					<input type="button" onclick="setVirtualEvidence()" value="Set Virtual Evidence" id="setVirtualEvidenceButton" />
+				</div>
+				<div id="dialogDefinitionPanel"></div>
+			</div>
+
+			<div style="float: right">
+				<input type="button" onclick="clearEvidence()" value="Clear Evidence" id="clearEvidenceButton" />
+				<input type="button" value="Done" id="doneButton" />
+			</div>
+		</div>
+
+    </div>
+
+
+    <div id="nodeMenu">
+	    <input id="nodeID" type="hidden"/>
+		<ul >
+			<li id="target" onclick="setAsTarget()">Set As Target</li>
+			<li id="offTarget" onclick="removeTarget()">Remove Target</li>
+		</ul>
+    </div>
+
+    <div id="rawData">
+		<div id="windowContent" style="overflow: hidden">
+			<div id="rawTable"></div>
+			<div style="float: right"> <input type="button" value="Done" id="rawDoneButton" /></div>
+		</div>
+	</div>
+
+	<div id="uploadDiv">
+		<ol type="1">
+			<li>
+				<p> Select your model file: </p>
+				<form enctype="multipart/form-data" id="modelForm">
+					<input id="modelFile" name="modelFile" type="file" />
+				</form>
+			</li>
+			<li>
+				<p> Select your model's raw data file (optional): </p>
+				<form enctype="multipart/form-data" id="dataForm">
+					<input id="dataFile" name="dataFile" type="file" />
+				</form>
+			</li>
+		</ol>
+**@
+
+		@*<progress id ="modelProgress" value="0" max="100"></progress>*@
+@**
+		<input id="uploadButton" type="button" onClick="getModelUpload()" value="Upload" />
+		<div style="float: right"> <input type="button" value="Done" id="uploadDone" /> </div>
+	</div>
+
+    <div id="helpDiv">
+        <div>Help</div>
+        <div>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;Introduction to Bayesian Network Viewer</p>
+            <ul>functions:</ul>
+            <div>
+                <input type="button" id="helpCancelButton" value="Close" />
+                <br>
+            </div>
+        </div>
+    </div>
 
 }
+**@

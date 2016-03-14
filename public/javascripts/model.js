@@ -1,47 +1,162 @@
 var networkInfoArray;
 
-function loadModel(modelName)
-{
-	var modelPath = "public/models/" + modelName;
-	var loadModelAjax = jsRoutes.controllers.Application.loadModel(modelPath);
-	$.ajax({
-		url: loadModelAjax.url
-	}).done(function(data) {
-		console.log(data);
-		networkInfoArray = JSON.parse(data);
-		//cy.load(networkInfoArray[0]);
-		networkLoadModel(networkInfoArray[0]);
-		drawCharts(networkInfoArray[1]);
-		getRawDataOptions("load");
-
-		//console.log(networkInfoArray);
-
-	}).fail(function() {
-	});
-
+function loadModel(modelName) {
+	if(modelName == null) {
+	    alert("Sorry, there is not existed network yet.");
+	    location.href="";
+	} else {
+        /*
+        var modelPath = "public/models/" + modelName;
+        var loadModelAjax = jsRoutes.controllers.Application.loadModel(modelPath);
+        */
+        var loadModelAjax = jsRoutes.controllers.Application.loadModel(modelName);
+        $.ajax({
+            url: loadModelAjax.url
+        }).done(function(data) {
+            console.log(data);
+            //$('#splitter').css('display', 'block');
+            $('#splitter').show();
+            networkInfoArray = JSON.parse(data);
+            //cy.load(networkInfoArray[0]);
+            networkLoadModel(networkInfoArray[0]);
+            drawCharts(networkInfoArray[1]);
+            $('#chartDiv').trigger('resize');
+            //getRawDataOptions("load");
+            //console.log(networkInfoArray);
+        }).fail(function() {
+        });
+    }
 	//cy.load({nodes:[{data: {id:'a'}},{data: {id:'b'}}],edges:[{data:{id:'ab',source:'a',target:'b'}}]});
 }
 
-function getModelUpload()
-{
+function loadNetwork(modelName) {
+    //window.location.href="/network";
+    loadModel(modelName);
+}
+
+function getModelUpload() {
 	var formData = new FormData();
-	formData.append('modelFile', $('#modelFile')[0].files[0]);
-	var uploadModelAjax = jsRoutes.controllers.Application.uploadModel();
-	$.ajax({
-		url: uploadModelAjax.url,
-		type: 'POST',
-		data: formData,
-		cache: false,
-		contentType: false,
-		processData: false
-	}).done(function(data) {
-		console.log(data);
-		networkInfoArray = JSON.parse(data);
-		networkLoadModel(networkInfoArray[0]);
-		drawCharts(networkInfoArray[1]);
-		getRawDataOptions("upload");
-	}).fail(function() {
-	});
+	var upload = false;
+	var modelFile = $('#modelFile')[0].files[0];
+	var updateModelFile = false;
+	var updateDataFile = false;
+	var isModelPublic = $('#isModelPublic').is(":checked");
+	var isDataPublic = $('#isDataPublic').is(":checked");
+
+	if( modelFile != null ) {
+	    formData.append('modelFile', modelFile);
+
+	    var modelFileName = modelFile.name;
+	    var modelFileNameArray = modelFileName.split(".");
+        if( modelFileNameArray[1] != "xdsl") {
+	        alert("The model file extension is not  '.xdsl'. \nPlease choose a correct file. ");
+	    } else {
+	        upload = true;
+	    }
+	}
+
+	var dataFile = $('#dataFile')[0].files[0];
+	if( dataFile != null ) {
+	    formData.append('dataFile', dataFile);
+	    var dataFileName = dataFile.name;
+	    var dataFileNameArray = dataFileName.split(".");
+        if( dataFileNameArray[1] != "csv") {
+	        alert("The data file extension is not  '.csv'. \nPlease choose a correct file. ");
+	    } else {
+	        upload = true;
+	    }
+	}
+
+	if( !upload ) {
+	    return false;
+	}
+
+	var checkModelAjax = jsRoutes.controllers.Application.checkModel();
+    $.ajax({
+        url: checkModelAjax.url,
+        type: 'POST',
+        data: formData,
+        cache: false,
+        contentType: false,
+        processData: false
+    }).done(function(data) {
+        //alert("checkModel data return=" + data);
+        if( data == "modelAndDataFileExist") {
+            var isConfirmed = confirm("Both model file and raw data file already exist. Do you want to update them?");
+            if( isConfirmed) {
+                updateModelFile = true;
+                updateDataFile = true;
+            } else {
+                location.href = "/network/private";
+            }
+        }
+
+        if( data == "modelFileExist") {
+            //alert("enter modelFileExist.");
+            var isConfirmed = confirm("The model file already exists. Do you want to update it?");
+            if( isConfirmed == true ) {
+                updateModelFile = true;
+            } else {
+                location.href = "/network/private";
+            }
+        }
+
+        if( data == "dataFileExist" ) {
+            var isConfirmed = confirm("The raw data file already exists. Do you want to update it");
+            if( isConfirmed) {
+                updateDataFile = "true";
+            } else {
+                location.href = "/network/private";
+            }
+        }
+        var uploadModelAjax = jsRoutes.controllers.Application.uploadModel(
+            updateModelFile, updateDataFile, isModelPublic, isDataPublic);
+
+        $.ajax({
+            url: uploadModelAjax.url,
+            type: 'POST',
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false
+        }).done(function(data) {
+            if( data == "success") {
+                location.href = "/network/private";
+            }
+        }).fail(function(){
+        });
+            /*
+            console.log(data);
+            networkInfoArray = JSON.parse(data);
+            networkLoadModel(networkInfoArray[0]);
+            drawCharts(networkInfoArray[1]);
+            getRawDataOptions("upload");
+            */
+    }).fail(function() {
+    });
+	    /*
+        var uploadModelAjax = jsRoutes.controllers.Application.uploadModel();
+        $.ajax({
+            url: uploadModelAjax.url,
+            type: 'POST',
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false
+        }).done(function(data) {
+            if( data == "success") {
+                location.href = "/network/private";
+            }
+
+            console.log(data);
+            networkInfoArray = JSON.parse(data);
+            networkLoadModel(networkInfoArray[0]);
+            drawCharts(networkInfoArray[1]);
+            getRawDataOptions("upload");
+
+        }).fail(function() {
+        });
+        */
 }
 
 function clearAllEvidence()

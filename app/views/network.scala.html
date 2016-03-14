@@ -1,72 +1,29 @@
-@(models: List[String])
+@(models: List[String], dataType:String)
 
-<!DOCTYPE html>
-<html>
-	<head>
-		<link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" />
-		<link href="@routes.Assets.at("stylesheets/chart.css")" rel="stylesheet" />
-		<link href="@routes.Assets.at("stylesheets/network.css")" rel="stylesheet" />
-		<link href="@routes.Assets.at("stylesheets/jqx.base.css")" rel="stylesheet" />
-		
-		<meta charset=utf-8 />
-		<title>Bayesian Network Viewer</title>
-		
-		<script src="@routes.Assets.at("javascripts/jquery-2.1.3.min.js")"></script>
-		<script src="@routes.Assets.at("javascripts/d3.min.js")"></script>
-		<script src="@routes.Assets.at("javascripts/cytoscape.js")"></script>
-		<script src="@routes.Assets.at("javascripts/jqxcore.js")"></script>
-	    <script src="@routes.Assets.at("javascripts/jqxsplitter.js")"></script>
-	    <script src="@routes.Assets.at("javascripts/jqxpanel.js")"></script>
-	    <script src="@routes.Assets.at("javascripts/jqxbuttons.js")"></script>
-	    <script src="@routes.Assets.at("javascripts/jqxscrollbar.js")"></script>
-	    <script src="@routes.Assets.at("javascripts/jqxwindow.js")"></script>
-	    <script src="@routes.Assets.at("javascripts/jqxmenu.js")"></script>
-   	    <script src="@routes.Assets.at("javascripts/jqxtabs.js")"></script>
-	    <script src="@routes.Assets.at("javascripts/freewall.js")"></script>
-		<script src="@routes.Assets.at("javascripts/jqxgrid.js")"></script>
-		<script src="@routes.Assets.at("javascripts/jqxgrid.selection.js")"></script>
-		<script src="@routes.Assets.at("javascripts/jqxgrid.columnsresize.js")"></script>
-		<script src="@routes.Assets.at("javascripts/jqxdata.js")"></script>
-		<script src="@routes.Assets.at("javascripts/jqxdatatable.js")"></script>
-
-		<!-- our own scripts -->
-	    <script src="@routes.Assets.at("javascripts/network.js")"></script>
-		<script src="@routes.Assets.at("javascripts/chart.js")"></script>
-		<script src="@routes.Assets.at("javascripts/model.js")"></script>
-		<script src="@routes.Assets.at("javascripts/viewer.js")"></script>
-	    
-	    
-	    <!-- Embedded Javascript router -->
-        @helper.javascriptRouter("jsRoutes")(
-              routes.javascript.Application.index,
-              routes.javascript.Application.loadModel,
-              routes.javascript.Application.setEvidence,
-              routes.javascript.Application.setVirtualEvidence,
-              routes.javascript.Application.clearAllEvidence,
-              routes.javascript.Application.clearEvidence,
-              routes.javascript.Application.setAsTarget,
-			  routes.javascript.Application.removeTarget,
-              routes.javascript.Application.clearAllTargets,
-              routes.javascript.Application.getCPT,
-		      routes.javascript.Application.uploadModel
-              )
-
-	</head>
-
-
-	<body>
+@main{
 	<div id="buttonsDiv">
-	<select id="load" onChange="loadModel(this.options[this.selectedIndex].value)">
-		<option selected disabled hidden value=''></option>
-		@for(model <- models) {
-		<option value="@model">@model</option>
+		@if( models == null || models.size() == 0 ) {
+			<select id="load" onMouseDown="loadModel();">
+				<option selected disabled hidden value=''>Show existed bayesian network</option>
+			</select>
+		}else{
+			<select id="load" onChange="loadModel(this.options[this.selectedIndex].value)">
+				<option selected disabled hidden value=''>Show existed bayesian network</option>
+				@for(model <- models) {
+					<option value="@model">@model</option>
+				}
+			</select>
 		}
-	</select>
-		<button type="button" onclick="showUpload()">Upload</button>
+		@if(dataType.equals("private")) {
+			<button type="button" onclick="showUpload()">Upload New File</button>
+		}
+		<button type="button">Show All Posterior Probabilities</button>
 		<button type="button" onclick="clearAllEvidence()">Clear All Evidence</button>
 		<button type="button" onclick="clearAllTargets()">Clear All Targets</button>
 		<button type="button" onclick="centerNetwork()">Center Network</button>
 	</div>
+	<br>
+
     <div id='splitter'>
         <div>
         	<div id="network"></div>
@@ -78,8 +35,11 @@
 	        </div>
         </div>
     </div>
+
     <div id="dialogSetValues">
+
 		<div id="customWindowContent" style="overflow: hidden">
+
 			<div id="dialogTabs">
 				<ul>
 	                <li>General</li>
@@ -98,12 +58,15 @@
 				</div>
 				<div id="dialogDefinitionPanel"></div>
 			</div>
+
 			<div style="float: right">
 				<input type="button" onclick="clearEvidence()" value="Clear Evidence" id="clearEvidenceButton" />
 				<input type="button" value="Done" id="doneButton" />
 			</div>
 		</div>
+
     </div>
+
     <div id="nodeMenu">
 	    <input id="nodeID" type="hidden"/>
 		<ul >
@@ -111,30 +74,39 @@
 			<li id="offTarget" onclick="removeTarget()">Remove Target</li>
 		</ul>
     </div>
+
     <div id="rawData">
 		<div id="windowContent" style="overflow: hidden">
 			<div id="rawTable"></div>
 			<div style="float: right"> <input type="button" value="Done" id="rawDoneButton" /></div>
 		</div>
 	</div>
+
 	<div id="uploadDiv">
+		<form enctype="multipart/form-data" id="modelForm" >
+		<p><strong>Please upload new file:</strong></p>
 		<ol type="1">
 			<li>
-				<p> Select your model file: </p>
-				<form enctype="multipart/form-data" id="modelForm">
-					<input id="modelFile" name="modelFile" type="file" />
-				</form>
+				<p>Select your model file with extension xdsl and make checkbox checked if the file is public. </p>
+				<input id="modelFile" name="modelFile" type="file"/><br>
+				<input id="isModelPublic" name="isModelPublic" type="checkbox">&nbsp;The file is public
 			</li>
+			<br>
 			<li>
-				<p> Select your model's raw data file (optional): </p>
-				<form enctype="multipart/form-data" id="dataForm">
-					<input id="dataFile" name="dataFile" type="file" />
-				</form>
+				<p> Select your model's raw data file with extension csv (optional) and make checkbox checked if the file is public. </p>
+				<input id="dataFile" name="dataFile" type="file"  /><br>
+				<input id="isDataPublic" name="isDataPublic" type="checkbox">&nbsp;The file is public
 			</li>
 		</ol>
-		@*<progress id ="modelProgress" value="0" max="100"></progress>*@
+		</form>
+		<br>
 		<input id="uploadButton" type="button" onClick="getModelUpload()" value="Upload" />
-		<div style="float: right"> <input type="button" value="Done" id="uploadDone" /> </div>
+		<input type="button" value="Cancel" onClick="window.location='/network/private';" id="uploadDone" />
+		<br>
+		@*<progress id ="modelProgress" value="0" max="100"></progress> *@
+		@**<div style="float: right"> **@
 	</div>
-	</body>
-</html>
+
+}
+
+

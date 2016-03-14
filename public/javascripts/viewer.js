@@ -280,7 +280,7 @@ function createRawTable(source, columnStruct) {
 			columns: columnStruct
 		});
 }
-
+/*
 function showUpload()
 {
 	$('#modelForm').trigger("reset");
@@ -315,6 +315,25 @@ function showUpload()
 			$('#dataForm').trigger('reset');
 		}
 	});
+}
+*/
+
+function showHelp() {
+    /*
+    $('#helpDiv').on('open', function (event) {
+        alert("You opened a window");
+    });
+    */
+    $('#helpDiv').jqxWindow({
+		width: 400, resizable: true,
+		closeButtonAction: 'close',
+		cancelButton: $('#helpCancelButton'),
+		autoOpen: false
+	});
+	$('#helpDiv').jqxWindow("setTitle", "Help");
+
+	$('#helpDiv').jqxWindow('open');
+
 }
 
 function csvToJSON(csv)

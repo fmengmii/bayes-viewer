@@ -80,8 +80,49 @@ function setNodeColor(nodeID, color)
 
 function networkLoadModel(model)
 {
-	cy.load(networkInfoArray[0]);
+	//cy.load(networkInfoArray[0]);
+	cy.load(model);
 }
 
+function showUpload()
+{
+    //$('#splitter').css('display', 'none');
+    $('#splitter').hide();
+    $('#uploadDiv').show();
+    /*
+	$('#modelForm').trigger("reset");
+	$('#dataForm').trigger("reset");
 
+	$('#uploadDiv').jqxWindow({
+		width: 400, height: 200, resizable: true,
+		okButton: $("#uploadDone"),
+		autoOpen: true
+	});
+	$('#uploadDiv').jqxWindow("setTitle", "Upload a model");
+
+	$('#uploadDiv').jqxWindow('open');
+
+	var fileName;
+
+	$('#modelFile').change(function() {
+		var file = this.files[0];
+		fileName = file.name;
+		if (fileName.substring(fileName.length-5,fileName.length) !== ".xdsl") {
+			alert("only .xdsl file extensions will be accepted")
+			$('#modelForm').trigger("reset");
+		}
+	});
+
+	$('#dataFile').change(function() {
+		var dataFile = this.files[0];
+		var dataFileName = dataFile.name;
+		if (dataFileName.substring(dataFileName.length-4, dataFileName.length) !== ".csv") {
+			alert("only .csv file extensions will be accepted")
+			$("#rawDataButton").remove();
+			$('#dataForm').trigger('reset');
+		}
+	});
+	*/
+
+}
 

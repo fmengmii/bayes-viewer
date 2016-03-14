@@ -1,0 +1,22 @@
+@(loginForm: Form[Application.Login])
+@import helper._
+@import helper.twitterBootstrap._
+
+@** @main("Please sign in to the bayes network viwer application") {  **@
+
+@main {
+    @helper.form(helper.CSRF(routes.Application.authenticate) ) {
+        <h1>Sign in</h1>
+        <p>
+            <input type="text" name="userName" placeholder="User Name"
+                    value="@loginForm("userName").value">
+        </p>
+        <p>
+            <input type="password" name="password"
+                    placeholder="Password">
+        </p>
+        <p>
+            <button type="submit">Sign in</button>
+        </p>
+    }
+}

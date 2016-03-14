@@ -1,6 +1,6 @@
 import com.github.play2war.plugin._
 
-name := """bayes-viewer"""
+name := "bayes-viewer"
 
 version := "1.0-SNAPSHOT"
 
@@ -20,3 +20,10 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies += "com.google.code.gson" % "gson" % "2.3.1"
+
+libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.34"
+
+libraryDependencies += filters
+
+libraryDependencies += "commons-codec" %  "commons-codec" % "1.10"
+

@@ -44,7 +44,16 @@ public class ModelReader
 		uploadModel(modelPath, modelName);
 		return getModelStr();
 	}
-	
+
+	public String readModelFromFileContent ( String modelFullName, String modelXdslContent ) {
+		if (network == null) {
+			network = new Network();
+			network.readString( modelXdslContent );
+			network.setName(modelFullName);
+		}
+		return getModelStr();
+	}
+
 	public String getModelStr()
 	{
 		NumberFormat formatter = new DecimalFormat("#0.00");
@@ -137,25 +146,30 @@ public class ModelReader
 
 			//raw data column names
 			String csvFile = "public/raw-data/" + modelName + ".csv";
+
 			BufferedReader br = null;
 			String line = "";
 			try {
-				br = new BufferedReader(new FileReader(csvFile));
-				line = br.readLine();
+				File csvFilePath = new File(csvFile);
+				if( csvFilePath.exists() ) {
+					br = new BufferedReader(new FileReader(csvFile));
+					line = br.readLine();
 
-				String[] columnNames = line.split(",");
-				strBlder.append(", [{\"columnnames\":[");
-				for (int i = 0; i < columnNames.length; i++) {
-					if (i > 0) {
-						strBlder.append(",");
+					String[] columnNames = line.split(",");
+					strBlder.append(", [{\"columnnames\":[");
+					for (int i = 0; i < columnNames.length; i++) {
+						if (i > 0) {
+							strBlder.append(",");
+						}
+						strBlder.append("\"" + columnNames[i] + "\"");
 					}
-					strBlder.append("\"" + columnNames[i] + "\"");
+					strBlder.append("]}]");
 				}
-				strBlder.append("]}]");
-
-			} catch (FileNotFoundException e) {
+			}
+			/*catch (FileNotFoundException e) {
 				e.printStackTrace();
-			} catch (IOException e) {
+			} */
+			catch (IOException e) {
 				e.printStackTrace();
 			} finally {
 				if (br != null) {

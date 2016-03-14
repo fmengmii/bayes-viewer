@@ -15,3 +15,20 @@ node {
 .nodeMenu {
 	color:black;
 }
+
+#splitter {
+    display: none;
+}
+
+#uploadDiv{
+    overflow:hidden;
+    display: none;
+    padding-left: 20px;
+}
+#dialogSetValues{
+    display:none;
+}
+/*
+#load{
+    padding-left:10px;
+} */
