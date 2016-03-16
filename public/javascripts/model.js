@@ -2,7 +2,7 @@ var networkInfoArray;
 
 function loadModel(modelName) {
 	if(modelName == null) {
-	    alert("Sorry, there is not existed network yet.");
+	    alertBoxShow("Sorry, there is not existed network yet.");
 	    location.href="";
 	} else {
         /*
@@ -18,13 +18,19 @@ function loadModel(modelName) {
             $('#splitter').show();
             networkInfoArray = JSON.parse(data);
             //cy.load(networkInfoArray[0]);
+            //clearAllEvidence();
             networkLoadModel(networkInfoArray[0]);
             drawCharts(networkInfoArray[1]);
             $('#chartDiv').trigger('resize');
+
+            clearAllEvidence();
+            //location.reload();
             //getRawDataOptions("load");
             //console.log(networkInfoArray);
         }).fail(function() {
         });
+
+        //clearAllEvidence();
     }
 	//cy.load({nodes:[{data: {id:'a'}},{data: {id:'b'}}],edges:[{data:{id:'ab',source:'a',target:'b'}}]});
 }
@@ -32,6 +38,66 @@ function loadModel(modelName) {
 function loadNetwork(modelName) {
     //window.location.href="/network";
     loadModel(modelName);
+}
+
+function alertBoxShow(message) {
+    $("#alert-box").show();
+    $("#alert-box").append(message);
+}
+
+function confirmYesFunction(updateModelFile,
+                            updateDataFile,
+                            isModelPublic,
+                            isDataPublic,
+                            formData) {
+
+    $("#confirm-box").hide();
+    var uploadModelAjax = jsRoutes.controllers.Application.uploadModel(
+            updateModelFile, updateDataFile, isModelPublic, isDataPublic);
+
+    $.ajax({
+        url: uploadModelAjax.url,
+        type: 'POST',
+        data: formData,
+        cache: false,
+        contentType: false,
+        processData: false
+    }).done(function(data) {
+        if( data == "success") {
+            location.href = "/network/private";
+        }
+    }).fail(function(){
+    });
+}
+
+function confirmNoFunction() {
+    $("#confirm-box").hide();
+    location.href = "/network/private";
+}
+
+function confirmBoxReturn(message,
+                        updateModelFile,
+                        updateDataFile,
+                        isModelPublic,
+                        isDataPublic,
+                        formData,
+                        confirmYesFunction,
+                        confirmNoFunction) {
+
+    $("#confirm-box").show();
+    $("#confirm-box").prepend("Confirm: " + message);
+
+    $('#btnYesConfirmYesNo, #btnNoConfirmYesNo').click(function(){
+        if( this.id == 'btnYesConfirmYesNo' ) {
+            confirmYesFunction(updateModelFile,
+                            updateDataFile,
+                            isModelPublic,
+                            isDataPublic,
+                            formData);
+        } else if( this.id == 'btnNoConfirmYesNo' ) {
+            confirmNoFunction();
+        }
+    });
 }
 
 function getModelUpload() {
@@ -49,7 +115,8 @@ function getModelUpload() {
 	    var modelFileName = modelFile.name;
 	    var modelFileNameArray = modelFileName.split(".");
         if( modelFileNameArray[1] != "xdsl") {
-	        alert("The model file extension is not  '.xdsl'. \nPlease choose a correct file. ");
+	        alertBoxShow(
+	            "The model file extension is not  '.xdsl'. \nPlease choose a correct file.");
 	    } else {
 	        upload = true;
 	    }
@@ -61,7 +128,7 @@ function getModelUpload() {
 	    var dataFileName = dataFile.name;
 	    var dataFileNameArray = dataFileName.split(".");
         if( dataFileNameArray[1] != "csv") {
-	        alert("The data file extension is not  '.csv'. \nPlease choose a correct file. ");
+	        alertBoxShow("The data file extension is not  '.csv'. \nPlease choose a correct file. ");
 	    } else {
 	        upload = true;
 	    }
@@ -80,35 +147,55 @@ function getModelUpload() {
         contentType: false,
         processData: false
     }).done(function(data) {
-        //alert("checkModel data return=" + data);
+        if( data == "modelFileNameDuplicate" ) {
+            alertBoxShow("Model file name is duplicate with other user, " +
+                            "please change the name.");
+            location.href = "/network/private";
+        }
+
         if( data == "modelAndDataFileExist") {
-            var isConfirmed = confirm("Both model file and raw data file already exist. Do you want to update them?");
-            if( isConfirmed) {
-                updateModelFile = true;
-                updateDataFile = true;
-            } else {
-                location.href = "/network/private";
-            }
+            var message = "Both model file and raw data file already exist. " +
+                            "Do you want to update them?";
+            updateModelFile = true;
+            updateDataFile = true;
+            confirmBoxReturn( message,
+                            updateModelFile,
+                            updateDataFile,
+                            isModelPublic,
+                            isDataPublic,
+                            formData,
+                            confirmYesFunction,
+                            confirmNoFunction );
         }
 
         if( data == "modelFileExist") {
-            //alert("enter modelFileExist.");
-            var isConfirmed = confirm("The model file already exists. Do you want to update it?");
-            if( isConfirmed == true ) {
-                updateModelFile = true;
-            } else {
-                location.href = "/network/private";
-            }
+            var message = "The model file already exists. " +
+                            "Do you want to update it?";
+            updateModelFile = true;
+            confirmBoxReturn( message,
+                            updateModelFile,
+                            updateDataFile,
+                            isModelPublic,
+                            isDataPublic,
+                            formData,
+                            confirmYesFunction,
+                            confirmNoFunction );
         }
 
         if( data == "dataFileExist" ) {
-            var isConfirmed = confirm("The raw data file already exists. Do you want to update it");
-            if( isConfirmed) {
-                updateDataFile = "true";
-            } else {
-                location.href = "/network/private";
-            }
+            var message = "The raw data file already exists. " +
+                            "Do you want to update it?";
+            updateDataFile = true;
+            confirmBoxReturn( message,
+                            updateModelFile,
+                            updateDataFile,
+                            isModelPublic,
+                            isDataPublic,
+                            formData,
+                            confirmYesFunction,
+                            confirmNoFunction );
         }
+        /*
         var uploadModelAjax = jsRoutes.controllers.Application.uploadModel(
             updateModelFile, updateDataFile, isModelPublic, isDataPublic);
 
@@ -125,6 +212,7 @@ function getModelUpload() {
             }
         }).fail(function(){
         });
+        */
             /*
             console.log(data);
             networkInfoArray = JSON.parse(data);

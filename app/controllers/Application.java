@@ -158,7 +158,8 @@ public class Application extends Controller
 			//session("user", userName);
 
 			flash("success", "The registration has been submitted. We will send email to confirm that later.");
-			return ok(index.render());
+			//return ok(index.render());
+			return redirect("/");
 		} else {
 			flash("error", "The user name has been registered. Please change a user name. ");
 			return badRequest(register.render(registerForm));
@@ -218,8 +219,8 @@ public class Application extends Controller
     	ModelReader modelReader = new ModelReader();
 
 		String[] modelFullName = modelName.split("\\.");
-		User user = User.findByUserName(session("user"));
-		NetworkFile networkFile = NetworkFile.findByUnique( user,
+		//User user = User.findByUserName(session("user"));
+		NetworkFile networkFile = NetworkFile.findByFileNameAndType(
 				modelFullName[0], modelFullName[1]);
 
 		String modelContent = networkFile.fileContent;
@@ -232,6 +233,7 @@ public class Application extends Controller
 		*/
     	Object network = modelReader.getNetwork();
     	Cache.set("network", network);
+		session("modelName", modelName);
     	//session("modelName", modelPath);
 		String modelStrClean = modelReader.clearAllEvidence(modelName);
     	return ok(modelStrClean);
@@ -244,23 +246,18 @@ public class Application extends Controller
 		MultipartFormData body = request().body().asMultipartFormData();
 
 		List<FilePart> filePartList = body.getFiles();
-		Logger.info("upload files size=" + filePartList.size());
 
 		FilePart modelUpload = filePartList.get(0);
 		File file = modelUpload.getFile();
 		String fullFileName = modelUpload.getFilename();
-		Logger.info("filePart fullFileName=" + fullFileName );
 		String[] parseFullFileName = fullFileName.split("\\.");
-		Logger.info("parseFull name = " + parseFullFileName);
 
 		String fileName = parseFullFileName[0];
 		String fileType = parseFullFileName[1];
 		User user = User.findByUserName(session("user"));
-		Logger.info("user=" + user);
-		Logger.info("fileName:" + fileName + "." + fileType);
 
-		NetworkFile networkFile = NetworkFile.findByUnique(
-				user, fileName, fileType);
+		NetworkFile networkFile = NetworkFile.findByFileNameAndType(
+				fileName, fileType);
 
 		if( networkFile != null ) {
 			modelFileExist = true;
@@ -277,9 +274,6 @@ public class Application extends Controller
 			String dataFileName = parseDataFullFileName[0];
 			String dataFileType = parseDataFullFileName[1];
 
-			//String dataFileContent = new Scanner(dataFile).useDelimiter("\\Z").next();
-			//Logger.info("dataFileContent:\n" + dataFileContent);
-			Logger.info("before query rawData, networkFile=" + networkFile);
 			RawDataFile rawDataFile = RawDataFile.findByNetworkFile(networkFile);
 			Logger.info("rawDataFile=" + rawDataFile );
 
@@ -287,12 +281,19 @@ public class Application extends Controller
 				dataFileExist = true;
 			}
 		}
-		Logger.info("checkModel starts to return.");
 
 		if( modelFileExist && dataFileExist ) {
-			return ok("modelAndDataFileExist");
+			if( user.id == networkFile.user.id ) {
+				return ok("modelAndDataFileExist");
+			} else {
+				return ok("modelFileNameDuplicate");
+			}
 		} else if( modelFileExist ) {
-			return ok("modelFileExist");
+			if( user.id == networkFile.user.id) {
+				return ok("modelFileExist");
+			} else {
+				return ok("modelFileNameDuplicate");
+			}
 		} else if( dataFileExist ) {
 			return ok("dataFileExist");
 		} else {
@@ -304,46 +305,21 @@ public class Application extends Controller
 			Boolean updateModelFile, Boolean updateDataFile,
 			Boolean isModelPublic, Boolean isDataPublic ) {
 
-		Logger.info("uploadModel:comming updateModelFile=" + updateModelFile);
-		Logger.info("uploadModel: isModelPublic=" + isModelPublic);
-		//alert("server got form data=" + request().Form("updateModelFile"));
 		ModelReader modelReader = new ModelReader();
 
 		MultipartFormData body = request().body().asMultipartFormData();
 
 		List<FilePart> filePartList = body.getFiles();
-		Logger.info("upload files size=" + filePartList.size());
 
 		FilePart modelUpload = filePartList.get(0);
 
-		//if (modelUpload != null) {
 		File file = modelUpload.getFile();
 		String fullFileName = modelUpload.getFilename();
-		Logger.info("filePart fullFileName=" + fullFileName );
 		String[] parseFullFileName = fullFileName.split("\\.");
-		Logger.info("parseFull name = " + parseFullFileName);
-		/*
-		//verify in model.js getModelUpload() method
-		if( parseFullFileName.length != 2  ) {
-			Logger.info("file length is not 2.");
-			flash("error", "Cann't identify the file type!");
-			return redirect("/network/private");
-		} else {
-			Logger.info("full file name length is 2. with extension " +
-					parseFullFileName[1]);
 
-			if( !parseFullFileName[1].equals("xdsl") &&
-					!parseFullFileName[1].equals("csv") ) {
-				flash("error", "The file type is not xsdl nor csv!");
-				return redirect("/network/private");
-			}
-		}
-		*/
 		String fileName = parseFullFileName[0];
 		String fileType = parseFullFileName[1];
 		User user = User.findByUserName(session("user"));
-		Logger.info("user=" + user);
-		Logger.info("fileName:" + fileName + "." + fileType);
 
 		String fileContent = null;
 		try{
@@ -352,13 +328,11 @@ public class Application extends Controller
 			return badRequest("fileNotFound");
 		}
 
-		NetworkFile networkFile = NetworkFile.findByUnique(
-				user, fileName, fileType);
+		NetworkFile networkFile = NetworkFile.findByFileNameAndType(
+					fileName, fileType);
 
-		//Logger.info("networkFile return =" + networkFile );
 		if( networkFile != null ) {
 			if( updateModelFile) {
-				Logger.info("netwrokFile exists.");
 				networkFile.fileContent = fileContent;
 				networkFile.isPublic = isModelPublic;
 				networkFile.update();
@@ -375,9 +349,7 @@ public class Application extends Controller
 			FilePart dataUpload = filePartList.get(1);
 			File dataFile = dataUpload.getFile();
 			String dataFullFileName = dataUpload.getFilename();
-			Logger.info("data filePart dataFullFileName=" + dataFullFileName );
 			String[] parseDataFullFileName = dataFullFileName.split("\\.");
-			Logger.info("parseFull name = " + parseDataFullFileName);
 
 			String dataFileName = parseDataFullFileName[0];
 			String dataFileType = parseDataFullFileName[1];
@@ -389,14 +361,10 @@ public class Application extends Controller
 				return badRequest("fileNotFound");
 			}
 
-			//Logger.info("dataFileContent:\n" + dataFileContent);
-			Logger.info("before query rawData, networkFile=" + networkFile);
 			RawDataFile rawDataFile = RawDataFile.findByNetworkFile(networkFile);
-			Logger.info("rawDataFile=" + rawDataFile );
 
 			if( rawDataFile != null ) {
 				if( updateDataFile ) {
-					Logger.info("rawDataFile exists.");
 					rawDataFile.fileContent = dataFileContent;
 					rawDataFile.isPublic = isDataPublic;
 					rawDataFile.update();
@@ -409,7 +377,7 @@ public class Application extends Controller
 				rawDataFile.save();
 			}
 		}
-		Logger.info("save OR update successful.");
+		//Logger.info("save OR update successful.");
 			/*
 			File modelTemp = null;
 			try
@@ -427,10 +395,8 @@ public class Application extends Controller
 			session("modelName", modelTemp.getAbsolutePath());
 			*/
 
-		Logger.info("before return...");
 		flash("success", "The files have been uploaded successfully.");
 		return ok("success");
-
 		//return ok(modelStr);
 	}
 

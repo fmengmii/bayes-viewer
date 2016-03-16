@@ -28,6 +28,18 @@ node {
 #dialogSetValues{
     display:none;
 }
+
+#confirm-box{
+    display:none;
+    margin-top:20px;
+    margin-bottom:0px;
+}
+
+#alert-box{
+    display:none;
+    margin-top:20px;
+    margin-bottom:0px;
+}
 /*
 #load{
     padding-left:10px;

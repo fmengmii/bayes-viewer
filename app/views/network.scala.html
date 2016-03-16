@@ -1,6 +1,18 @@
 @(models: List[String], dataType:String)
 
 @main{
+	<div id="confirm-box" class="alert alert-info" >
+		<a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+		&nbsp;&nbsp;
+		<button id="btnYesConfirmYesNo" type="button" class="btn btn-primary">Yes</button>
+		<button id="btnNoConfirmYesNo"
+                type="button" class="btn btn-default">No</button>
+	</div>
+
+	<div id="alert-box" class="alert alert-danger" >
+		<strong>Alert:</strong>&nbsp;
+	</div>
+
 	<div id="buttonsDiv">
 		@if( models == null || models.size() == 0 ) {
 			<select id="load" onMouseDown="loadModel();">

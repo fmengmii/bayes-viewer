@@ -54,7 +54,7 @@ public class User extends Model {
     @Column(columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     public Timestamp updateTime;
 
-    @OneToMany
+    @OneToMany(mappedBy="user")
     public List<NetworkFile> networkFiles = new ArrayList<NetworkFile>();
 
     public User() {}

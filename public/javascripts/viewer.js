@@ -301,7 +301,7 @@ function showUpload()
 		var file = this.files[0];
 		fileName = file.name;
 		if (fileName.substring(fileName.length-5,fileName.length) !== ".xdsl") {
-			alert("only .xdsl file extensions will be accepted")
+			alertBoxShow("only .xdsl file extensions will be accepted");
 			$('#modelForm').trigger("reset");
 		}
 	});
@@ -310,7 +310,7 @@ function showUpload()
 		var dataFile = this.files[0];
 		var dataFileName = dataFile.name;
 		if (dataFileName.substring(dataFileName.length-4, dataFileName.length) !== ".csv") {
-			alert("only .csv file extensions will be accepted")
+			alertBoxShow("only .csv file extensions will be accepted");
 			$("#rawDataButton").remove();
 			$('#dataForm').trigger('reset');
 		}
@@ -321,7 +321,7 @@ function showUpload()
 function showHelp() {
     /*
     $('#helpDiv').on('open', function (event) {
-        alert("You opened a window");
+        alertBoxShow("You opened a window");
     });
     */
     $('#helpDiv').jqxWindow({

@@ -20,7 +20,7 @@ import java.sql.Connection;
 
 @Entity
 @Table(name="network_file", uniqueConstraints={
-        @UniqueConstraint(columnNames = {"user_id", "file_type", "file_name"})
+        @UniqueConstraint(columnNames = {"file_type", "file_name"})
 })
 public class NetworkFile extends Model {
     @Id
@@ -37,12 +37,14 @@ public class NetworkFile extends Model {
     public String fileType;
 
     @Constraints.Required
-    @Column(columnDefinition="TEXT")
+    @Column(columnDefinition="LONGTEXT")
     public String fileContent;
 
     @Constraints.Required
     public Boolean isPublic = false;
 
+    @OneToOne( mappedBy="networkFile")
+    public RawDataFile rawDataFile;
 
     @Column(columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     public Timestamp updateTime;
@@ -62,11 +64,10 @@ public class NetworkFile extends Model {
             new Finder<Long, NetworkFile>(Long.class, NetworkFile.class);
 
 
-    public static NetworkFile findByUnique (
-            User user, String fileName, String fileType ) {
+    public static NetworkFile findByFileNameAndType (
+            String fileName, String fileType ) {
 
         return (NetworkFile) find.where()
-                .eq("user", user)
                 .eq("fileName", fileName)
                 .eq("fileType", fileType)
                 .findUnique();

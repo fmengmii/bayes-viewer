@@ -28,6 +28,7 @@ create table raw_data_file (
 
 create table user (
   id                        bigint auto_increment not null,
+  test                      varchar(255),
   user_name                 varchar(255),
   password                  varchar(255),
   email                     varchar(255),

@@ -26,4 +26,3 @@ libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.34"
 libraryDependencies += filters
 
 libraryDependencies += "commons-codec" %  "commons-codec" % "1.10"
-
