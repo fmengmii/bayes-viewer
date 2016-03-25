@@ -62,10 +62,17 @@ $(function() { // on dom ready
 
 }); // on dom ready
 
-function centerNetwork()
+function centerNetwork(showMessage)
 {
+    if( $("#load").val() == null || $("#load").val() == '') {
+        alertBoxShow("Please select a network file first.");
+        return false;
+    }
 	cy.center();
 	cy.fit();
+	if(showMessage) {
+        successBoxShow("The network has been put at the center.");
+    }
 }
 
 function setNodeColorAll(color)
@@ -87,8 +94,12 @@ function networkLoadModel(model)
 function showUpload()
 {
     //$('#splitter').css('display', 'none');
+    $('.lowerButton').removeClass('selected');
+    $('.uploadButton').addClass('selected');
+
     $('#splitter').hide();
     $('#uploadDiv').show();
+    $("#load").val('');
     /*
 	$('#modelForm').trigger("reset");
 	$('#dataForm').trigger("reset");

@@ -13,7 +13,7 @@ GET         /model/setastarget/:nodeID          controllers.Application.setAsTar
 GET         /model/removetarget/:nodeID         controllers.Application.removeTarget(nodeID: String)
 GET         /model/clearalltargets              controllers.Application.clearAllTargets()
 GET         /model/cpt/:nodeID                  controllers.Application.getCPT(nodeID: String)
-POST        /model/uploadmodel/                 controllers.Application.uploadModel(updateModleFile: Boolean, updateDataFile:Boolean, isModelPublic:Boolean, isDataPublic:Boolean)
+POST        /model/uploadmodel                  controllers.Application.uploadModel(updateModleFile: Boolean, updateDataFile: Boolean, isModelPublic: Boolean,isDataPublic: Boolean, modelSharedByArray: String, rawdataSharedByArray: String )
 POST        /model/checkmodel                   controllers.Application.checkModel()
 #GET         /shared                             controllers.Application.shared()
 #GET         /network/:loadFileName             controllers.Application.network(loadFileName: String)

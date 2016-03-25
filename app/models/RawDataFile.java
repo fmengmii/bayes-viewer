@@ -7,6 +7,8 @@ import com.avaje.ebean.*;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by wyu on 3/4/16.
@@ -34,19 +36,25 @@ public class RawDataFile extends Model {
     @Constraints.Required
     public Boolean isPublic = false;
 
+    @ManyToMany
+    @JoinTable(name="raw_data_shared_users")
+    public List<User> rawDataSharedUsers = new ArrayList<User>();
+
     @Column(columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     public Timestamp updateTime;
 
     public RawDataFile(){}
 
     public RawDataFile( NetworkFile networkFile, String fileName,
-                        String fileType, String fileContent, Boolean isPublic ) {
+                        String fileType, String fileContent, Boolean isPublic,
+                        List<User> rawDataSharedUsers) {
 
         this.networkFile = networkFile;
         this.fileName = fileName;
         this.fileType = fileType;
         this.fileContent = fileContent;
         this.isPublic = isPublic;
+        this.rawDataSharedUsers = rawDataSharedUsers;
     }
 
     public static Finder<Long, RawDataFile> find =

@@ -9,11 +9,9 @@ import play.db.ebean.Model;
 
 import org.apache.commons.codec.binary.Base64;
 
-import javax.persistence.Entity;
+import javax.persistence.*;
+
 import play.db.ebean.*;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Column;
 
 import com.avaje.ebean.*;
 
@@ -56,6 +54,12 @@ public class User extends Model {
 
     @OneToMany(mappedBy="user")
     public List<NetworkFile> networkFiles = new ArrayList<NetworkFile>();
+
+    @ManyToMany(mappedBy="modelSharedUsers")
+    public List<NetworkFile> sharedNetworkFiles = new ArrayList<NetworkFile>();
+
+    @ManyToMany(mappedBy="rawDataSharedUsers")
+    public List<RawDataFile> sharedRawDataFiles = new ArrayList<RawDataFile>();
 
     public User() {}
 
@@ -101,6 +105,10 @@ public class User extends Model {
         byte[] byteArray = Base64.decodeBase64(password);
         String decodedPassword = new String(byteArray);
         return decodedPassword;
+    }
+
+    public static List<User> findAllApprovedList () {
+        return (List<User>)find.where().eq("isApproved", true).findList();
     }
 
     public String toString() {

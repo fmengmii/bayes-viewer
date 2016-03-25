@@ -43,8 +43,28 @@ public class NetworkFile extends Model {
     @Constraints.Required
     public Boolean isPublic = false;
 
-    @OneToOne( mappedBy="networkFile")
+    @OneToOne(mappedBy="networkFile")
     public RawDataFile rawDataFile;
+
+    /*
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name="color")
+    @CollectionTable(
+        name = "SHIRT_COLORS",
+        joinColumns=@JoinColumn(name = "id", referencedColumnName = "id")
+    )
+    //public List<String> colors = new ArrayList<String>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name="color")
+    @CollectionTable(name = "SHIRT_COLORS", joinColumns=@JoinColumn(name = "id"))
+    public List<String> colors = new ArrayList<String>();
+    */
+
+    @ManyToMany
+    @JoinTable(name="model_shared_users")
+    public List<User> modelSharedUsers = new ArrayList<User>();
+
 
     @Column(columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     public Timestamp updateTime;
@@ -52,12 +72,14 @@ public class NetworkFile extends Model {
     public NetworkFile() {}
 
     public NetworkFile( User user, String fileName, String fileType,
-                        String fileContent, Boolean isPublic ) {
+                        String fileContent, Boolean isPublic,
+                        List<User> modelSharedUsers ) {
         this.user = user;
         this.fileName = fileName;
         this.fileType = fileType;
         this.fileContent = fileContent;
         this.isPublic = isPublic;
+        this.modelSharedUsers = modelSharedUsers;
     }
 
     public static Finder<Long, NetworkFile> find =

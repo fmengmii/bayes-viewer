@@ -53,7 +53,6 @@ public class Application extends Controller
 		Form<ChangePassword> passwordForm = Form.form(ChangePassword.class).bindFromRequest();
 		if (passwordForm.hasErrors()) {
 			flash("error", "Please input correct field.");
-			//return badRequest(changePassword.render(passwordForm));
 			return redirect("/changePassword");
 		}
 
@@ -75,26 +74,18 @@ public class Application extends Controller
 	public static Result authenticate() {
 		Form<Login> loginForm = Form.form(Login.class).bindFromRequest();
 		if (loginForm.hasErrors()) {
-			System.out.print("authenticate error: " + loginForm.errors());
 			flash("error", "Please correct the form below.");
-			//return badRequest(login.render(loginForm));
 			return redirect("/login");
 		}
-		//System.out.print("authenticate, loginForm=" + loginForm);
 		String userName = loginForm.get().userName;
 		String password = loginForm.get().password;
 
 		String resultOfAuthenticate = User.authenticate(userName, password);
 		if (resultOfAuthenticate.equals("userNotExist")) {
-			//return forbidden("invalid password");
 			flash("error", "We don't have the user, please register!");
-			//return badRequest(register.render(Form.form(Register.class)));
 			return redirect("/register");
 		} else if (resultOfAuthenticate.equals("notMatch")) {
-			//return ok(login.render(Form.form(Login.class)));
 			flash("error", "Invalid password, please try again!");
-			//return forbidden("invalid password");
-			//return badRequest(login.render(loginForm));
 			return redirect("/login");
 		} else if( resultOfAuthenticate.equals("notApproved") ) {
 			flash("error", "Please wait for your account approval. ");
@@ -103,15 +94,6 @@ public class Application extends Controller
 			flash("success", "login successful.");
 			session().clear();
 			session("user", userName);
-			/*
-			File folder = new File("public/models");
-			String[] files = folder.list();
-			List<String> fileList = new ArrayList<String>();
-			fileList.add("");
-			for (int i=0; i<files.length; i++)
-				fileList.add(files[i]);
-			return network("private");
-			*/
 			return redirect("/");
 		}
 	}
@@ -128,8 +110,7 @@ public class Application extends Controller
 	public static Result saveRegistration() {
 		Form<Register> registerForm = Form.form(Register.class).bindFromRequest();
 		if (registerForm.hasErrors()) {
-			System.out.print("saveRegisration error: " + registerForm.errors());
-			flash("error", "Please complete the form below.");
+			flash("error", "Please fully complete the form below.");
 			return badRequest(register.render(registerForm));
 		}
 
@@ -139,8 +120,8 @@ public class Application extends Controller
 			//check email unique
 			User oldUser = User.findByEmail(email);
 			if( oldUser != null ) {
-				flash("error", "The email has been registered. " +
-						"Please login directly. If you get any problem, " +
+				flash("error", "The email has been registered with another " +
+						"user name. If you forget the user name, " +
 						"please contact our administrator. ");
 				return badRequest(login.render(Form.form(Login.class)));
 			}
@@ -155,13 +136,12 @@ public class Application extends Controller
 			user.save();
 
 			session().clear();
-			//session("user", userName);
-
-			flash("success", "The registration has been submitted. We will send email to confirm that later.");
-			//return ok(index.render());
+			flash("success", "The registration has been submitted. " +
+					"We will send an email to confirm that later.");
 			return redirect("/");
 		} else {
-			flash("error", "The user name has been registered. Please change a user name. ");
+			flash("error", "The user name has been registered. " +
+					"Please change the user name. ");
 			return badRequest(register.render(registerForm));
 		}
 	}
@@ -183,10 +163,13 @@ public class Application extends Controller
 
         return ok(network.render(fileList, loadFileName));
         */
+		List<User> users = new ArrayList<User>();
 		if( dataType.equals("private")){
 			User user = User.findByUserName(session("user"));
 			modelFileList = getModelFileList(user);
-			return ok(network.render(modelFileList, dataType));
+			users = User.findAllApprovedList();
+			users.remove(user);
+			return ok(network.render(modelFileList, dataType, users));
 		} else if( dataType.equals("public") ){
 			List<NetworkFile> networkFileList = NetworkFile.findAllPublicNetworkFileList();
 			for( int i=0; i<networkFileList.size(); i++ ){
@@ -194,7 +177,7 @@ public class Application extends Controller
 					networkFileList.get(i).fileType);
 			}
 
-			return ok(network.render(modelFileList, dataType));
+			return ok(network.render(modelFileList, dataType, users));
 		} else {
 			flash("error", "The dataType has to be private or public.");
 			return redirect("/network/" + dataType);
@@ -208,8 +191,17 @@ public class Application extends Controller
 		List<NetworkFile> networkFileList = user.networkFiles;
 		List<String> fileList = new ArrayList<String>();
 		for( int i=0; i<networkFileList.size(); i++ ){
-			fileList.add( networkFileList.get(i).fileName + "." +
-					networkFileList.get(i).fileType);
+			NetworkFile modelFile = networkFileList.get(i);
+			fileList.add( modelFile.fileName + "." +
+						modelFile.fileType);
+		}
+		List<NetworkFile> sharedNetworkFileList = user.sharedNetworkFiles;
+		for( int i=0; i<sharedNetworkFileList.size(); i++ ){
+			NetworkFile modelFile = sharedNetworkFileList.get(i);
+			fileList.add( modelFile.fileName + "." +
+					modelFile.fileType + " sharedBy " +
+					modelFile.user.firstName + " " +
+					modelFile.user.lastName);
 		}
 		return fileList;
 	}
@@ -219,7 +211,6 @@ public class Application extends Controller
     	ModelReader modelReader = new ModelReader();
 
 		String[] modelFullName = modelName.split("\\.");
-		//User user = User.findByUserName(session("user"));
 		NetworkFile networkFile = NetworkFile.findByFileNameAndType(
 				modelFullName[0], modelFullName[1]);
 
@@ -227,10 +218,6 @@ public class Application extends Controller
 		String modelStr = modelReader.readModelFromFileContent(
 				modelName, modelContent);
 
-		/*
-		modelReader.setModelPath(modelPath);
-    	String modelStr = modelReader.read(modelPath);
-		*/
     	Object network = modelReader.getNetwork();
     	Cache.set("network", network);
 		session("modelName", modelName);
@@ -267,15 +254,15 @@ public class Application extends Controller
 			FilePart dataUpload = filePartList.get(1);
 			File dataFile = dataUpload.getFile();
 			String dataFullFileName = dataUpload.getFilename();
-			Logger.info("data filePart dataFullFileName=" + dataFullFileName );
+			//Logger.info("data filePart dataFullFileName=" + dataFullFileName );
 			String[] parseDataFullFileName = dataFullFileName.split("\\.");
-			Logger.info("parseFull name = " + parseDataFullFileName);
+			//Logger.info("parseFull name = " + parseDataFullFileName);
 
 			String dataFileName = parseDataFullFileName[0];
 			String dataFileType = parseDataFullFileName[1];
 
 			RawDataFile rawDataFile = RawDataFile.findByNetworkFile(networkFile);
-			Logger.info("rawDataFile=" + rawDataFile );
+			//Logger.info("rawDataFile=" + rawDataFile );
 
 			if( rawDataFile != null ) {
 				dataFileExist = true;
@@ -303,8 +290,10 @@ public class Application extends Controller
 	//public static Result uploadModel() throws IOException
 	public static Result uploadModel(
 			Boolean updateModelFile, Boolean updateDataFile,
-			Boolean isModelPublic, Boolean isDataPublic ) {
+			Boolean isModelPublic, Boolean isRawDataPublic,
+			String modelSharedByArray, String rawDataSharedByArray) {
 
+		//Logger.info("modelSharedByArray=" + modelSharedByArray);
 		ModelReader modelReader = new ModelReader();
 
 		MultipartFormData body = request().body().asMultipartFormData();
@@ -325,7 +314,7 @@ public class Application extends Controller
 		try{
 			fileContent = new Scanner(file).useDelimiter("\\Z").next();
 		} catch (FileNotFoundException ex ) {
-			return badRequest("fileNotFound");
+			return badRequest("The file is not found.");
 		}
 
 		NetworkFile networkFile = NetworkFile.findByFileNameAndType(
@@ -333,15 +322,37 @@ public class Application extends Controller
 
 		if( networkFile != null ) {
 			if( updateModelFile) {
+				List<User> sharedUsers = networkFile.modelSharedUsers;
+				if( !isModelPublic && modelSharedByArray != null ) {
+					List<String> modelSharedUserNameList = new ArrayList<String>(
+							Arrays.asList(modelSharedByArray.split(",")));
+					for (String userName : modelSharedUserNameList) {
+						User sharedUser = User.findByUserName(userName);
+						if (!sharedUsers.contains(sharedUser)) {
+							sharedUsers.add(sharedUser);
+						}
+					}
+				}
+				networkFile.modelSharedUsers = sharedUsers;
 				networkFile.fileContent = fileContent;
 				networkFile.isPublic = isModelPublic;
 				networkFile.update();
 			} else {
-				return badRequest("model file is not allowed to update");
+				return badRequest("The model file is not allowed to update.");
 			}
 		} else {
+			List<User> sharedUsers = new ArrayList<User>();
+			if( !isModelPublic && modelSharedByArray != null ) {
+				List<String> modelSharedUserNameList = new ArrayList<String>(
+						Arrays.asList(modelSharedByArray.split(",")));
+				for (String userName : modelSharedUserNameList) {
+					User sharedUser = User.findByUserName(userName);
+					sharedUsers.add(sharedUser);
+				}
+			}
 			networkFile = new NetworkFile(user,
-					fileName, fileType, fileContent, isModelPublic);
+					fileName, fileType, fileContent, isModelPublic, sharedUsers);
+
 			networkFile.save();
 		}
 
@@ -358,26 +369,50 @@ public class Application extends Controller
 			try{
 				dataFileContent = new Scanner(dataFile).useDelimiter("\\Z").next();
 			} catch ( FileNotFoundException ex ) {
-				return badRequest("fileNotFound");
+				return badRequest("The file is not found.");
 			}
 
 			RawDataFile rawDataFile = RawDataFile.findByNetworkFile(networkFile);
 
 			if( rawDataFile != null ) {
 				if( updateDataFile ) {
+					List<User> sharedUsers = rawDataFile.rawDataSharedUsers;
+					if( !isRawDataPublic && rawDataSharedByArray != null ) {
+						List<String> rawDataSharedUserNameList = new ArrayList<String>(
+								Arrays.asList(rawDataSharedByArray.split(",")));
+						for(String userName: rawDataSharedUserNameList) {
+							User sharedUser = User.findByUserName(userName);
+							if( !sharedUsers.contains(sharedUser)) {
+								sharedUsers.add(sharedUser);
+							}
+						}
+					}
+					networkFile.modelSharedUsers = sharedUsers;
 					rawDataFile.fileContent = dataFileContent;
-					rawDataFile.isPublic = isDataPublic;
+					rawDataFile.isPublic = isRawDataPublic;
 					rawDataFile.update();
 				}else{
-					return badRequest("raw data file is not allowed to update.");
+					return badRequest("The raw data file is not allowed to update.");
 				}
 			} else {
+				List<User> sharedUsers = new ArrayList<User>();
+				if( !isRawDataPublic && rawDataSharedByArray != null ) {
+					List<String> rawDataSharedUserNameList = new ArrayList<String>(
+							Arrays.asList(rawDataSharedByArray.split(",")));
+					for (String userName : rawDataSharedUserNameList) {
+						User sharedUser = User.findByUserName(userName);
+						sharedUsers.add(sharedUser);
+					}
+				}
+
 				rawDataFile = new RawDataFile(networkFile, dataFileName,
-						dataFileType, dataFileContent, isDataPublic);
+						dataFileType, dataFileContent, isRawDataPublic, sharedUsers);
+
 				rawDataFile.save();
 			}
 		}
 		//Logger.info("save OR update successful.");
+
 			/*
 			File modelTemp = null;
 			try

@@ -354,3 +354,12 @@ function csvToJSON(csv)
 	}
 	return JSON.stringify(result);
 }
+/*
+function homeButtonClick () {
+    alert("viewer: home click.");
+    location.href = "/";
+    alert("viewer:button click here");
+    $('.topButton').removeClass('selected');
+    $('.homeButton').addClass('buttonSelected');
+    //return true;
+}*/

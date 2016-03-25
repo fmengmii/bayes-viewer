@@ -6,6 +6,7 @@ html, body{
     padding: 0px;
     overflow: hidden;
     font-family: Helvetica;
+    /*font-size:20px;*/
 }
 
 #headerDiv {
@@ -56,11 +57,13 @@ html, body{
 	padding-right:10px;
 	color:#337ab7;
 }
+
 #contentDiv {
     /*overflow: auto;*/
     width:90%;
     height:70%;
     padding-left:20px;
+    font-size:16px;
 }
 
 .bayesHrTop {
@@ -91,4 +94,106 @@ html, body{
 #helpCancelButton {
     width:65px;
     float: right;
+}
+
+#flash-success-box, #flash-error-box{
+    margin-top:20px;
+    margin-bottom:0px;
+}
+
+.button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
+.topButton {
+    background-color:#337ab7;
+    font-size: 15px;
+    padding: 2px 4px;
+    margin: 0px 0px;
+   /* border-bottom-color:#21578A;*/
+   /* border:2px solid #21578A; */
+}
+
+.topButton:hover{
+    background-color:#21578A;
+    font-weight:bold;
+    /*color:#000000;*/
+}
+
+.topButton.selected{
+    background-color:#21578A;
+    font-weight:bold;
+}
+
+.lowerButton {
+    background-color:#1EC0FF;   /*#3E95F7;*/ /*#35A2CE*/
+    font-size: 15px;
+    padding: 2px 4px;
+    margin: 0px 0px;
+   /* border-bottom-color:#21578A;*/
+   /* border:2px solid #21578A; */
+}
+
+.lowerButton:hover{
+    background-color:#245D73;
+    font-weight:bold;
+    /*color:#000000;*/
+}
+
+.lowerButton.selected{
+    background-color:#245D73;
+    font-weight:bold;
+}
+
+.uploadCancelButton{
+    font-size: 1.3em;
+    border: 0 none;
+    border-radius: 3px;
+    text-shadow: 0 -1px 0 #000;
+    box-shadow: 0 1px 0 #666, 0 5px 0 #444, 0 6px 6px rgba(0,0,0,0.6);
+    cursor: pointer;
+}
+
+#uploadSubmit{
+    font-weight: bold;
+    color: #ccc;
+    background-color: #555;
+    background: -webkit-linear-gradient(#888, #555);
+    background: linear-gradient(#888, #555);
+}
+
+#uploadCancel{
+}
+
+/*.bootstrap-select */
+/*
+#load{
+    background:yellow !important;
+    color:#FFF;
+    text-shadow:0 1px 0 rgba(0,0,0,0.4);
+}
+option:not(:checked) {
+    background-color: green;
+    color:red;
+}*/
+
+#load:focus,select.loadFocus {
+   color: white;
+   font-weight:bold;
+   background-color:#245D73;
+   border-color: #245D73; /*#66afe9;*/
+   /*border-radius:3px;*/
+   /*outline:none;*/
+   border:3px solid #245D73;
+   -webkit-box-shadow: none; /*inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);*/
+   box-shadow: none; /*inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6); */
 }

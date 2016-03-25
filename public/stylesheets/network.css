@@ -18,6 +18,9 @@ node {
 
 #splitter {
     display: none;
+    border-bottom-color:#245D73;
+    border-right-color:#245D73;
+    border-width:thin medium medium thin;
 }
 
 #uploadDiv{
@@ -40,7 +43,17 @@ node {
     margin-top:20px;
     margin-bottom:0px;
 }
+
+#success-box{
+    display:none;
+    margin-top:20px;
+    margin-bottom:0px;
+}
 /*
-#load{
-    padding-left:10px;
+.ui-multiselect-menu.ui-widget.ui-widget-content.ui-corner-all {
+	width: 200px !important; top: 310px !important; left: 312px !important;
 } */
+button.ui-multiselect.ui-widget.ui-state-default.ui-corner-all {
+	width: 400px !important; /* 225px and 310px default */
+}
+

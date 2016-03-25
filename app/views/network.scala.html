@@ -1,4 +1,6 @@
-@(models: List[String], dataType:String)
+@(models: List[String], dataType:String, users: List[User])
+
+@** @(models: List[String], dataType:String, networkFileForm:Form<models/NetworkFile>, users: List[User]) **@
 
 @main{
 	<div id="confirm-box" class="alert alert-info" >
@@ -10,13 +12,20 @@
 	</div>
 
 	<div id="alert-box" class="alert alert-danger" >
+		@**<a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>**@
+		<p class="close" data-dismiss="alert" aria-label="close" onclick="hideAlertBox()">&times;</p>
 		<strong>Alert:</strong>&nbsp;
 	</div>
 
+	<div id="success-box" class="alert alert-success" >
+		@**<a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>**@
+		<p class="close" data-dismiss="alert" aria-label="close" onclick="hideSuccessBox()">&times;</p>
+		<strong>Success!</strong>&nbsp;
+	</div>
 	<div id="buttonsDiv">
 		@if( models == null || models.size() == 0 ) {
 			<select id="load" onMouseDown="loadModel();">
-				<option selected disabled hidden value=''>Show existed bayesian network</option>
+				<option selected disabled hidden value=''>No existed bayesian network</option>
 			</select>
 		}else{
 			<select id="load" onChange="loadModel(this.options[this.selectedIndex].value)">
@@ -27,12 +36,12 @@
 			</select>
 		}
 		@if(dataType.equals("private")) {
-			<button type="button" onclick="showUpload()">Upload New File</button>
+			<button type="button" class="button lowerButton uploadButton" onclick="showUpload()">Upload New File</button>
 		}
-		<button type="button">Show All Posterior Probabilities</button>
-		<button type="button" onclick="clearAllEvidence()">Clear All Evidence</button>
-		<button type="button" onclick="clearAllTargets()">Clear All Targets</button>
-		<button type="button" onclick="centerNetwork()">Center Network</button>
+		@**<button type="button" class="button lowerButton showProbButton">Show All Posterior Probabilities</button>**@
+		<button type="button" class="button lowerButton clearEviButton" onclick="clearAllEvidence(true)">Clear All Evidences</button>
+		<button type="button" class="button lowerButton clearTarButton" onclick="clearAllTargets(true)">Clear All Targets</button>
+		<button type="button" class="button lowerButton centerButton" onclick="centerNetwork(true)">Center Network</button>
 	</div>
 	<br>
 
@@ -96,29 +105,54 @@
 
 	<div id="uploadDiv">
 		<form enctype="multipart/form-data" id="modelForm" >
-		<p><strong>Please upload new file:</strong></p>
+		<p style="font-size:20px"><strong>Please upload new file:</strong></p>
 		<ol type="1">
 			<li>
-				<p>Select your model file with extension xdsl and make checkbox checked if the file is public. </p>
-				<input id="modelFile" name="modelFile" type="file"/><br>
-				<input id="isModelPublic" name="isModelPublic" type="checkbox">&nbsp;The file is public
+				<p>Select your model file with extension xdsl. </p>
+				<div id="modelFileDiv" style="display:inline">
+					<input id="modelFile" name="modelFile" type="file">
+				</div>
+				<br>
+				Public:&nbsp;<input id="isModelPublic" name="isModelPublic" type="checkbox">
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<lable class="sharedByLabel" for="modelSharedBy">Shared By:&nbsp;</lable>
+				<select id="modelSharedBy" name="modelSharedBy" multiple="multiple">
+					@for(user <- users) {
+						<option value="@user.userName">&nbsp;@user.firstName&nbsp;@user.lastName:&nbsp;&nbsp;@user.email</option>
+					}
+				</select>
 			</li>
 			<br>
 			<li>
-				<p> Select your model's raw data file with extension csv (optional) and make checkbox checked if the file is public. </p>
+				<p> Select your model's raw data file with extension csv (optional). </p>
 				<input id="dataFile" name="dataFile" type="file"  /><br>
-				<input id="isDataPublic" name="isDataPublic" type="checkbox">&nbsp;The file is public
+				Public:&nbsp;<input id="isRawDataPublic" name="isRawDataPublic" type="checkbox">
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				Shared By: The same as the model file&nbsp;
+				<input id="isSameSharedBy" name="isSameSharedBy" type="checkbox">
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<lable class="sharedByLabel" for="rawDataSharedBy">Shared By:&nbsp;</lable>
+				<select id="rawDataSharedBy" name="rawDataSharedBy" multiple="multiple">
+					@for(user <- users) {
+						<option value="@user.userName">&nbsp;@user.firstName&nbsp;@user.lastName:&nbsp;&nbsp;@user.email</option>
+					}
+				</select>
 			</li>
 		</ol>
 		</form>
-		<br>
-		<input id="uploadButton" type="button" onClick="getModelUpload()" value="Upload" />
-		<input type="button" value="Cancel" onClick="window.location='/network/private';" id="uploadDone" />
+		<br><br>
+		<div id="uploadButtonDiv">
+			<input id="uploadSubmit" class="uploadCancelButton"  type="button" onClick="getModelUpload()" value="Upload" />
+			<input id="uploadCancel" class="uploadCancelButton" type="button" value="Cancel" onClick="window.location='/network/private';"  />
+			&nbsp;&nbsp;
+		</div>
 		<br>
 		@*<progress id ="modelProgress" value="0" max="100"></progress> *@
 		@**<div style="float: right"> **@
 	</div>
-
 }
 
 

@@ -42,6 +42,18 @@ create table user (
   constraint pk_user primary key (id))
 ;
 
+
+create table model_shared_users (
+  network_file_id                bigint not null,
+  user_id                        bigint not null,
+  constraint pk_model_shared_users primary key (network_file_id, user_id))
+;
+
+create table raw_data_shared_users (
+  raw_data_file_id               bigint not null,
+  user_id                        bigint not null,
+  constraint pk_raw_data_shared_users primary key (raw_data_file_id, user_id))
+;
 alter table network_file add constraint fk_network_file_user_1 foreign key (user_id) references user (id) on delete restrict on update restrict;
 create index ix_network_file_user_1 on network_file (user_id);
 alter table raw_data_file add constraint fk_raw_data_file_networkFile_2 foreign key (network_file_id) references network_file (id) on delete restrict on update restrict;
@@ -49,13 +61,25 @@ create index ix_raw_data_file_networkFile_2 on raw_data_file (network_file_id);
 
 
 
+alter table model_shared_users add constraint fk_model_shared_users_network_file_01 foreign key (network_file_id) references network_file (id) on delete restrict on update restrict;
+
+alter table model_shared_users add constraint fk_model_shared_users_user_02 foreign key (user_id) references user (id) on delete restrict on update restrict;
+
+alter table raw_data_shared_users add constraint fk_raw_data_shared_users_raw_data_file_01 foreign key (raw_data_file_id) references raw_data_file (id) on delete restrict on update restrict;
+
+alter table raw_data_shared_users add constraint fk_raw_data_shared_users_user_02 foreign key (user_id) references user (id) on delete restrict on update restrict;
+
 # --- !Downs
 
 SET FOREIGN_KEY_CHECKS=0;
 
 drop table network_file;
 
+drop table model_shared_users;
+
 drop table raw_data_file;
+
+drop table raw_data_shared_users;
 
 drop table user;
 
