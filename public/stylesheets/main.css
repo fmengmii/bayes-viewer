@@ -6,15 +6,19 @@ html, body{
     padding: 0px;
     overflow: hidden;
     font-family: Helvetica;
+    /*background-color:#fff2e6 !important; */ /*#ffd699;*/
     /*font-size:20px;*/
 }
 
+
 #headerDiv {
     padding-left:10px;
+    /*background-color:#ffffff;*/
 }
 
 #buttonsDiv {
    padding-top:20px;
+   display:block;
 }
 
 #headerDiv table{
@@ -22,7 +26,7 @@ html, body{
 }
 
 #headerDiv td.leftTop {
-	width:450px;
+	width:550px;
 	height:50px;
 	vertical-align:middle;
 	padding-left:10px;
@@ -55,7 +59,7 @@ html, body{
 	vertical-align:bottom;
 	font-size:18px;
 	padding-right:10px;
-	color:#337ab7;
+	color:#4c91cd; /*#337ab7;*/
 }
 
 #contentDiv {
@@ -64,6 +68,7 @@ html, body{
     height:70%;
     padding-left:20px;
     font-size:16px;
+
 }
 
 .bayesHrTop {
@@ -102,56 +107,64 @@ html, body{
 }
 
 .button {
-    background-color: #4CAF50; /* Green */
+    /*background-color: #4CAF50;*/ /* Green */
     border: none;
     color: white;
-    padding: 15px 32px;
+   /* padding: 15px 32px;*/
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
     margin: 4px 2px;
     cursor: pointer;
+    font-weight:bold;
 }
 
 .topButton {
-    background-color:#337ab7;
-    font-size: 15px;
-    padding: 2px 4px;
+    background-color:#4c91cd; /*#337ab7;*/
+    font-size: 18px;
+    padding: 2px 6px;
     margin: 0px 0px;
-   /* border-bottom-color:#21578A;*/
-   /* border:2px solid #21578A; */
+    /*border-color:#21578A #337ab7 #337ab7 #21578A;*/
+    border:1px solid #255b8e; /*#1a4156;*/ /*#21578A;*/ /*#337ab7 #337ab7 #21578A;*/
+    /*border:2px solid;*/
+    float:left;
 }
 
 .topButton:hover{
-    background-color:#21578A;
+    background-color:#1a4156; /*#153451;*/ /*#21578A;*/
     font-weight:bold;
+    border:1px solid #000000;
     /*color:#000000;*/
 }
 
 .topButton.selected{
-    background-color:#21578A;
+    background-color:#1a4156; /*#153451;*/ /*#21578A;*/
     font-weight:bold;
+    border:1px solid #000000;
 }
 
 .lowerButton {
-    background-color:#1EC0FF;   /*#3E95F7;*/ /*#35A2CE*/
-    font-size: 15px;
-    padding: 2px 4px;
+    background-color:#4da6ff; /*#1EC0FF*/;   /*#3E95F7;*/ /*#35A2CE*/
+    font-size: 16px;
+    padding: 2px 6px;
     margin: 0px 0px;
    /* border-bottom-color:#21578A;*/
-   /* border:2px solid #21578A; */
+    border:1px solid #0073e6;
+    float: left;
 }
 
 .lowerButton:hover{
-    background-color:#245D73;
+    background-color:#004280; /*#245D73;*/
     font-weight:bold;
+    border:1px solid #000000;
     /*color:#000000;*/
 }
 
 .lowerButton.selected{
-    background-color:#245D73;
+    background-color:#004280; /*#245D73;*/
     font-weight:bold;
+    border:1px solid #000000;
 }
 
 .uploadCancelButton{
@@ -171,12 +184,17 @@ html, body{
     background: linear-gradient(#888, #555);
 }
 
-#uploadCancel{
+#uploadSubmit:hover{
+    color: #1a4156; /*#21578A;*/
+}
+#uploadCancel:hover{
+    color: #4c91cd; /*#21578A;*/
 }
 
 /*.bootstrap-select */
 /*
 #load{
+    float:left;
     background:yellow !important;
     color:#FFF;
     text-shadow:0 1px 0 rgba(0,0,0,0.4);
@@ -187,13 +205,41 @@ option:not(:checked) {
 }*/
 
 #load:focus,select.loadFocus {
-   color: white;
+   /*color: white;*/
    font-weight:bold;
-   background-color:#245D73;
-   border-color: #245D73; /*#66afe9;*/
+   /*background-color:#245D73;*/
+   border-color: #004280;/*#245D73;*/ /*#66afe9;*/
    /*border-radius:3px;*/
    /*outline:none;*/
-   border:3px solid #245D73;
+   border:3px solid #004280; /*#245D73;*/
    -webkit-box-shadow: none; /*inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);*/
    box-shadow: none; /*inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6); */
+}
+
+.signInButton{
+    font-size: 1.3em;
+    border: 0 none;
+    border-radius: 3px;
+    text-shadow: 0 -1px 0 #000;
+    box-shadow: 0 1px 0 #666, 0 5px 0 #444, 0 6px 6px rgba(0,0,0,0.6);
+    cursor: pointer;
+    font-weight: bold;
+    color: #ccc;
+    background-color: #555;
+    background: -webkit-linear-gradient(#888, #555);
+    background: linear-gradient(#888, #555);
+}
+
+.signInButton:hover{
+    color: #1a4156; /*#21578A;*/
+}
+
+.deleting{
+    display:none;
+    color: #4da6ff;
+}
+
+.uploading{
+    display:none;
+    color: #4da6ff; /*red;*/ /*#1a4156;*/
 }

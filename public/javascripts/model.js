@@ -1,8 +1,15 @@
 var networkInfoArray;
 
-function loadModel(modelName) {
-    //alert("load model.");
+//function loadModel(modelName) {
+function loadModel() {
+    if( $("#load").val() == null || $("#load").val() == '') {
+        alertBoxShow("Please select a network file first.");
+        return false;
+    }
+    var modelName = $("#load").val();
     $('.lowerButton').removeClass('selected');
+    $('.showNetworkButton').addClass('selected');
+
 	if(modelName == null) {
 	    alertBoxShow("Sorry, there is not an existed network yet.");
 	} else {
@@ -40,48 +47,215 @@ function loadModel(modelName) {
     }
 	//cy.load({nodes:[{data: {id:'a'}},{data: {id:'b'}}],edges:[{data:{id:'ab',source:'a',target:'b'}}]});
 }
+function showUpload() {
+    $('.lowerButton').removeClass('selected');
+    $('.uploadButton').addClass('selected');
 
+    $('#splitter').hide();
+    $('#uploadDiv').show();
+    $("#load").val('');
+}
+
+function showUpdate() {
+    $('.lowerButton').removeClass('selected');
+    $('.updateModelButton').addClass('selected');
+
+    $('#splitter').hide();
+    $('#updateDiv').show();
+
+    $('.selectedModelFileName').html("me");
+
+}
+
+
+function deleteModel(){
+    var modelName = $("#load").val();
+    $('.lowerButton').removeClass('selected');
+    $('.deleteModelButton').addClass('selected');
+    if( $("#load").val() == null || $("#load").val() == '') {
+        alertBoxShow("Please select a network file first.");
+        return false;
+    }
+	if(modelName == null) {
+	    alertBoxShow("Sorry, there is not an existed network yet.");
+	} else {
+	    if(modelName.indexOf("sharedBy") != -1){
+	        alertBoxShow("You can't delete the file because it's a shared file.");
+	        return false;
+        }
+        var message="Are you sure to delete the model file?";
+        confirmBoxForDelete(message,
+                        modelName,
+                        confirmYesFunctionForDelete,
+                        confirmNoFunction);
+
+	}
+}
+
+function updateModel() {
+    var modelName = $("#load").val();
+    $('.lowerButton').removeClass('selected');
+    $('.updateModelButton').addClass('selected');
+    if( $("#load").val() == null || $("#load").val() == '') {
+        alertBoxShow("Please select a network file first.");
+        return false;
+    }
+    if(modelName == null) {
+	    alertBoxShow("Sorry, there is not an existed network yet.");
+	} else {
+	    if(modelName.indexOf("sharedWith") != -1){
+	        alertBoxShow("You can't delete the file because it's a shared file.");
+	        return false;
+        }
+        var getModelStatusAjax = jsRoutes.controllers.Application.getModelStatus(modelName);
+        $.ajax({
+            url: getModelStatusAjax.url
+        }).done(function(data) {
+            $('#updateDiv').show();
+            $('.selectedModelFileName').html("Model file name:&nbsp;" + $('#load').val());
+            $('.uploadedBy').html("Uploaded by:&nbsp;" + data.uploadedBy);
+            $('.uploadTime').html("Upload time:&nbsp;" + data.uploadTime);
+            if( data.isPublic ) {
+                $('.isPublic').html("The model file is public.");
+            } else if( data.sharedWith != null && data.sharedWith != "") {
+                $('.sharedWith').html("Shared with:&nbsp;" + data.sharedWith);
+            } else {
+                $('.sharedWith').html("Shared with:&nbsp;No");
+            }
+            if( data.rawDataFileName != null &&  data.rawDataFileName != "") {
+                $('.rawDataFileName').html(
+                    "Raw data file name:&nbsp;" + data.rawDataFileName);
+            }
+
+        }).fail(function() {
+        });
+    }
+}
+
+function checkSharedWith() {
+    if($('#isModelPublic').is(":checked")){
+        alertBoxShow("The model file has been selected as 'public'. You don't need to share again.");
+        $('#modelSharedBy').attr('value', null);
+    }
+    if($('#isRawDataPublic').is(":checked")){
+        alertBoxShow("The raw data file has been selected as 'public'. You don't need to share again.");
+    }
+    if($('#isSameSharedBy').is(":checked")){
+        alertBoxShow("The raw data file has been selected as the same as with model file. You don't need to share again.");
+    }
+    if($('#isUpdateModelPublic').is(":checked")){
+        alertBoxShow("The model file has been selected as 'public'. You don't need to share again.");
+        $('#updateModelSharedBy').attr('value', null);
+    }
+    if($('#isUpdateRawDataPublic').is(":checked")){
+        alertBoxShow("The raw data file has been selected as 'public'. You don't need to share again.");
+    }
+    if($('#isUpdateSameSharedBy').is(":checked")){
+        alertBoxShow("The raw data file has been selected as the same as with model file. You don't need to share again.");
+    }
+}
+
+/*
 function loadNetwork(modelName) {
     //window.location.href="/network";
     //alert("loadNetwork..");
     $('.lowerButton').removeClass('selected');
     loadModel(modelName);
-}
-
-
+}*/
 
 function alertBoxShow(message) {
     $("i").remove();
     $("#alert-box").show();
-    $("#alert-box").append(message);
+    //$("#alert-box").append(message);
+    $('.alertBoxMessage').html(message);
+    $('.lowerButton').removeClass('selected');
+    /*
     if( $("#load").val() != '' ) {
        $("#load").focus();
-    }
+    }*/
 }
 
 function hideAlertBox() {
    $("#alert-box").hide();
+   /*
    if( $("#load").val() != '' ) {
        $("#load").focus();
-   }
+   }*/
 }
 
 function successBoxShow(message) {
     $("i").remove();
     $("#success-box").show();
-    $("#success-box").append(message);
+    $('.successBoxMessage').html(message);
+    //$("#success-box").append(message);
+    $('.lowerButton').removeClass('selected');
+    /*
     if( $("#load").val() != '' ) {
        $("#load").focus();
-    }
+    }*/
 }
 
 function hideSuccessBox() {
    $("#success-box").hide();
+   /*
    if( $("#load").val() != '' ) {
        $("#load").focus();
-   }
+   }*/
 }
-function confirmYesFunction(updateModelFile,
+
+function confirmBoxForDelete(message,
+                        modelName,
+                        confirmYesFunctionForDelete,
+                        confirmNoFunction
+                        ) {
+
+    $("#confirm-box").show();
+    $("#confirm-box").prepend("Confirm: " + message);
+
+    $('#btnYesConfirmYesNo, #btnNoConfirmYesNo').click(function(){
+        if( this.id == 'btnYesConfirmYesNo' ) {
+            confirmYesFunctionForDelete(modelName);
+        } else if( this.id == 'btnNoConfirmYesNo' ) {
+            confirmNoFunction();
+        }
+    });
+}
+
+function confirmYesFunctionForDelete(modelName) {
+    $("#confirm-box").hide();
+
+    //start spinner
+    $('.deleting').show();
+    var i = $('<i class="fa fa-spinner fa-pulse"></i>');
+    $('.deleting').append(i);
+
+	var deleteModelAjax = jsRoutes.controllers.Application.deleteModel(modelName);
+     $.ajax({
+        url: deleteModelAjax.url,
+        type: 'POST',
+        cache: false,
+        contentType: false,
+        processData: false
+    }).done(function(data) {
+        $('.deleting').hide();
+        $("i").remove();
+
+        if( data == "success") {
+            $('#load option[value="'+modelName+'"]').remove();
+            $('#load').val('');
+            $('.lowerButton').removeClass('selected');
+            successBoxShow("The netwrok file has been deleted successfully.");
+        } else {
+            alertBoxShow(data);
+        }
+
+    }).fail(function() {
+        $('.deleting').hide();
+        $("i").remove();
+    });
+}
+
+function confirmYesFunctionForUpload(updateModelFile,
                             updateDataFile,
                             isModelPublic,
                             isRawDataPublic,
@@ -102,29 +276,35 @@ function confirmYesFunction(updateModelFile,
         contentType: false,
         processData: false
     }).done(function(data) {
+        $('.uploading').hide();
+        $('i').remove();
         if( data == "success") {
+            successBoxShow("The file has been updated successfully.");
             location.href = "/network/private";
         } else {
             alertBoxShow(data);
         }
     }).fail(function(ts){
+        $('.uploading').hide();
+        $('i').remove();
         alertBoxShow(ts.responseText);
     });
 }
 
 function confirmNoFunction() {
+    $('.uploading').hide();
     $("i").remove();
     $("#confirm-box").hide();
     location.href = "/network/private";
 }
 
-function confirmBoxReturn(message,
+function confirmBoxForUpload(message,
                         updateModelFile,
                         updateDataFile,
                         isModelPublic,
                         isRawDataPublic,
                         formData,
-                        confirmYesFunction,
+                        confirmYesFunctionForUpload,
                         confirmNoFunction,
                         modelSharedByArray,
                         rawDataSharedByArray ) {
@@ -134,7 +314,7 @@ function confirmBoxReturn(message,
 
     $('#btnYesConfirmYesNo, #btnNoConfirmYesNo').click(function(){
         if( this.id == 'btnYesConfirmYesNo' ) {
-            confirmYesFunction(updateModelFile,
+            confirmYesFunctionForUpload(updateModelFile,
                             updateDataFile,
                             isModelPublic,
                             isRawDataPublic,
@@ -149,21 +329,18 @@ function confirmBoxReturn(message,
 }
 
 function getModelUpload() {
-
-    //start spinner
-    var i = $('<i class="fa fa-spinner fa-pulse"></i>');
-    $('#uploadButtonDiv').append(i);
-
+    alert("update comming.");
 	var formData = new FormData();
 	var upload = false;
 	var modelFile = $('#modelFile')[0].files[0];
+	alert("modelFile=" + modelFile);
 	var updateModelFile = false;
 	var updateDataFile = false;
 	var isModelPublic = $('#isModelPublic').is(":checked");
 	var isRawDataPublic = $('#isRawDataPublic').is(":checked");
 	var isSameSharedBy = $('#isSameSharedBy').is(":checked");
-
 	var modelSharedByArray = $('#modelSharedBy').val();
+
 	if( !isModelPublic && modelSharedByArray != null ) {
 	    modelSharedByArray = modelSharedByArray.toString();
 	} else {
@@ -185,9 +362,10 @@ function getModelUpload() {
 	}
 
 	if( modelFile != null ) {
-	    formData.append('modelFile', modelFile);
-
 	    var modelFileName = modelFile.name;
+	    alert("modelFileName=" + modelFileName);
+
+        formData.append('modelFile', modelFile);
 	    var modelFileNameArray = modelFileName.split(".");
         if( modelFileNameArray[1] != "xdsl") {
 	        alertBoxShow(
@@ -215,6 +393,11 @@ function getModelUpload() {
 	    return false;
 	}
 
+    //start spinner
+    $('.uploading').show();
+    var i = $('<i class="fa fa-spinner fa-pulse"></i>');
+    $('#uploadButtonDiv').append(i);
+
 	var checkModelAjax = jsRoutes.controllers.Application.checkModel();
     $.ajax({
         url: checkModelAjax.url,
@@ -234,13 +417,13 @@ function getModelUpload() {
 
             updateModelFile = true;
             updateDataFile = true;
-            confirmBoxReturn( message,
+            confirmBoxForUpload( message,
                             updateModelFile,
                             updateDataFile,
                             isModelPublic,
                             isRawDataPublic,
                             formData,
-                            confirmYesFunction,
+                            confirmYesFunctionForUpload,
                             confirmNoFunction,
                             modelSharedByArray,
                             rawDataSharedByArray);
@@ -250,13 +433,13 @@ function getModelUpload() {
                             "Do you want to update it?";
 
             updateModelFile = true;
-            confirmBoxReturn( message,
+            confirmBoxForUpload( message,
                             updateModelFile,
                             updateDataFile,
                             isModelPublic,
                             isRawDataPublic,
                             formData,
-                            confirmYesFunction,
+                            confirmYesFunctionForUpload,
                             confirmNoFunction,
                             modelSharedByArray,
                             rawDataSharedByArray );
@@ -266,13 +449,13 @@ function getModelUpload() {
                             "Do you want to update it?";
 
             updateDataFile = true;
-            confirmBoxReturn( message,
+            confirmBoxForUpload( message,
                             updateModelFile,
                             updateDataFile,
                             isModelPublic,
                             isRawDataPublic,
                             formData,
-                            confirmYesFunction,
+                            confirmYesFunctionForUpload,
                             confirmNoFunction,
                             modelSharedByArray,
                             rawDataSharedByArray );
@@ -289,12 +472,17 @@ function getModelUpload() {
                 contentType: false,
                 processData: false
             }).done(function(data) {
+                $('.uploading').hide();
+                $('i').remove();
                 if( data == "success") {
+                    //successBoxShow("The network file has been uploaded successfully.");
                     location.href = "/network/private";
                 } else {
                     alertBoxShow(data);
                 }
             }).fail(function(ts){
+                 $('.uploading').hide();
+                 $('i').remove();
                  alertBoxShow(ts.responseText);
             });
         }
@@ -306,6 +494,8 @@ function getModelUpload() {
             getRawDataOptions("upload");
             */
     }).fail(function(ts) {
+        $('.uploading').hide();
+        $('i').remove();
         alertBoxShow(ts.responseText);
     });
 	    /*
@@ -331,6 +521,112 @@ function getModelUpload() {
         }).fail(function() {
         });
         */
+}
+
+function getModelUpdate() {
+	var formData = new FormData();
+	var upload = false;
+	var modelFile = $('#updateModelFile')[0].files[0];
+	var updateModelFile = true;
+	var updateDataFile = true;
+	var isModelPublic = $('#isUpdateModelPublic').is(":checked");
+	var isRawDataPublic = $('#isUpdateRawDataPublic').is(":checked");
+	var isSameSharedBy = $('#isUpdateSameSharedBy').is(":checked");
+	var modelSharedByArray = $('#updateModelSharedBy').val();
+
+	if( !isModelPublic && modelSharedByArray != null ) {
+	    modelSharedByArray = modelSharedByArray.toString();
+	} else {
+	    modelSharedByArray = null;
+	}
+	var rawDataSharedByArray = $('#updateRawDataSharedBy').val();
+	if( !isRawDataPublic ) {
+	    if( isSameSharedBy ) {
+	        rawDataSharedByArray = modelSharedByArray;
+	    } else {
+	        if(rawDataSharedByArray != null ) {
+	            rawDataSharedByArray = rawDataSharedByArray.toString();
+	        } else {
+	            rawDataSharedByArray = null;
+	        }
+	   }
+	} else {
+	    rawDataSharedByArray = null;
+	}
+
+	if( modelFile != null ) {
+	    var modelFileName = modelFile.name;
+        if( modelFileName != $('#load').val()) {
+	        alertBoxShow("The model file name you chose is not the same " +
+	            "as you are updating, please change the model file name.");
+	    } else {
+            formData.append('modelFile', modelFile);
+	        upload = true;
+	    }
+	} else {
+	    alertBoxShow("No model file is chosen. Please choose a model file.");
+	}
+
+	var dataFile = $('#updateDataFile')[0].files[0];
+	if( dataFile != null ) {
+	    formData.append('dataFile', dataFile);
+	    var dataFileName = dataFile.name;
+	    var dataFileNameArray = dataFileName.split(".");
+        if( dataFileNameArray[1] != "csv") {
+	        alertBoxShow("The data file extension is not  '.csv'. \nPlease choose a correct file. ");
+	    } else {
+	        upload = true;
+	    }
+	}
+
+	if( !upload ) {
+	    return false;
+	}
+
+    //start spinner
+    $('.uploading').show();
+    var i = $('<i class="fa fa-spinner fa-pulse"></i>');
+    $('#uploadButtonDiv').append(i);
+
+	var checkModelAjax = jsRoutes.controllers.Application.checkModel();
+    $.ajax({
+        url: checkModelAjax.url,
+        type: 'POST',
+        data: formData,
+        cache: false,
+        contentType: false,
+        processData: false
+    }).done(function(data) {
+        var uploadModelAjax = jsRoutes.controllers.Application.uploadModel(
+                updateModelFile, updateDataFile, isModelPublic, isRawDataPublic,
+                modelSharedByArray, rawDataSharedByArray );
+
+        $.ajax({
+            url: uploadModelAjax.url,
+            type: 'POST',
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false
+        }).done(function(data) {
+            $('.uploading').hide();
+            $('i').remove();
+            if( data == "success") {
+                //successBoxShow("The network file has been uploaded successfully.");
+                location.href = "/network/private";
+            } else {
+                alertBoxShow(data);
+            }
+        }).fail(function(ts){
+            $('.uploading').hide();
+            $('i').remove();
+            alertBoxShow(ts.responseText);
+        });
+    }).fail(function(ts) {
+        $('.uploading').hide();
+        $('i').remove();
+        alertBoxShow(ts.responseText);
+    });
 }
 
 function clearAllEvidence(showMessage)

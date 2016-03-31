@@ -2,21 +2,15 @@
 @import helper._
 @import helper.twitterBootstrap._
 
-@** @main("Please sign in to the bayes network viwer application") {  **@
-
 @main {
     @helper.form(helper.CSRF(routes.Application.authenticate) ) {
-        <h1>Sign in</h1>
-        <p>
-            <input type="text" name="userName" placeholder="User Name"
+        <h2>Sign in</h2>
+        <input type="text" name="userName" placeholder="User Name"
                     value="@loginForm("userName").value">
-        </p>
-        <p>
-            <input type="password" name="password"
-                    placeholder="Password">
-        </p>
-        <p>
-            <button type="submit">Sign in</button>
-        </p>
+        <p></p>
+        <input type="password" name="password"
+                    placeholder="Password"><br><br>
+
+        <button type="submit" class="signInButton">Submit</button>
     }
 }

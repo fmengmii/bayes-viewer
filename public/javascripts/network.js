@@ -91,16 +91,8 @@ function networkLoadModel(model)
 	cy.load(model);
 }
 
-function showUpload()
+/*function showUpload()
 {
-    //$('#splitter').css('display', 'none');
-    $('.lowerButton').removeClass('selected');
-    $('.uploadButton').addClass('selected');
-
-    $('#splitter').hide();
-    $('#uploadDiv').show();
-    $("#load").val('');
-    /*
 	$('#modelForm').trigger("reset");
 	$('#dataForm').trigger("reset");
 
@@ -133,7 +125,5 @@ function showUpload()
 			$('#dataForm').trigger('reset');
 		}
 	});
-	*/
-
 }
-
+*/

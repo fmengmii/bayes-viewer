@@ -76,6 +76,8 @@
                 //multiple select
                 $("#modelSharedBy").multiselect().multiselectfilter();
                 $("#rawDataSharedBy").multiselect().multiselectfilter();
+				$("#updateModelSharedBy").multiselect().multiselectfilter();
+                $("#updateRawDataSharedBy").multiselect().multiselectfilter();
 
                 var location = window.location.pathname;
                 if( location == "/" ) {
@@ -123,7 +125,9 @@
               routes.javascript.Application.clearAllTargets,
               routes.javascript.Application.getCPT,
               routes.javascript.Application.checkModel,
-		      routes.javascript.Application.uploadModel
+		      routes.javascript.Application.uploadModel,
+		      routes.javascript.Application.deleteModel,
+		      routes.javascript.Application.getModelStatus
               )
 	</head>
 
@@ -161,8 +165,7 @@
                  </tr>
              </table>
          </div>
-         <hr class="bayesHrTop">
-
+		 <hr class="bayesHrTop">
          <div id="contentDiv">
              @if(flash.containsKey("success")){
                  <div id="flash-success-box" class="alert alert-success" >

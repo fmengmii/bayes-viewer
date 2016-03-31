@@ -4,6 +4,7 @@ import bayes.ModelReader;
 import play.*;
 import play.cache.Cache;
 import play.data.Form;
+import play.libs.Json;
 import play.mvc.*;
 import play.mvc.Http.*;
 import play.mvc.Http.MultipartFormData.*;
@@ -206,6 +207,50 @@ public class Application extends Controller
 		return fileList;
 	}
 
+	public static Result getModelStatus ( String modelName ) {
+		String[] parseFullFileName = modelName.split("\\.");
+
+		String fileName = parseFullFileName[0];
+		String fileType = parseFullFileName[1];
+		User user = User.findByUserName(session("user"));
+		NetworkFile networkFile = NetworkFile.findByFileNameAndType(
+					fileName, fileType);
+
+		String userName = networkFile.user.firstName + " " +
+				networkFile.user.lastName;
+		String fileFullName = networkFile.fileName + "." +
+				networkFile.fileType;
+
+		Map networkFileMap = new HashMap();
+		networkFileMap.put("fileFullName", fileFullName);
+		networkFileMap.put("uploadedBy", userName);
+		networkFileMap.put("isPublic", networkFile.isPublic);
+		networkFileMap.put("uploadTime", networkFile.updateTime.toString());
+		//Logger.info("rawdata file is " + networkFile.rawDataFile);
+
+		if( networkFile.rawDataFile != null ) {
+			String rawDataFileName = networkFile.rawDataFile.fileName + "." +
+					networkFile.rawDataFile.fileType;
+			networkFileMap.put("rawDataFileName", rawDataFileName);
+		} else {
+			networkFileMap.put("rawDataFileName", "");
+		}
+		String sharedWith = "";
+		if( networkFile.modelSharedUsers != null &&
+				networkFile.modelSharedUsers.size() > 0 ) {
+			for(User sharedUser : networkFile.modelSharedUsers ) {
+				if( sharedWith.equals("")) {
+					sharedWith += sharedUser.firstName + " " + sharedUser.lastName;
+				} else {
+					sharedWith += ", " + sharedUser.firstName + " " + sharedUser.lastName;
+				}
+			}
+		}
+		networkFileMap.put("sharedWith", sharedWith);
+		//JsonNode networkFileJson = Json.toJson(networkFile);
+		return ok(Json.toJson(networkFileMap));
+	}
+
     //public static Result loadModel(String modelPath) {
 	public static Result loadModel(String modelName) {
     	ModelReader modelReader = new ModelReader();
@@ -324,9 +369,9 @@ public class Application extends Controller
 			if( updateModelFile) {
 				List<User> sharedUsers = networkFile.modelSharedUsers;
 				if( !isModelPublic && modelSharedByArray != null ) {
-					List<String> modelSharedUserNameList = new ArrayList<String>(
+					List<String> modelsharedWith = new ArrayList<String>(
 							Arrays.asList(modelSharedByArray.split(",")));
-					for (String userName : modelSharedUserNameList) {
+					for (String userName : modelsharedWith) {
 						User sharedUser = User.findByUserName(userName);
 						if (!sharedUsers.contains(sharedUser)) {
 							sharedUsers.add(sharedUser);
@@ -343,9 +388,9 @@ public class Application extends Controller
 		} else {
 			List<User> sharedUsers = new ArrayList<User>();
 			if( !isModelPublic && modelSharedByArray != null ) {
-				List<String> modelSharedUserNameList = new ArrayList<String>(
+				List<String> modelsharedWith = new ArrayList<String>(
 						Arrays.asList(modelSharedByArray.split(",")));
-				for (String userName : modelSharedUserNameList) {
+				for (String userName : modelsharedWith) {
 					User sharedUser = User.findByUserName(userName);
 					sharedUsers.add(sharedUser);
 				}
@@ -378,9 +423,9 @@ public class Application extends Controller
 				if( updateDataFile ) {
 					List<User> sharedUsers = rawDataFile.rawDataSharedUsers;
 					if( !isRawDataPublic && rawDataSharedByArray != null ) {
-						List<String> rawDataSharedUserNameList = new ArrayList<String>(
+						List<String> rawDatasharedWith = new ArrayList<String>(
 								Arrays.asList(rawDataSharedByArray.split(",")));
-						for(String userName: rawDataSharedUserNameList) {
+						for(String userName: rawDatasharedWith) {
 							User sharedUser = User.findByUserName(userName);
 							if( !sharedUsers.contains(sharedUser)) {
 								sharedUsers.add(sharedUser);
@@ -397,9 +442,9 @@ public class Application extends Controller
 			} else {
 				List<User> sharedUsers = new ArrayList<User>();
 				if( !isRawDataPublic && rawDataSharedByArray != null ) {
-					List<String> rawDataSharedUserNameList = new ArrayList<String>(
+					List<String> rawDatasharedWith = new ArrayList<String>(
 							Arrays.asList(rawDataSharedByArray.split(",")));
-					for (String userName : rawDataSharedUserNameList) {
+					for (String userName : rawDatasharedWith) {
 						User sharedUser = User.findByUserName(userName);
 						sharedUsers.add(sharedUser);
 					}
@@ -433,6 +478,25 @@ public class Application extends Controller
 		flash("success", "The files have been uploaded successfully.");
 		return ok("success");
 		//return ok(modelStr);
+	}
+
+	public static Result deleteModel(String modelName) {
+		String[] parseFullFileName = modelName.split("\\.");
+
+		String fileName = parseFullFileName[0];
+		String fileType = parseFullFileName[1];
+		User user = User.findByUserName(session("user"));
+		NetworkFile networkFile = NetworkFile.findByFileNameAndType(
+					fileName, fileType);
+
+
+		if( networkFile != null ) {
+			Logger.info("delete file " + networkFile);
+			networkFile.delete();
+			return ok("success");
+		} else {
+			return ok("The network file does not exist in database.");
+		}
 	}
 
     public static Result setEvidence()

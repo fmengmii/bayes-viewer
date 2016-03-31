@@ -18,8 +18,8 @@ node {
 
 #splitter {
     display: none;
-    border-bottom-color:#245D73;
-    border-right-color:#245D73;
+    border-bottom-color:#004280; /*#245D73;*/
+    border-right-color:#004280; /*#245D73;*/
     border-width:thin medium medium thin;
 }
 
@@ -28,6 +28,12 @@ node {
     display: none;
     padding-left: 20px;
 }
+#updateDiv{
+    overflow:hidden;
+    display: none;
+    padding-left: 20px;
+}
+
 #dialogSetValues{
     display:none;
 }
@@ -42,6 +48,14 @@ node {
     display:none;
     margin-top:20px;
     margin-bottom:0px;
+}
+
+.alertBoxClose{
+    text-align: right;
+}
+
+#fileStatusDiv{
+    color:#cc5200; /*#e65c00; /*#ff6600; /*#ff751a;*/ /*#ff944d;*/
 }
 
 #success-box{

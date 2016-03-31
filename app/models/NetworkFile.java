@@ -43,7 +43,7 @@ public class NetworkFile extends Model {
     @Constraints.Required
     public Boolean isPublic = false;
 
-    @OneToOne(mappedBy="networkFile")
+    @OneToOne(mappedBy="networkFile", cascade=CascadeType.ALL)
     public RawDataFile rawDataFile;
 
     /*
