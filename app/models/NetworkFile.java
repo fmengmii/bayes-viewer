@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
 
@@ -22,6 +23,7 @@ import java.sql.Connection;
 @Table(name="network_file", uniqueConstraints={
         @UniqueConstraint(columnNames = {"file_type", "file_name"})
 })
+@JsonIgnoreProperties({"user","fileContent", "modelSharedUsers", "rawDataFile"})
 public class NetworkFile extends Model {
     @Id
     public long id;
@@ -46,25 +48,9 @@ public class NetworkFile extends Model {
     @OneToOne(mappedBy="networkFile", cascade=CascadeType.ALL)
     public RawDataFile rawDataFile;
 
-    /*
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name="color")
-    @CollectionTable(
-        name = "SHIRT_COLORS",
-        joinColumns=@JoinColumn(name = "id", referencedColumnName = "id")
-    )
-    //public List<String> colors = new ArrayList<String>();
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name="color")
-    @CollectionTable(name = "SHIRT_COLORS", joinColumns=@JoinColumn(name = "id"))
-    public List<String> colors = new ArrayList<String>();
-    */
-
     @ManyToMany
     @JoinTable(name="model_shared_users")
     public List<User> modelSharedUsers = new ArrayList<User>();
-
 
     @Column(columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     public Timestamp updateTime;

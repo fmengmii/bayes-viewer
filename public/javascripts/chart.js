@@ -95,9 +95,10 @@ function drawChart(nodeInfoArray, divSelect)
 		.call(yAxis);
 	
 	chart.append("text")
-	    .attr("x", (width / 2))             
+	    //.attr("x", (width / 2))
+	    .attr("x", width)
 	    .attr("y", -2)
-	    .attr("text-anchor", "middle")  
-	    .style("font-size", "10px") 
+	    .attr("text-anchor", "end")
+	    .style("font-size", "10px")
 	    .text(nodeName);
 }

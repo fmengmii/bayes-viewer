@@ -17,6 +17,7 @@ POST        /model/uploadmodel                  controllers.Application.uploadMo
 POST        /model/checkmodel                   controllers.Application.checkModel()
 POST        /model/deletemodel/:modelName       controllers.Application.deleteModel(modelName: String)
 GET         /model/getmodelstatus/:modelName    controllers.Application.getModelStatus(modelName: String)
+GET         /model/getmodelhistory/:modelName   controllers.Application.getModelHistory(modelName: String)
 #GET        /shared                             controllers.Application.shared()
 #GET        /network/:loadFileName              controllers.Application.network(loadFileName: String)
 GET         /network/:dataType                  controllers.Application.network(dataType: String)

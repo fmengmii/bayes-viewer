@@ -4,7 +4,9 @@
 
 @main {
     @helper.form(helper.CSRF(routes.Application.saveRegistration) ) {
-        <h2>Register your personal account</h2>
+        <br>
+        <h2>Register your personal account</h2><br>
+        @**
         <p></p>
         <input type="text" name="userName" placeholder="User Name"
                value="@registerForm("userName").value">
@@ -27,6 +29,18 @@
         <input type="text" name="organization"
                placeholder="Organization" value="@registerForm("organization").value">
         <br><br>
+        **@
+
+        @helper.inputText(registerForm("userName"))
+        @helper.inputPassword(registerForm("password"))
+        @helper.inputText(registerForm("email"))
+        @helper.inputText(registerForm("firstName"))
+        @helper.inputText(registerForm("lastName"))
+        @helper.inputText(registerForm("title"))
+        @helper.inputText(registerForm("organization"))
+        <br>
+        <div class="clearfix">
         <button type="submit" class="signInButton">Submit</button>
+        </div>
     }
 }

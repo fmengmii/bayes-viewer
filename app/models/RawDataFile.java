@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
 
@@ -15,6 +16,7 @@ import java.util.List;
  */
 
 @Entity
+@JsonIgnoreProperties({"networkFile", "fileContent", "rawDataSharedUsers"})
 public class RawDataFile extends Model {
     @Id
     public long id;

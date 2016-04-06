@@ -68,6 +68,11 @@ function centerNetwork(showMessage)
         alertBoxShow("Please select a network file first.");
         return false;
     }
+
+    if( !$("#splitter").is(":visible") ) {
+        alertBoxShow("Please view a network first.");
+        return false;
+    }
 	cy.center();
 	cy.fit();
 	if(showMessage) {

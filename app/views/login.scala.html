@@ -4,13 +4,21 @@
 
 @main {
     @helper.form(helper.CSRF(routes.Application.authenticate) ) {
-        <h2>Sign in</h2>
+        <br>
+        <h2>Sign in</h2><br>
+        @**
         <input type="text" name="userName" placeholder="User Name"
                     value="@loginForm("userName").value">
         <p></p>
         <input type="password" name="password"
                     placeholder="Password"><br><br>
+        **@
 
+        @helper.inputText(loginForm("userName"))
+        @helper.inputPassword(loginForm("password"))<br>
+
+        <div class="clearfix">
         <button type="submit" class="signInButton">Submit</button>
+        </div>
     }
 }

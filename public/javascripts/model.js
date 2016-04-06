@@ -10,6 +10,11 @@ function loadModel() {
     $('.lowerButton').removeClass('selected');
     $('.showNetworkButton').addClass('selected');
 
+    $('#splitter').hide();
+    $('#viewLogDiv').hide();
+    $('#uploadDiv').hide();
+    $('#updateDiv').hide();
+
 	if(modelName == null) {
 	    alertBoxShow("Sorry, there is not an existed network yet.");
 	} else {
@@ -26,7 +31,7 @@ function loadModel() {
             url: loadModelAjax.url
         }).done(function(data) {
             //console.log(data);
-            $('#uploadDiv').hide();
+            //$('#uploadDiv').hide();
             //$('#splitter').css('display', 'block');
             $('#splitter').show();
             networkInfoArray = JSON.parse(data);
@@ -47,26 +52,27 @@ function loadModel() {
     }
 	//cy.load({nodes:[{data: {id:'a'}},{data: {id:'b'}}],edges:[{data:{id:'ab',source:'a',target:'b'}}]});
 }
+
 function showUpload() {
     $('.lowerButton').removeClass('selected');
     $('.uploadButton').addClass('selected');
 
     $('#splitter').hide();
+    $('#viewLogDiv').hide();
+    $('#updateDiv').hide();
     $('#uploadDiv').show();
     $("#load").val('');
 }
-
+/*
 function showUpdate() {
     $('.lowerButton').removeClass('selected');
     $('.updateModelButton').addClass('selected');
 
     $('#splitter').hide();
+    $('#uploadDiv').hide();
+    $('#viewLogDiv').hide();
     $('#updateDiv').show();
-
-    $('.selectedModelFileName').html("me");
-
-}
-
+}*/
 
 function deleteModel(){
     var modelName = $("#load").val();
@@ -80,7 +86,7 @@ function deleteModel(){
 	    alertBoxShow("Sorry, there is not an existed network yet.");
 	} else {
 	    if(modelName.indexOf("sharedBy") != -1){
-	        alertBoxShow("You can't delete the file because it's a shared file.");
+	        alertBoxShow("You don't have a privilege to delete the file because it's a shared file.");
 	        return false;
         }
         var message="Are you sure to delete the model file?";
@@ -96,6 +102,12 @@ function updateModel() {
     var modelName = $("#load").val();
     $('.lowerButton').removeClass('selected');
     $('.updateModelButton').addClass('selected');
+
+    $('#updateDiv').hide();
+    $('#splitter').hide();
+    $('#uploadDiv').hide();
+    $('#viewLogDiv').hide();
+
     if( $("#load").val() == null || $("#load").val() == '') {
         alertBoxShow("Please select a network file first.");
         return false;
@@ -103,8 +115,8 @@ function updateModel() {
     if(modelName == null) {
 	    alertBoxShow("Sorry, there is not an existed network yet.");
 	} else {
-	    if(modelName.indexOf("sharedWith") != -1){
-	        alertBoxShow("You can't delete the file because it's a shared file.");
+	    if(modelName.indexOf("sharedBy") != -1){
+	        alertBoxShow("You don't have a privilege to update the file because it's a shared file.");
 	        return false;
         }
         var getModelStatusAjax = jsRoutes.controllers.Application.getModelStatus(modelName);
@@ -112,9 +124,37 @@ function updateModel() {
             url: getModelStatusAjax.url
         }).done(function(data) {
             $('#updateDiv').show();
+            var updateDivContent = '<p style="font-size:20px">' +
+                '<strong>The current status of the file:</strong></p>';
+            updateDivContent += '<p class="selectedModelFileName">' +
+                'Model file name:&nbsp;' + $('#load').val() + '</p>';
+            updateDivContent += '<p class="uploadedBy">' +
+                'Uploaded by:&nbsp;' + data.uploadedBy + '</p>';
+            updateDivContent += '<p class="uploadTime">' +
+                'Upload time:&nbsp;' + data.uploadTime +'</p>';
+            if( data.isPublic ) {
+                updateDivContent += '<p class="isPublic">' +
+                    'The model file is public.</p>';
+            } else if( data.sharedWith != null && data.sharedWith != "") {
+                updateDivContent += '<p class="sharedWith">' +
+                    'Shared with:&nbsp;' + data.sharedWith + '</p>';
+            } else {
+                updateDivContent += '<p class="sharedWith">' +
+                    'Shared with:&nbsp;No</p>';
+            }
+            if( data.rawDataFileName != null &&  data.rawDataFileName != "") {
+                updateDivContent += '<p class="rawDataFileName">' +
+                    'Raw data file name:&nbsp;' + data.rawDataFileName + '</p>';
+            }
+            $('#fileStatusDiv').html(updateDivContent);
+            /*
             $('.selectedModelFileName').html("Model file name:&nbsp;" + $('#load').val());
             $('.uploadedBy').html("Uploaded by:&nbsp;" + data.uploadedBy);
             $('.uploadTime').html("Upload time:&nbsp;" + data.uploadTime);
+
+            $('.isPublic').empty();
+            $('.sharedWith').empty();
+            $('.rawDataFileName').empty();
             if( data.isPublic ) {
                 $('.isPublic').html("The model file is public.");
             } else if( data.sharedWith != null && data.sharedWith != "") {
@@ -126,12 +166,85 @@ function updateModel() {
                 $('.rawDataFileName').html(
                     "Raw data file name:&nbsp;" + data.rawDataFileName);
             }
-
+            */
         }).fail(function() {
         });
     }
 }
 
+function viewLogHistory (){
+    var modelName = $("#load").val();
+    $('.lowerButton').removeClass('selected');
+    $('.viewLogButton').addClass('selected');
+
+    $('#viewLogDiv').hide();
+    $('#splitter').hide();
+    $('#updateDiv').hide();
+    $('#uploadDiv').hide();
+
+    if( $("#load").val() == null || $("#load").val() == '') {
+        alertBoxShow("Please select a network file first.");
+        return false;
+    }
+    if(modelName == null) {
+	    alertBoxShow("Sorry, there is not an existed network yet.");
+	} else {
+	    if(modelName.indexOf("sharedBy") != -1){
+	        alertBoxShow("You don't have a privilege to view the file because it's a shared file.");
+	        return false;
+        }
+        var getModelHistoryAjax = jsRoutes.controllers.Application.getModelHistory(modelName);
+        $.ajax({
+            url: getModelHistoryAjax.url
+        }).done(function(data) {
+            logArray = data.logList;
+            $('#viewLogDiv').show();
+            var logTableContent = "";
+
+            logTableContent += "<table id='tableSortable' class='sortable logTable'>";
+            logTableContent += "<tr><th class='operationNo'>No.</th>";
+            logTableContent += "<th class='operationBy'>Operation By</th>";
+            logTableContent += "<th class='operation'>Operation</th>";
+            logTableContent += "<th class='operationTime'>Operation Time</th>";
+
+            for( var index = 0; index<logArray.length; index++){
+                var row = index + 1;
+                logTableContent += "<tr><td>" + row + "</td>";
+                if(logArray[index].user != null ) {
+                    logTableContent += "<td>" + logArray[index].user.firstName +
+                        " " + logArray[index].user.lastName + "</td>";
+                } else {
+                    logTableContent += "<td>" + "public user from " +
+                        logArray[index].publicUserIP + "</td>";
+                }
+                logTableContent += "<td>" + logArray[index].operation + "</td>";
+                logTableContent += "<td>" + logArray[index].updateTime +
+                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>";
+            }
+
+            logTableContent += "</table>";
+            $('#viewLogDiv').html(logTableContent);
+            var newTableObject = document.getElementById("tableSortable");
+            sorttable.makeSortable(newTableObject);
+
+            /* show viewLogDiv scroll */
+            var maxContentHeight = $(window).height() -
+                $('#headerDiv').height() - $('#buttonsDiv').height() -
+                $('#footerDiv').height();
+
+			var logTableWidth = $('.logTable').outerWidth();
+			var logTableHeight = $('.logTable').outerHeight();
+			if( logTableHeight >= maxContentHeight - 50 ) {
+				$('#viewLogDiv').css("height", maxContentHeight - 150 );
+			} else {
+				$('#viewLogDiv').css("height", logTableHeight );
+			}
+
+			$('#viewLogDiv').css("width", logTableWidth + 80 );
+        }).fail(function() {
+        });
+    }
+}
 function checkSharedWith() {
     if($('#isModelPublic').is(":checked")){
         alertBoxShow("The model file has been selected as 'public'. You don't need to share again.");
@@ -329,11 +442,9 @@ function confirmBoxForUpload(message,
 }
 
 function getModelUpload() {
-    alert("update comming.");
 	var formData = new FormData();
 	var upload = false;
 	var modelFile = $('#modelFile')[0].files[0];
-	alert("modelFile=" + modelFile);
 	var updateModelFile = false;
 	var updateDataFile = false;
 	var isModelPublic = $('#isModelPublic').is(":checked");
@@ -363,7 +474,6 @@ function getModelUpload() {
 
 	if( modelFile != null ) {
 	    var modelFileName = modelFile.name;
-	    alert("modelFileName=" + modelFileName);
 
         formData.append('modelFile', modelFile);
 	    var modelFileNameArray = modelFileName.split(".");
@@ -635,6 +745,11 @@ function clearAllEvidence(showMessage)
         alertBoxShow("Please select a network file first.");
         return false;
     }
+
+    if( !$("#splitter").is(":visible") ) {
+        alertBoxShow("Please view a network first.");
+        return false;
+    }
 	var clearAllEvidenceAjax = jsRoutes.controllers.Application.clearAllEvidence();
 	$.ajax({
 		url: clearAllEvidenceAjax.url
@@ -867,6 +982,12 @@ function clearAllTargets(showMessage)
         alertBoxShow("Please select a network file first.");
         return false;
     }
+
+    if( !$("#splitter").is(":visible") ) {
+        alertBoxShow("Please view a network first.");
+        return false;
+    }
+
 	var clearAllTargetsAjax = jsRoutes.controllers.Application.clearAllTargets();
 	$.ajax({
 		url: clearAllTargetsAjax.url

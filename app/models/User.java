@@ -4,6 +4,7 @@ package models;
  * Created by wyu on 2/23/16.
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import play.data.validation.*;
 import play.db.ebean.Model;
 
@@ -20,6 +21,7 @@ import java.sql.Timestamp;
 import java.util.*;
 
 @Entity
+@JsonIgnoreProperties({"networkFiles", "sharedNetworkFiles", "sharedRawDataFiles"})
 public class User extends Model {
     @Id
     public long id;

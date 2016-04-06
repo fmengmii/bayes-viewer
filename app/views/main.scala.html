@@ -45,7 +45,7 @@
 		<script src="@routes.Assets.at("javascripts/jqxdatatable.js")"></script>
 		<script src="@routes.Assets.at("javascripts/jquery.multiselect.js")"></script>
 		<script src="@routes.Assets.at("javascripts/jquery.multiselect.filter.js")"></script>
-
+		<script src="@routes.Assets.at("javascripts/sorttable.js")"></script>
         <script type="text/javascript">
             $(document).ready(function () {
                 //alert("widow height=" + $(window).height() );
@@ -127,7 +127,8 @@
               routes.javascript.Application.checkModel,
 		      routes.javascript.Application.uploadModel,
 		      routes.javascript.Application.deleteModel,
-		      routes.javascript.Application.getModelStatus
+		      routes.javascript.Application.getModelStatus,
+		      routes.javascript.Application.getModelHistory
               )
 	</head>
 

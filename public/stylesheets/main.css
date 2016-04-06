@@ -73,14 +73,14 @@ html, body{
 
 .bayesHrTop {
     height: 2px;
-    background:#000000;
+    background:#000000; /*#1a4156;*/
     margin-bottom:0;
     margin-top: 5px;
 }
 
 .bayesHrBottom {
     height: 2px;
-    background:#000000;
+    background:#000000; /*#1a4156;*/
     margin-bottom:0;
     margin-top: 0;
 }
@@ -117,7 +117,8 @@ html, body{
     font-size: 16px;
     margin: 4px 2px;
     cursor: pointer;
-    font-weight:bold;
+    outline:none;
+    /*font-weight:bold;*/
 }
 
 .topButton {
@@ -129,12 +130,14 @@ html, body{
     border:1px solid #255b8e; /*#1a4156;*/ /*#21578A;*/ /*#337ab7 #337ab7 #21578A;*/
     /*border:2px solid;*/
     float:left;
+    font-weight:bold;
 }
 
 .topButton:hover{
     background-color:#1a4156; /*#153451;*/ /*#21578A;*/
     font-weight:bold;
     border:1px solid #000000;
+    font-weight:bold;
     /*color:#000000;*/
 }
 
@@ -142,29 +145,45 @@ html, body{
     background-color:#1a4156; /*#153451;*/ /*#21578A;*/
     font-weight:bold;
     border:1px solid #000000;
+    font-weight:bold;
 }
 
 .lowerButton {
-    background-color:#4da6ff; /*#1EC0FF*/;   /*#3E95F7;*/ /*#35A2CE*/
+    background-color:#ffffff; /*#4da6ff;*/ /*#1EC0FF;*/   /*#3E95F7;*/ /*#35A2CE*/
     font-size: 16px;
-    padding: 2px 6px;
-    margin: 0px 0px;
-   /* border-bottom-color:#21578A;*/
-    border:1px solid #0073e6;
+    padding: 0px 4px 0px 0px !important;
+    /*margin: 0px 0px;*/
+    border-right:1px solid #737373; /*#21578A;*/
+    /*border:1px solid #0073e6;*/
     float: left;
+    color:#737373; /*#404040; /*#1a4156;*/
+    outline:none !important;
 }
 
 .lowerButton:hover{
-    background-color:#004280; /*#245D73;*/
+    /*background-color:#004280; /*#245D73;*/
     font-weight:bold;
-    border:1px solid #000000;
-    /*color:#000000;*/
+    /*border:1px solid #000000;*/
+    color:#1a4156;
+    text-decoration:underline;
+    font-weight:bold;
+    border-right:1px solid #737373;
+    padding: 0px 4px 0px 0px !important;
 }
 
 .lowerButton.selected{
-    background-color:#004280; /*#245D73;*/
+    /*background-color:#004280; /*#245D73;*/
     font-weight:bold;
-    border:1px solid #000000;
+    /*border:1px solid #000000;*/
+    color:#1a4156;
+    font-weight:bold;
+    border-right:1px solid #737373;
+    text-decoration:underline;
+    padding: 0px 4px 0px 0px !important;
+}
+
+.viewLogButton{
+    border-right:none !important;
 }
 
 .uploadCancelButton{
@@ -188,6 +207,22 @@ html, body{
     color: #1a4156; /*#21578A;*/
 }
 #uploadCancel:hover{
+    color: #4c91cd; /*#21578A;*/
+}
+
+#updateSubmit{
+    font-weight: bold;
+    color: #ccc;
+    background-color: #555;
+    background: -webkit-linear-gradient(#888, #555);
+    background: linear-gradient(#888, #555);
+}
+
+#updateSubmit:hover{
+    color: #1a4156; /*#21578A;*/
+}
+
+#updateCancel:hover{
     color: #4c91cd; /*#21578A;*/
 }
 
@@ -242,4 +277,104 @@ option:not(:checked) {
 .uploading{
     display:none;
     color: #4da6ff; /*red;*/ /*#1a4156;*/
+}
+
+.homeTitle{
+    font-size:25px;
+    font-weight:bold;
+}
+
+.homeDiv{
+    font-family: "Times New Roman", Times, serif;
+    font-size:21px;
+    padding-left:20px;
+    /*display:none;
+    border-style:solid;
+    border-bottom-color:#004280;
+    border-right-color:#004280;
+    border-width:thin medium medium thin;*/
+}
+
+.homeStrong {
+    color:#1a4156; /*#e65c00;*/
+    font-family:'Brush Script MT',Phyllis,'Lucida Handwriting',cursive;
+}
+
+.publicNetwork, .privateNetwork {
+    color:#4c91cd;
+    font-family: Helvetica;
+    font-size:18px;
+}
+
+#viewLogDiv{
+    display:none;
+    /*border:2px solid red;*/
+    /*width:100%;*/
+    overflow: auto;
+    padding-left: 60px;
+}
+
+.logTable{
+	border:2px solid #666;
+	/*width:70%;*/
+	border-collapse:collapse;
+}
+
+.logTable th, .logTable td{
+    border: 1px solid #666;
+    padding-left:2px;
+}
+
+.logTable th{
+    font-size:20px;
+    height:25px;
+	padding: 3px;
+}
+
+.logTable td{
+   height:20px;
+   padding: 2px;
+}
+
+.help-block{
+    display:none !important;
+}
+
+.help-inline{
+    color:red;
+}
+
+input{
+    outline:none !important;
+}
+
+.clearfix{
+  padding-left:10px !important;
+  padding-bottom:10px !important;
+}
+
+/* Sortable tables */
+table.sortable th {
+    background-color:#eee;
+    color:#666666;
+    font-weight: bold;
+    cursor: pointer;;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+table.sortable th.operationBy{
+    width: 300px;
+}
+
+table.sortable th.operationTime{
+    width: 280px;
+}
+
+table.sortable th.operationNo{
+    width: 100px;
+}
+
+table.sortable th.operation{
+    width: 200px;
 }

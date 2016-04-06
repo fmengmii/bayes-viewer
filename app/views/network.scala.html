@@ -1,4 +1,5 @@
 @(models: List[String], dataType:String, users: List[User])
+@**logList: List[Log] ) **@
 
 @main{
 	<div id="confirm-box" class="alert alert-info" >
@@ -41,7 +42,7 @@
                 </td>
                 <td>&nbsp;</td>
                 <td>
-                    <button type="button" class="button lowerButton showNetworkButton" onclick="loadModel()">Show Network</button>
+                    <button type="button" class="button lowerButton showNetworkButton" onclick="loadModel()">View Network</button>
                     @**<button type="button" class="button lowerButton showProbButton">Show All Posterior Probabilities</button>**@
                     <button type="button" class="button lowerButton clearEviButton" onclick="clearAllEvidence(true)">Clear All Evidences</button>
                     <button type="button" class="button lowerButton clearTarButton" onclick="clearAllTargets(true)">Clear All Targets</button>
@@ -49,7 +50,8 @@
                     @if(dataType.equals("private")) {
                         <button type="button" class="button lowerButton updateModelButton" onclick="updateModel()">Update Network File</button>
                         <button type="button" class="button lowerButton deleteModelButton" onclick="deleteModel()">Delete Network File</button>
-                        <button type="button" class="button lowerButton uploadButton" onclick="showUpload()">Upload New File</button>
+                        <button type="button" class="button lowerButton uploadButton" onclick="showUpload()">Upload New Network File</button>
+                        <button type="button" class="button lowerButton viewLogButton" onclick="viewLogHistory()">View Log History</button>
                     }
                 </td>
             </tr>
@@ -172,6 +174,7 @@
 
     <div id="updateDiv">
         <div id="fileStatusDiv">
+            @**
             <p style="font-size:20px"><strong>The current status of the file:</strong></p>
             <p class="selectedModelFileName"></p>
             <p class="uploadedBy"></p>
@@ -179,6 +182,7 @@
             <p class="isPublic"></p>
             <p class="sharedWith"></p>
             <p class="rawDataFileName"></p>
+            **@
         </div>
         <br>
         <form enctype="multipart/form-data" id="updateModelForm" >
@@ -226,12 +230,14 @@
 		<br>
 		<div id="uploadButtonDiv">
 			<input id="updateSubmit" class="uploadCancelButton"  type="button" onClick="getModelUpdate()" value="Update" />
-			<input id="uploadCancel" class="uploadCancelButton" type="button" value="Cancel" onClick="window.location='/network/private';"  />
+			<input id="updateCancel" class="uploadCancelButton" type="button" value="Cancel" onClick="window.location='/network/private';"  />
 			&nbsp;&nbsp;
 			<label for="updateSubmit" class="uploading">Updating...&nbsp;&nbsp;</label>
 		</div>
 		<br>
     </div>
+
+    <div id="viewLogDiv"></div>
 }
 
 

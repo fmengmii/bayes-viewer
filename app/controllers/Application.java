@@ -23,10 +23,44 @@ import models.*;
 public class Application extends Controller
 {
 	private Gson gson;
-
 	public Application()
 	{
 		gson = new Gson();
+	}
+
+	private static final String[] HEADERS_TO_TRY = {
+			"X-Forwarded-For",
+			"Proxy-Client-IP",
+			"WL-Proxy-Client-IP",
+			"HTTP_X_FORWARDED_FOR",
+			"HTTP_X_FORWARDED",
+			"HTTP_X_CLUSTER_CLIENT_IP",
+			"HTTP_CLIENT_IP",
+			"HTTP_FORWARDED_FOR",
+			"HTTP_FORWARDED",
+			"HTTP_VIA",
+			"REMOTE_ADDR" };
+
+	public static String getClientIpAddress(Http.Request request) {
+		for (String header : HEADERS_TO_TRY) {
+			String ip = request.getHeader(header);
+			if (ip != null && ip.length() != 0 && !"unknown".equalsIgnoreCase(ip)) {
+				return ip;
+			}
+		}
+		return request.remoteAddress();
+	}
+
+	private static void logAdvice(NetworkFile networkFile, String operation) {
+		User user = User.findByUserName(session("user"));
+		if( user != null ) {
+			Log log = new Log(networkFile, user, "",  operation);
+			log.save();
+		} else {
+			String ip = getClientIpAddress(request());
+			Log log = new Log(networkFile, user, ip,  operation);
+			log.save();
+		}
 	}
 
 	public static Result index() {
@@ -53,8 +87,9 @@ public class Application extends Controller
 	public static Result saveNewPassword() {
 		Form<ChangePassword> passwordForm = Form.form(ChangePassword.class).bindFromRequest();
 		if (passwordForm.hasErrors()) {
-			flash("error", "Please input correct field.");
-			return redirect("/changePassword");
+			//flash("error", "Please input correct field.");
+			//return redirect("/changePassword");
+			return ok(changePassword.render(passwordForm));
 		}
 
 		String oldPassword = passwordForm.get().oldPassword;
@@ -75,8 +110,10 @@ public class Application extends Controller
 	public static Result authenticate() {
 		Form<Login> loginForm = Form.form(Login.class).bindFromRequest();
 		if (loginForm.hasErrors()) {
-			flash("error", "Please correct the form below.");
-			return redirect("/login");
+			//flash("error", "Please correct the form below.");
+			//return redirect("/login");
+			//return badRequest(login.render(loginForm));
+			return ok(login.render(loginForm));
 		}
 		String userName = loginForm.get().userName;
 		String password = loginForm.get().password;
@@ -111,8 +148,9 @@ public class Application extends Controller
 	public static Result saveRegistration() {
 		Form<Register> registerForm = Form.form(Register.class).bindFromRequest();
 		if (registerForm.hasErrors()) {
-			flash("error", "Please fully complete the form below.");
-			return badRequest(register.render(registerForm));
+			//flash("error", "Please fully complete the form below.");
+			//return badRequest(register.render(registerForm));
+			return ok(register.render(registerForm));
 		}
 
 		String userName = registerForm.get().userName;
@@ -247,8 +285,24 @@ public class Application extends Controller
 			}
 		}
 		networkFileMap.put("sharedWith", sharedWith);
-		//JsonNode networkFileJson = Json.toJson(networkFile);
 		return ok(Json.toJson(networkFileMap));
+	}
+
+	public static Result getModelHistory ( String modelName ) {
+		String[] parseFullFileName = modelName.split("\\.");
+
+		String fileName = parseFullFileName[0];
+		String fileType = parseFullFileName[1];
+		NetworkFile networkFile = NetworkFile.findByFileNameAndType(
+					fileName, fileType);
+		//Logger.info("before query log...");
+		List<Log> logList = Log.findByNetworkFile(networkFile);
+		Map logMap = new HashMap();
+		logMap.put("logList", logList);
+		//List<Log> simpleLogList = new ArrayList<Log>();
+
+		//Logger.info("after query logList=" + logList);
+		return ok(Json.toJson(logMap));
 	}
 
     //public static Result loadModel(String modelPath) {
@@ -268,6 +322,10 @@ public class Application extends Controller
 		session("modelName", modelName);
     	//session("modelName", modelPath);
 		String modelStrClean = modelReader.clearAllEvidence(modelName);
+
+		//logging
+		logAdvice(networkFile, "view");
+
     	return ok(modelStrClean);
     }
 
@@ -382,6 +440,10 @@ public class Application extends Controller
 				networkFile.fileContent = fileContent;
 				networkFile.isPublic = isModelPublic;
 				networkFile.update();
+
+				//logging
+				logAdvice(networkFile,"update");
+				flash("success", "The file has been updated successfully.");
 			} else {
 				return badRequest("The model file is not allowed to update.");
 			}
@@ -399,6 +461,9 @@ public class Application extends Controller
 					fileName, fileType, fileContent, isModelPublic, sharedUsers);
 
 			networkFile.save();
+			//logging
+			logAdvice(networkFile, "upload");
+			flash("success", "The file has been uploaded successfully.");
 		}
 
 		if( filePartList.size() == 2 ) {
@@ -436,6 +501,7 @@ public class Application extends Controller
 					rawDataFile.fileContent = dataFileContent;
 					rawDataFile.isPublic = isRawDataPublic;
 					rawDataFile.update();
+					flash("success", "The files have been updated successfully.");
 				}else{
 					return badRequest("The raw data file is not allowed to update.");
 				}
@@ -454,6 +520,7 @@ public class Application extends Controller
 						dataFileType, dataFileContent, isRawDataPublic, sharedUsers);
 
 				rawDataFile.save();
+				flash("success", "The files have been uploaded successfully.");
 			}
 		}
 		//Logger.info("save OR update successful.");
@@ -475,7 +542,7 @@ public class Application extends Controller
 			session("modelName", modelTemp.getAbsolutePath());
 			*/
 
-		flash("success", "The files have been uploaded successfully.");
+		//flash("success", "The files have been uploaded successfully.");
 		return ok("success");
 		//return ok(modelStr);
 	}
@@ -492,7 +559,16 @@ public class Application extends Controller
 
 		if( networkFile != null ) {
 			Logger.info("delete file " + networkFile);
+			List<Log> logList = Log.findByNetworkFile(networkFile);
+			if( logList.size() > 0 ) {
+				for( Log log : logList) {
+					log.networkFile = null;
+					log.update();
+				}
+			}
+			Logger.info("before delete");
 			networkFile.delete();
+			//logAdvice(networkFile, "delete");
 			return ok("success");
 		} else {
 			return ok("The network file does not exist in database.");

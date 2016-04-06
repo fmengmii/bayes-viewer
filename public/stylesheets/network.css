@@ -18,8 +18,8 @@ node {
 
 #splitter {
     display: none;
-    border-bottom-color:#004280; /*#245D73;*/
-    border-right-color:#004280; /*#245D73;*/
+    border-bottom-color:#1a4156; /*#004280;*/ /*#245D73;*/
+    border-right-color: #1a4156; /*#004280;*/ /*#245D73;*/
     border-width:thin medium medium thin;
 }
 

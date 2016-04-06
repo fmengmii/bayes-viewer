@@ -3,6 +3,16 @@
 
 # --- !Ups
 
+create table log (
+  id                        bigint auto_increment not null,
+  network_file_id           bigint,
+  user_id                   bigint,
+  public_user_IP            varchar(255),
+  operation                 varchar(255),
+  update_time               TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  constraint pk_log primary key (id))
+;
+
 create table network_file (
   id                        bigint auto_increment not null,
   user_id                   bigint,
@@ -54,10 +64,14 @@ create table raw_data_shared_users (
   user_id                        bigint not null,
   constraint pk_raw_data_shared_users primary key (raw_data_file_id, user_id))
 ;
-alter table network_file add constraint fk_network_file_user_1 foreign key (user_id) references user (id) on delete restrict on update restrict;
-create index ix_network_file_user_1 on network_file (user_id);
-alter table raw_data_file add constraint fk_raw_data_file_networkFile_2 foreign key (network_file_id) references network_file (id) on delete restrict on update restrict;
-create index ix_raw_data_file_networkFile_2 on raw_data_file (network_file_id);
+alter table log add constraint fk_log_networkFile_1 foreign key (network_file_id) references network_file (id) on delete restrict on update restrict;
+create index ix_log_networkFile_1 on log (network_file_id);
+alter table log add constraint fk_log_user_2 foreign key (user_id) references user (id) on delete restrict on update restrict;
+create index ix_log_user_2 on log (user_id);
+alter table network_file add constraint fk_network_file_user_3 foreign key (user_id) references user (id) on delete restrict on update restrict;
+create index ix_network_file_user_3 on network_file (user_id);
+alter table raw_data_file add constraint fk_raw_data_file_networkFile_4 foreign key (network_file_id) references network_file (id) on delete restrict on update restrict;
+create index ix_raw_data_file_networkFile_4 on raw_data_file (network_file_id);
 
 
 
@@ -72,6 +86,8 @@ alter table raw_data_shared_users add constraint fk_raw_data_shared_users_user_0
 # --- !Downs
 
 SET FOREIGN_KEY_CHECKS=0;
+
+drop table log;
 
 drop table network_file;
 
