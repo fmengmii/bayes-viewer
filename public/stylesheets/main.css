@@ -298,6 +298,7 @@ option:not(:checked) {
 .homeStrong {
     color:#1a4156; /*#e65c00;*/
     font-family:'Brush Script MT',Phyllis,'Lucida Handwriting',cursive;
+    font-size:25px;
 }
 
 .publicNetwork, .privateNetwork {
@@ -387,9 +388,9 @@ table.sortable th.operation{
 
 .homeLink:hover, .homeLink:active, .homeLink:visited{
     color:#e65c00;
+    font-weight: bold;
 }
 
 a:hover, a:active{
     color:#1a4156;
-    font-weight:bold;
 }
