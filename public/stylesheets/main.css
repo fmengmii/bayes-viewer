@@ -358,7 +358,7 @@ table.sortable th {
     background-color:#eee;
     color:#666666;
     font-weight: bold;
-    cursor: pointer;;
+    cursor: pointer;
     padding-left: 20px;
     padding-right: 20px;
 }
@@ -377,4 +377,19 @@ table.sortable th.operationNo{
 
 table.sortable th.operation{
     width: 200px;
+}
+
+.homeLink{
+    color:#e65c00; /*#1a4156;*/
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.homeLink:hover, .homeLink:active, .homeLink:visited{
+    color:#e65c00;
+}
+
+a:hover, a:active{
+    color:#1a4156;
+    font-weight:bold;
 }
