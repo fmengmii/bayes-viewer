@@ -182,7 +182,7 @@ html, body{
     padding: 0px 4px 0px 0px !important;
 }
 
-.viewLogButton{
+.viewLogButton, .centerButtonLast {
     border-right:none !important;
 }
 

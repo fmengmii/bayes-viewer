@@ -48,7 +48,7 @@ public class NetworkFile extends Model {
     @OneToOne(mappedBy="networkFile", cascade=CascadeType.ALL)
     public RawDataFile rawDataFile;
 
-    @ManyToMany
+    @ManyToMany(cascade=CascadeType.ALL)
     @JoinTable(name="model_shared_users")
     public List<User> modelSharedUsers = new ArrayList<User>();
 

@@ -46,7 +46,11 @@
                     @**<button type="button" class="button lowerButton showProbButton">Show All Posterior Probabilities</button>**@
                     <button type="button" class="button lowerButton clearEviButton" onclick="clearAllEvidence(true)">Clear All Evidences</button>
                     <button type="button" class="button lowerButton clearTarButton" onclick="clearAllTargets(true)">Clear All Targets</button>
-                    <button type="button" class="button lowerButton centerButton" onclick="centerNetwork(true)">Center Network</button>
+                    @if(dataType.equals("public")) {
+                         <button type="button" class="button lowerButton centerButton centerButtonLast" onclick="centerNetwork(true)">Center Network</button>
+                    } else {
+                        <button type="button" class="button lowerButton centerButton" onclick="centerNetwork(true)">Center Network</button>
+                    }
                     @if(dataType.equals("private")) {
                         <button type="button" class="button lowerButton updateModelButton" onclick="updateModel()">Update Network File</button>
                         <button type="button" class="button lowerButton deleteModelButton" onclick="deleteModel()">Delete Network File</button>

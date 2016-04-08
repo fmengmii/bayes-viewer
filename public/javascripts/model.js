@@ -245,6 +245,7 @@ function viewLogHistory (){
         });
     }
 }
+
 function checkSharedWith() {
     if($('#isModelPublic').is(":checked")){
         alertBoxShow("The model file has been selected as 'public'. You don't need to share again.");
@@ -760,9 +761,9 @@ function clearAllEvidence(showMessage)
 		drawCharts(networkInfoArray[1]);
 
 		$('#chartDiv').trigger('resize');
+
 		if(showMessage) {
             successBoxShow("All evidences have been removed.");
-
         }
 	}).fail(function(ts) {
 	    alertBoxShow(ts.responseText);
