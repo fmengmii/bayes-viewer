@@ -2,6 +2,7 @@
 @**logList: List[Log] ) **@
 
 @main{
+	@**
 	<div id="confirm-box" class="alert alert-info" >
 		<a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>
 		&nbsp;&nbsp;
@@ -17,21 +18,21 @@
 	</div>
 
 	<div id="success-box" class="alert alert-success" >
-		@**<a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>**@
 		<p class="close" data-dismiss="alert" aria-label="close" onclick="hideSuccessBox()">&times;</p>
 		<strong>Success!</strong>&nbsp;<span class="successBoxMessage"></span>
 	</div>
+	**@
 
-	<div id="buttonsDiv">
-		<table>
-            <tr>
+	<div id="lowerButtonsDiv">
+		<table class="lowerButtonsTable">
+            <tr class="lowerButtonsTr">
+				@**
                 <td>
                     @if( models == null || models.size() == 0 ) {
                         <select id="load" onMouseDown="loadModel();">
                             <option selected disabled hidden value=''>No existed bayesian network</option>
                         </select>
                     }else{
-                        @**<select id="load" onChange="loadModel(this.options[this.selectedIndex].value)">**@
                         <select id="load">
                             <option selected disabled hidden value=''>Show existed bayesian network</option>
                             @for(model <- models) {
@@ -41,7 +42,8 @@
                     }
                 </td>
                 <td>&nbsp;</td>
-                <td>
+				**@
+                <td class="lowerButtonsTd">
                     <button type="button" class="button lowerButton showNetworkButton" onclick="loadModel()">View Network</button>
                     @**<button type="button" class="button lowerButton showProbButton">Show All Posterior Probabilities</button>**@
                     <button type="button" class="button lowerButton clearEviButton" onclick="clearAllEvidence(true)">Clear All Evidences</button>
@@ -59,10 +61,77 @@
                     }
                 </td>
             </tr>
+			<tr >
+				<td class="lowerSelectTd">
+				@if( models == null || models.size() == 0 ) {
+					<select id="load" onMouseDown="loadModel();">
+						<option selected disabled hidden value=''>No existed bayesian network</option>
+					</select>
+				}else{
+					@**<select id="load" onChange="loadModel(this.options[this.selectedIndex].value)">**@
+					<select id="load">
+						<option selected disabled hidden value=''>Show existed bayesian network</option>
+						@for(model <- models) {
+							<option value="@model">@model</option>
+						}
+					</select>
+				}
+				</td>
+			</tr>
         </table>
 	</div>
-	<br>
-	<div class="deleting"><b>Deleting...</b>&nbsp;&nbsp;</div>
+
+	@if(flash.containsKey("success")){
+		<div id="successWindow">
+			<div>title</div>
+			<div id="flash-success-box" class="alert alert-success" >
+				<a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+				<strong>Success!</strong>&nbsp;@flash.get("success")
+			</div>
+		</div>
+	}
+
+	@if(flash.containsKey("error")){
+		<div id="errorWindow">
+			<div>title</div>
+			<div id="flash-error-box" class="alert alert-danger">
+				<a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+				<strong>Error:</strong>&nbsp;@flash.get("error")
+			</div>
+		</div>
+	}
+
+	<div id="confirmWindow">
+		<div>title</div>
+		<div id="confirm-box" class="alert alert-info" >
+			@** <a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a> **@
+			<p class="close" data-dismiss="alert" aria-label="close"
+                   onclick="hideConfirmBox()">&times;</p>
+			&nbsp;&nbsp;
+			<button id="btnYesConfirmYesNo" type="button" class="btn btn-primary">Yes</button>
+			<button id="btnNoConfirmYesNo"
+                	type="button" class="btn btn-default">No</button>
+		</div>
+	</div>
+
+	<div id="errorWindow">
+		<div>title</div>
+		<div id="alert-box" class="alert alert-danger" >
+        	<p class="close" data-dismiss="alert" aria-label="close"
+                   onclick="hideAlertBox()">&times;</p>
+        	<strong>Alert:</strong>&nbsp;<span class="alertBoxMessage"></span>
+		</div>
+	</div>
+
+	<div id="successWindow">
+		<div>title</div>
+		<div id="success-box" class="alert alert-success" >
+			<p class="close" data-dismiss="alert" aria-label="close" onclick="hideSuccessBox()">&times;</p>
+			<strong>Success!</strong>&nbsp;<span class="successBoxMessage"></span>
+		</div>
+	</div>
+
+	<div class="deleting"><br><b>Deleting...</b>&nbsp;&nbsp;</div>
     <div id='splitter'>
         <div>
         	<div id="network"></div>
@@ -122,6 +191,7 @@
 	</div>
 
 	<div id="uploadDiv">
+		<br>
 		<form enctype="multipart/form-data" id="modelForm" >
 		<p style="font-size:20px"><strong>Please upload new file:</strong></p>
 		<ol type="1">
@@ -177,6 +247,7 @@
 	</div>
 
     <div id="updateDiv">
+		<br>
         <div id="fileStatusDiv">
             @**
             <p style="font-size:20px"><strong>The current status of the file:</strong></p>
@@ -240,7 +311,7 @@
 		</div>
 		<br>
     </div>
-
+	<br>
     <div id="viewLogDiv"></div>
 }
 

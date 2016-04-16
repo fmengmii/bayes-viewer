@@ -1,8 +1,119 @@
+function documentReady() {
+    //$(document).ready(function () {
+
+    $("#txtConfirmPassword").keyup(function() {
+        var password = $("#txtNewPassword").val();
+        $("#divCheckPasswordMatch").html(password == $(this).val() ? "Passwords match." : "Passwords do not match!");
+    });
+
+    //multiple select
+    $("#modelSharedBy").multiselect().multiselectfilter();
+    $("#rawDataSharedBy").multiselect().multiselectfilter();
+    $("#updateModelSharedBy").multiselect().multiselectfilter();
+    $("#updateRawDataSharedBy").multiselect().multiselectfilter();
+
+    var location = window.location.pathname;
+    if( location == "/" ) {
+        $('.topButton').removeClass('selected');
+        $('.bnButton').addClass('selected');
+        $('.homeButton').addClass('selected');
+    } else if( location.startsWith("/viewbn")) {
+        $('.topButton').removeClass('selected');
+        $('.bnButton').addClass('selected');
+        if( location == "/viewbn/home" ){
+            $('.homeButton').addClass('selected');
+        }
+
+    } else if( location == "/network/public" ) {
+        $('.topButton').removeClass('selected');
+        $('.publicButton').addClass('selected');
+         $('.bnButton').addClass('selected');
+    } else if( location == "/network/private" ) {
+        $('.topButton').removeClass('selected');
+        $('.privateButton').addClass('selected');
+        $('.bnButton').addClass('selected');
+    }
+    /*else {
+        //alert("location undefined: " + location);
+        $('.topButton').removeClass('selected');
+        $('.homeButton').addClass('selected');
+    }*/
+
+    var maxContentHeight = $(window).height() - $("#headerDiv").height() -
+        $('#footDiv').height() ;
+	//alert("maxContentH=" + maxContentHeight);
+    $("#centerLeftDiv").css("height", maxContentHeight);
+    $("#contentDiv").css("height", maxContentHeight);
+
+    var maxContentWidth = $(window).width() - $(".centerLeftTd").width();
+    $(".centerRightTd").css("width", maxContentWidth);
+    $("#contentDiv").css("width", maxContentWidth);
+    $("#lowerButtonsDiv").css("width", maxContentWidth);
+    $(".lowerButtonsTable").css("width", maxContentWidth);
+
+	//init widgets (dialog window, split pane, etc)
+	//$('#splitter').jqxSplitter({ width: '100%', height: '100%', panels: [{ size: '80%', min: 250 }, { size: '20%', min: 300}] });
+}
 
 $(document).ready(function () {
-//$(function() {
-	//init widgets (dialog window, split pane, etc)
-	$('#splitter').jqxSplitter({ width: '100%', height: '100%', panels: [{ size: '80%', min: 250 }, { size: '20%', min: 300}] });
+    var notificationWidth = 720;
+    var notificationHeight = 50;
+
+    if($(".lowerButtonsTr").length ) {
+        var lowerButtonsTrHeight = $(".lowerButtonsTr").height();
+        var lowerButtonsTrWidth = $(".lowerButtonsTr").width();
+        var topButtonsDivPosition = $("#topButtonsDiv").position();
+        //var notificationX = topButtonsDivPosition.left + lowerButtonsTrWidth/2 - notificationWidth/2;
+        var headerDivCenterWidth = $("#headerDiv .center").width();
+        var headerDivCenterPosition = $("#headerDiv .center").position();
+
+        //var notificationX = headerDivCenterPosition.left + headerDivCenterWidth/2 - notificationWidth/2;
+        var notificationX = headerDivCenterPosition.left;
+        var notificationY = topButtonsDivPosition.top - 1; //+ lowerButtonsTrHeight;
+
+	    $('#confirmWindow').jqxWindow({
+	        width: notificationWidth,
+		    height: notificationHeight,
+		    resizable: true,
+		    position: {x:notificationX, y:notificationY},
+		    //okButton: $('#doneButton'),
+		    autoOpen: false
+	    });
+
+        $('#successWindow').jqxWindow({
+            width: notificationWidth,
+            height: notificationHeight,
+            resizable: true,
+            position: {x:notificationX, y:notificationY},
+            //okButton: $('#doneButton'),
+            autoOpen: false
+        });
+
+        $('#errorWindow').jqxWindow({
+            width: notificationWidth,
+            height: notificationHeight,
+            resizable: true,
+            position: {x:notificationX, y:notificationY},
+            //okButton: $('#doneButton'),
+            autoOpen: false
+        });
+
+        $('.jqx-window-header').hide();
+        $('.alert').css("height", notificationHeight);
+        $('.alert').css("width", notificationWidth);
+    }
+
+    var maxSplitterHeight = $("#contentDiv").height() - $("#topButtonsDiv").height() -
+        $("#lowerButtonsDiv").height();
+    var maxSplitterWidth = 1400;
+    var splitterWidth;
+    if( $("#contentDiv").width() > maxSplitterWidth ) {
+        splitterWidth = maxSplitterWidth;
+    } else {
+        splitterWidth = $("#contentDiv").width()
+    }
+	$('#splitter').jqxSplitter({ width: splitterWidth, height: maxSplitterHeight, panels: [{ size: '72%'}, { size: 600}] });
+	//$("#jqxSplitter").jqxSplitter({ width: 250});
 	$('#splitter').on('resize', function(ev) {
 		cy.resize();
 	});
@@ -45,6 +156,7 @@ $(document).ready(function () {
 	});
 	wall.fitWidth();
 });
+
 
 function nodeSelected(nodeID, nodeName)
 {
@@ -363,3 +475,4 @@ function homeButtonClick () {
     $('.homeButton').addClass('buttonSelected');
     //return true;
 }*/
+

@@ -18,9 +18,10 @@ node {
 
 #splitter {
     display: none;
-    border-bottom-color:#1a4156; /*#004280;*/ /*#245D73;*/
-    border-right-color: #1a4156; /*#004280;*/ /*#245D73;*/
-    border-width:thin medium medium thin;
+    /*border-bottom-color:#1a4156;*/ /*#004280;*/ /*#245D73;*/
+    border-right-color: #4c91cd; /*#1a4156;*/ /*#004280;*/ /*#245D73;*/
+    border-width:thin medium thin thin;
+    width: 100%;
 }
 
 #uploadDiv{
@@ -40,28 +41,39 @@ node {
 
 #confirm-box{
     display:none;
-    margin-top:20px;
-    margin-bottom:0px;
+    /*margin-top:20px;*/
+    /*margin-bottom: 0px;*/
 }
 
 #alert-box{
     display:none;
-    margin-top:20px;
-    margin-bottom:0px;
+    /*margin-top:20px;
+    margin-bottom:0px;*/
 }
 
 .alertBoxClose{
     text-align: right;
 }
 
+.alert{
+    margin-bottom: 0px !important;
+    padding: 10px !important;
+    /*padding-left: 10px !important;*/
+    font-size: 18px !important;
+    font-family: "Times New Roman", Times, serif !important;
+}
+
+.close{
+    padding-right: 20px !important;
+}
 #fileStatusDiv{
     color:#cc5200; /*#e65c00; /*#ff6600; /*#ff751a;*/ /*#ff944d;*/
 }
 
 #success-box{
     display:none;
-    margin-top:20px;
-    margin-bottom:0px;
+    /*margin-top:20px;
+    margin-bottom:0px;*/
 }
 /*
 .ui-multiselect-menu.ui-widget.ui-widget-content.ui-corner-all {

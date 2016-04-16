@@ -4,43 +4,45 @@
 
 @main {
     @helper.form(helper.CSRF(routes.Application.saveRegistration) ) {
-        <br>
-        <h2>Register your personal account</h2><br>
-        @**
-        <p></p>
-        <input type="text" name="userName" placeholder="User Name"
-               value="@registerForm("userName").value">
-        <p></p>
-        <input type="password" name="password"
-               placeholder="Password">
-        <p></p>
-        <input type="email" name="email" placeholder="Email"
-               value="@registerForm("email").value">
-        <p></p>
-        <input type="text" name="firstName"
-               placeholder="First Name" value="@registerForm("firstName").value">
-        <p></p>
-        <input type="text" name="lastName"
-               placeholder="Last Name" value="@registerForm("lastName").value">
-        <p></p>
-        <input type="text" name="title"
-               placeholder="Title" value="@registerForm("title").value">
-        <p></p>
-        <input type="text" name="organization"
-               placeholder="Organization" value="@registerForm("organization").value">
-        <br><br>
-        **@
+        <div class="homeDiv">
+            <br>
+            <h2>Register your personal account</h2><br>
+            @**
+            <p></p>
+            <input type="text" name="userName" placeholder="User Name"
+                   value="@registerForm("userName").value">
+            <p></p>
+            <input type="password" name="password"
+                   placeholder="Password">
+            <p></p>
+            <input type="email" name="email" placeholder="Email"
+                   value="@registerForm("email").value">
+            <p></p>
+            <input type="text" name="firstName"
+                   placeholder="First Name" value="@registerForm("firstName").value">
+            <p></p>
+            <input type="text" name="lastName"
+                   placeholder="Last Name" value="@registerForm("lastName").value">
+            <p></p>
+            <input type="text" name="title"
+                   placeholder="Title" value="@registerForm("title").value">
+            <p></p>
+            <input type="text" name="organization"
+                   placeholder="Organization" value="@registerForm("organization").value">
+            <br><br>
+            **@
 
-        @helper.inputText(registerForm("userName"))
-        @helper.inputPassword(registerForm("password"))
-        @helper.inputText(registerForm("email"))
-        @helper.inputText(registerForm("firstName"))
-        @helper.inputText(registerForm("lastName"))
-        @helper.inputText(registerForm("title"))
-        @helper.inputText(registerForm("organization"))
-        <br>
-        <div class="clearfix">
-        <button type="submit" class="signInButton">Submit</button>
+            @helper.inputText(registerForm("userName"))
+            @helper.inputPassword(registerForm("password"))
+            @helper.inputText(registerForm("email"))
+            @helper.inputText(registerForm("firstName"))
+            @helper.inputText(registerForm("lastName"))
+            @helper.inputText(registerForm("title"))
+            @helper.inputText(registerForm("organization"))
+            <br>
+            <div class="clearfix">
+            <button type="submit" class="signInButton">Submit</button>
+            </div>
         </div>
     }
 }

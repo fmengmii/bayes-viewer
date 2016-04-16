@@ -3,7 +3,8 @@
 # ~~~~
 
 # Home page
-GET         /                                   controllers.Application.index()
+#GET         /                                   controllers.Application.index()
+GET         /                                   controllers.BnApp.index()
 GET         /model/load/:path                   controllers.Application.loadModel(path: String)
 POST        /model/setevidence                  controllers.Application.setEvidence()
 POST        /model/setvirtualevidence           controllers.Application.setVirtualEvidence()
@@ -28,6 +29,7 @@ POST        /saveRegistration                   controllers.Application.saveRegi
 GET         /logout                             controllers.Application.logout()
 GET         /changePassword                     controllers.Application.changePassword()
 POST        /saveNewPassword                    controllers.Application.saveNewPassword()
-
+GET         /viewbn/home                        controllers.BnApp.index()
+GET         /viewbn/network/:dataType           controllers.BnApp.network(dataType: String)
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                       controllers.Assets.at(path="/public", file)

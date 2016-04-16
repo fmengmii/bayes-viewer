@@ -46,15 +46,28 @@
 		<script src="@routes.Assets.at("javascripts/jquery.multiselect.js")"></script>
 		<script src="@routes.Assets.at("javascripts/jquery.multiselect.filter.js")"></script>
 		<script src="@routes.Assets.at("javascripts/sorttable.js")"></script>
-        <script type="text/javascript">
-            $(document).ready(function () {
-                //alert("widow height=" + $(window).height() );
-                var maxContentHeight=$(window).height()-$("#headerDiv").height()-$("#buttonDiv").height()-$('#footerDiv').height();
-                if( $("#contentDiv").height() > maxContentHeight ) {
-                    $("#contentDiv").css("height", maxContentHeight );
-                }
 
-                //alert("contentH=" + $("#contentDiv").height() +" and maxH=" + maxContentHeight );
+		<script src="@routes.Assets.at("javascripts/network.js")"></script>
+		<script src="@routes.Assets.at("javascripts/chart.js")"></script>
+		<script src="@routes.Assets.at("javascripts/model.js")"></script>
+		<script src="@routes.Assets.at("javascripts/viewer.js")"></script>
+        <script src="@routes.Assets.at("javascripts/main.js")"></script>
+
+		<script type="text/javascript">
+			//alert("before main ready function.");
+			//$(document).ready(documentReady);
+			//documentReady();
+            //$(document).ready(function () {
+            	/*
+				var maxContentHeight = $(window).height() - $("#headerDiv").height() -
+					$('#footerDiv').height() - 82;
+                $("#centerLeftDiv").css("height", maxContentHeight);
+                $("#contentDiv").css("height", maxContentHeight);
+
+               	var maxContentWidth = $(window).width() - $(".centerLeftTd").width() - 20;
+               	$(".centerRightTd").css("width", maxContentWidth);
+				$("#contentDiv").css("width", maxContentWidth);
+				*/
                 /*
                 if( window.location.search ) {
                     var definedLoadFile = window.location.search.split('loadFile=')[1];
@@ -63,17 +76,21 @@
                         alert("browserLoadValue=" + definedLoadFile);
                     }
                 }*/
+                /*
                 $("#txtConfirmPassword").keyup(function() {
                     var password = $("#txtNewPassword").val();
                     $("#divCheckPasswordMatch").html(password == $(this).val() ? "Passwords match." : "Passwords do not match!");
                 });
+                */
                 /*
                 $('input[type="file"]').change(function(){
                     alert("file uploaded.");
-                });*/
+                });
+                */
                /* $('input[type="file"]'.on('change', function() { $(this).append('<input type="file" name="file[]"/>'}); */
 
                 //multiple select
+                /*
                 $("#modelSharedBy").multiselect().multiselectfilter();
                 $("#rawDataSharedBy").multiselect().multiselectfilter();
 				$("#updateModelSharedBy").multiselect().multiselectfilter();
@@ -94,26 +111,26 @@
                     $('.topButton').removeClass('selected');
                     $('.homeButton').addClass('selected');
                 }
-                /*
-                if( $("#load").val() != null && $("#load").val() != '') {
-                    $("#load").addClass("loadFocus");
-                } else {
-                    $("#load").removeClass("loadFocus");
-                }*/
-            });
+				*/
+				//alert("main before call ready");
+            	//documentReady();
+            	//alert("main after call ready");
+            //});
+			//documentReady();
         </script>
 
 		<!-- our own scripts -->
-
+		@**
 	    <script src="@routes.Assets.at("javascripts/network.js")"></script>
 		<script src="@routes.Assets.at("javascripts/chart.js")"></script>
 		<script src="@routes.Assets.at("javascripts/model.js")"></script>
 		<script src="@routes.Assets.at("javascripts/viewer.js")"></script>
         <script src="@routes.Assets.at("javascripts/main.js")"></script>
-
+		**@
+		@** old code: 4/15 routes.javascript.Application.index,**@
 	    <!-- Embedded Javascript router -->
         @helper.javascriptRouter("jsRoutes")(
-              routes.javascript.Application.index,
+              routes.javascript.BnApp.index,
               routes.javascript.Application.network,
               routes.javascript.Application.loadModel,
               routes.javascript.Application.setEvidence,
@@ -136,15 +153,27 @@
          <div id="headerDiv">
              <table>
                  <tr>
-                     <td class="leftTop">
-                         <a alt="ucla-mii-logo" align="middle" href="http://www.mii.ucla.edu">
-                             <img src="@routes.Assets.at("images/ucla-mii.png")">
-                         </a>
+                     @**<td class="leftTop">**@
+                     <td>
+                     	<div class="wrap-branding leftTop">
+							<a class="logo navbar-btn" href="http://www.ucla.edu" title="UCLA">
+                             	<img src="@routes.Assets.at("images/ucla-std-blk-cmyk_0.png")">
+                         	</a>
+
+                         	<a class="navbar-brand" href="http://www.mii.ucla.edu" title="MII">
+                         		<div class="medicalImaging">
+                         			medical imaging
+                         		</div>
+                         		<div class="informatics">
+                         			INFORMATICS
+                         		</div>
+                         	</a>
+                        </div>
                      </td>
-                     <td class="center" rowspan="2">
+                     <td class="center">
                          Bayesian Network Viewer
                      </td>
-                     <td class="right" rowspan="2">
+                     <td class="right">
                          @if(session.containsKey("user")){
                             User: @session.get("user")
                          @**| <a href="/changePassword">Change password </a> **@
@@ -155,39 +184,84 @@
                          }
                      </td>
                  </tr>
+                 @**
                  <tr>
                      <td class="leftBottom">
-                         <div id="buttonsDiv">
+                         <div id="topButtonsDiv">
                              <button class="button topButton homeButton" type="button" onclick="location.href='/';">Home</button>
                              <button class="button topButton publicButton" type="button" onclick="location.href='/network/public';">Public Bayesian Network</button>
                              <button class="button topButton privateButton" type="button" onclick="location.href='/network/private';">Private Bayesian Network</button>
                          </div>
                      </td>
                  </tr>
+                 **@
              </table>
-         </div>
-		 <hr class="bayesHrTop">
-         <div id="contentDiv">
-             @if(flash.containsKey("success")){
-                 <div id="flash-success-box" class="alert alert-success" >
-                     <a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                     <strong>Success!</strong>&nbsp;@flash.get("success")
-                 </div>
-             }
-             @if(flash.containsKey("error")){
-                 <div id="flash-error-box" class="alert alert-danger">
-                     <a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                     <strong>Error:</strong>&nbsp;@flash.get("error")
-                 </div>
-             }
-
-            @content
-
+             <hr class="bayesHrTop">
          </div>
 
+		 <div id="centerDiv">
+		 	<table>
+		 	<tr><td class="centerLeftTd">
+		 	<div id="centerLeftDiv">
+		 		<br><br><br>
+				<table class="viewerTable"><tr><th class="modelHeader">Predictive Modeling</th></tr>
+					<tr><th class="modelHeader">Viewers</th></tr>
+					<tr>
+						<td><br>
+							<button class="button leftButton bnButton"
+								type="button" onclick="location.href='/viewbn/home';">Bayesian Network</button>
+						</td>
+					</tr>
+					<tr>
+						<td><br>
+							<button class="button leftButton regressionButton"
+								type="button" onclick="location.href='/';">Regression</button>
+						</td>
+					</tr>
+					<tr>
+						<td><br>
+							<button class="button leftButton neuralNetworkButton"
+								type="button" onclick="location.href='/';">Neural Network</button>
+						</td>
+					</tr>
+				</table>
+		 	</div>
+		 	</td>
+		 	<td class="centerRightTd">
+			<div id="contentDiv">
+				<div id="topButtonsDiv">
+                	<button class="button topButton homeButton" type="button" onclick="location.href='/';">Home</button>
+                    <button class="button topButton publicButton" type="button" onclick="location.href='/network/public';">Public Bayesian Network</button>
+                   	<button class="button topButton privateButton" type="button" onclick="location.href='/network/private';">Private Bayesian Network</button>
+                </div>
+				 @**
+				 @@if(flash.containsKey("success")){
+					 <div id="flash-success-box" class="alert alert-success" >
+						 <a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+						 <strong>Success!</strong>&nbsp;@flash.get("success")
+					 </div>
+				 }
+				 @@if(flash.containsKey("error")){
+					 <div id="flash-error-box" class="alert alert-danger">
+						 <a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+						 <strong>Error:</strong>&nbsp;@flash.get("error")
+					 </div>
+				 }
+				 **@
+				@content
+			</div>
+			</td>
+			</tr>
+			</table>
+		 </div>
          <div id="footDiv">
              <hr class="bayesHrBottom">
              &nbsp;&nbsp;&#169;2016 Medical Imaging Informatics Group | Department of Radiological Sciences, UCLA | Regents of the University of California. All rights reserved.
          </div>
+
+         <script type="text/javascript">
+         	documentReady();
+         </script>
+
     </body>
 </html>

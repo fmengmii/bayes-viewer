@@ -99,6 +99,7 @@ function deleteModel(){
 }
 
 function updateModel() {
+    alert("update..");
     var modelName = $("#load").val();
     $('.lowerButton').removeClass('selected');
     $('.updateModelButton').addClass('selected');
@@ -228,14 +229,16 @@ function viewLogHistory (){
             sorttable.makeSortable(newTableObject);
 
             /* show viewLogDiv scroll */
-            var maxContentHeight = $(window).height() -
+            /*var maxContentHeight = $(window).height() -
                 $('#headerDiv').height() - $('#buttonsDiv').height() -
-                $('#footerDiv').height();
+                $('#footerDiv').height();*/
+
+            var maxContentHeight = $("#contentDiv").height() - $("#lowerButtonsDiv").height() - 22;
 
 			var logTableWidth = $('.logTable').outerWidth();
 			var logTableHeight = $('.logTable').outerHeight();
-			if( logTableHeight >= maxContentHeight - 50 ) {
-				$('#viewLogDiv').css("height", maxContentHeight - 150 );
+			if( logTableHeight >= maxContentHeight ) {
+				$('#viewLogDiv').css("height", maxContentHeight );
 			} else {
 				$('#viewLogDiv').css("height", logTableHeight );
 			}
@@ -279,6 +282,8 @@ function loadNetwork(modelName) {
 
 function alertBoxShow(message) {
     $("i").remove();
+    $("#errorWindow").show();
+    //alert("after alert window show...");
     $("#alert-box").show();
     //$("#alert-box").append(message);
     $('.alertBoxMessage').html(message);
@@ -289,8 +294,14 @@ function alertBoxShow(message) {
     }*/
 }
 
+function hideConfirmBox() {
+    $("#confirmWindow").hide();
+    $("#confirm-box").hide();
+}
+
 function hideAlertBox() {
-   $("#alert-box").hide();
+    $("#errorWindow").hide();
+    $("#alert-box").hide();
    /*
    if( $("#load").val() != '' ) {
        $("#load").focus();
@@ -299,6 +310,7 @@ function hideAlertBox() {
 
 function successBoxShow(message) {
     $("i").remove();
+    $("#successWindow").show();
     $("#success-box").show();
     $('.successBoxMessage').html(message);
     //$("#success-box").append(message);
@@ -310,6 +322,7 @@ function successBoxShow(message) {
 }
 
 function hideSuccessBox() {
+   $("#successWindow").hide();
    $("#success-box").hide();
    /*
    if( $("#load").val() != '' ) {
@@ -323,6 +336,7 @@ function confirmBoxForDelete(message,
                         confirmNoFunction
                         ) {
 
+    $("#confirmWindow").show();
     $("#confirm-box").show();
     $("#confirm-box").prepend("Confirm: " + message);
 
@@ -336,6 +350,7 @@ function confirmBoxForDelete(message,
 }
 
 function confirmYesFunctionForDelete(modelName) {
+    $("#confirmWindow").hide();
     $("#confirm-box").hide();
 
     //start spinner
@@ -376,7 +391,7 @@ function confirmYesFunctionForUpload(updateModelFile,
                             formData,
                             modelSharedByArray,
                             rawDataSharedByArray ) {
-
+    $("#confirmWindow").hide();
     $("#confirm-box").hide();
     var uploadModelAjax = jsRoutes.controllers.Application.uploadModel(
             updateModelFile, updateDataFile, isModelPublic, isRawDataPublic,
@@ -408,6 +423,7 @@ function confirmYesFunctionForUpload(updateModelFile,
 function confirmNoFunction() {
     $('.uploading').hide();
     $("i").remove();
+    $("#confirmWindow").hide();
     $("#confirm-box").hide();
     location.href = "/network/private";
 }
@@ -422,9 +438,9 @@ function confirmBoxForUpload(message,
                         confirmNoFunction,
                         modelSharedByArray,
                         rawDataSharedByArray ) {
-
+    $("#confirmWindow").show();
     $("#confirm-box").show();
-    $("#confirm-box").prepend("Confirm: " + message);
+    $("#confirm-box").prepend("<strong>Confirm</strong>: " + message);
 
     $('#btnYesConfirmYesNo, #btnNoConfirmYesNo').click(function(){
         if( this.id == 'btnYesConfirmYesNo' ) {
