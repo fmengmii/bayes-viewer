@@ -2,7 +2,10 @@
 @import helper._
 @import helper.twitterBootstrap._
 
-@main {
+@main(){
+    <div id="topButtonsDiv">
+        <button class="button topButton homeButton privateButton" type="button" onclick="location.href='/';">Home</button>
+    </div>
     @helper.form(helper.CSRF(routes.Application.authenticate) ) {
         <div class="homeDiv">
             <br>
@@ -15,7 +18,7 @@
                         placeholder="Password"><br><br>
             **@
 
-            @helper.inputText(loginForm("userName"))
+            @helper.inputText(field = loginForm("userName"))
             @helper.inputPassword(loginForm("password"))<br>
 
             <div class="clearfix">

@@ -76,6 +76,7 @@ function centerNetwork(showMessage)
 	cy.center();
 	cy.fit();
 	if(showMessage) {
+	    alert("here.");
         successBoxShow("The network has been put at the center.");
     }
 }

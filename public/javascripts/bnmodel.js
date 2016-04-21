@@ -26,7 +26,7 @@ function loadModel() {
             var modelNameArray = modelName.split("sharedBy");
             modelName = modelNameArray[0].trim();
         }
-        var loadModelAjax = jsRoutes.controllers.Application.loadModel(modelName);
+        var loadModelAjax = jsRoutes.controllers.BnApp.loadModel(modelName);
         $.ajax({
             url: loadModelAjax.url
         }).done(function(data) {
@@ -99,7 +99,7 @@ function deleteModel(){
 }
 
 function updateModel() {
-    alert("update..");
+    //alert("update..");
     var modelName = $("#load").val();
     $('.lowerButton').removeClass('selected');
     $('.updateModelButton').addClass('selected');
@@ -120,7 +120,7 @@ function updateModel() {
 	        alertBoxShow("You don't have a privilege to update the file because it's a shared file.");
 	        return false;
         }
-        var getModelStatusAjax = jsRoutes.controllers.Application.getModelStatus(modelName);
+        var getModelStatusAjax = jsRoutes.controllers.BnApp.getModelStatus(modelName);
         $.ajax({
             url: getModelStatusAjax.url
         }).done(function(data) {
@@ -194,7 +194,7 @@ function viewLogHistory (){
 	        alertBoxShow("You don't have a privilege to view the file because it's a shared file.");
 	        return false;
         }
-        var getModelHistoryAjax = jsRoutes.controllers.Application.getModelHistory(modelName);
+        var getModelHistoryAjax = jsRoutes.controllers.BnApp.getModelHistory(modelName);
         $.ajax({
             url: getModelHistoryAjax.url
         }).done(function(data) {
@@ -233,7 +233,8 @@ function viewLogHistory (){
                 $('#headerDiv').height() - $('#buttonsDiv').height() -
                 $('#footerDiv').height();*/
 
-            var maxContentHeight = $("#contentDiv").height() - $("#lowerButtonsDiv").height() - 22;
+            var maxContentHeight = $("#contentDiv").height() - $("#topButtonsDiv").height() -
+                $("#lowerButtonsDiv").height() - 44;
 
 			var logTableWidth = $('.logTable').outerWidth();
 			var logTableHeight = $('.logTable').outerHeight();
@@ -282,16 +283,28 @@ function loadNetwork(modelName) {
 
 function alertBoxShow(message) {
     $("i").remove();
+    hideConfirmBox();
+    hideSuccessBox();
+    hideFlashSuccessBox();
+    hideFlashErrorBox();
     $("#errorWindow").show();
-    //alert("after alert window show...");
     $("#alert-box").show();
-    //$("#alert-box").append(message);
     $('.alertBoxMessage').html(message);
     $('.lowerButton').removeClass('selected');
     /*
     if( $("#load").val() != '' ) {
        $("#load").focus();
     }*/
+}
+
+function hideFlashSuccessBox() {
+    $("#flashSuccessWindow").hide();
+    $("#flash-success-box").hide();
+}
+
+function hideFlashErrorBox() {
+    $("#flashErrorWindow").hide();
+    $("#flash-error-box").hide();
 }
 
 function hideConfirmBox() {
@@ -310,6 +323,10 @@ function hideAlertBox() {
 
 function successBoxShow(message) {
     $("i").remove();
+    hideConfirmBox();
+    hideAlertBox();
+    hideFlashSuccessBox();
+    hideFlashErrorBox();
     $("#successWindow").show();
     $("#success-box").show();
     $('.successBoxMessage').html(message);
@@ -335,7 +352,10 @@ function confirmBoxForDelete(message,
                         confirmYesFunctionForDelete,
                         confirmNoFunction
                         ) {
-
+    hideSuccessBox();
+    hideAlertBox();
+    hideFlashSuccessBox();
+    hideFlashErrorBox();
     $("#confirmWindow").show();
     $("#confirm-box").show();
     $("#confirm-box").prepend("Confirm: " + message);
@@ -350,15 +370,20 @@ function confirmBoxForDelete(message,
 }
 
 function confirmYesFunctionForDelete(modelName) {
-    $("#confirmWindow").hide();
-    $("#confirm-box").hide();
+    hideConfirmBox();
+    hideSuccessBox();
+    hideAlertBox();
+    hideFlashSuccessBox();
+    hideFlashErrorBox();
+    //$("#confirmWindow").hide();
+    //$("#confirm-box").hide();
 
     //start spinner
     $('.deleting').show();
     var i = $('<i class="fa fa-spinner fa-pulse"></i>');
     $('.deleting').append(i);
 
-	var deleteModelAjax = jsRoutes.controllers.Application.deleteModel(modelName);
+	var deleteModelAjax = jsRoutes.controllers.BnApp.deleteModel(modelName);
      $.ajax({
         url: deleteModelAjax.url,
         type: 'POST',
@@ -378,9 +403,10 @@ function confirmYesFunctionForDelete(modelName) {
             alertBoxShow(data);
         }
 
-    }).fail(function() {
+    }).fail(function(data) {
         $('.deleting').hide();
         $("i").remove();
+        alertBoxShow("Deleting failed.");
     });
 }
 
@@ -391,9 +417,14 @@ function confirmYesFunctionForUpload(updateModelFile,
                             formData,
                             modelSharedByArray,
                             rawDataSharedByArray ) {
-    $("#confirmWindow").hide();
-    $("#confirm-box").hide();
-    var uploadModelAjax = jsRoutes.controllers.Application.uploadModel(
+    hideConfirmBox();
+    hideSuccessBox();
+    hideAlertBox();
+    hideFlashSuccessBox();
+    hideFlashErrorBox();
+    //$("#confirmWindow").hide();
+    //$("#confirm-box").hide();
+    var uploadModelAjax = jsRoutes.controllers.BnApp.uploadModel(
             updateModelFile, updateDataFile, isModelPublic, isRawDataPublic,
             modelSharedByArray, rawDataSharedByArray );
 
@@ -408,8 +439,9 @@ function confirmYesFunctionForUpload(updateModelFile,
         $('.uploading').hide();
         $('i').remove();
         if( data == "success") {
-            successBoxShow("The file has been updated successfully.");
-            location.href = "/network/private";
+            //alert("upload success.");
+            //successBoxShow("The file has been updated successfully.");
+            location.href = "/bn/private";
         } else {
             alertBoxShow(data);
         }
@@ -423,9 +455,14 @@ function confirmYesFunctionForUpload(updateModelFile,
 function confirmNoFunction() {
     $('.uploading').hide();
     $("i").remove();
-    $("#confirmWindow").hide();
-    $("#confirm-box").hide();
-    location.href = "/network/private";
+    hideConfirmBox();
+    hideSuccessBox();
+    hideAlertBox();
+    hideFlashSuccessBox();
+    hideFlashErrorBox();
+    //$("#confirmWindow").hide();
+    //$("#confirm-box").hide();
+    location.href = "/bn/private";
 }
 
 function confirmBoxForUpload(message,
@@ -438,6 +475,11 @@ function confirmBoxForUpload(message,
                         confirmNoFunction,
                         modelSharedByArray,
                         rawDataSharedByArray ) {
+    //alert("confirmBoxForUpload...");
+    hideSuccessBox();
+    hideAlertBox();
+    hideFlashSuccessBox();
+    hideFlashErrorBox();
     $("#confirmWindow").show();
     $("#confirm-box").show();
     $("#confirm-box").prepend("<strong>Confirm</strong>: " + message);
@@ -525,7 +567,7 @@ function getModelUpload() {
     var i = $('<i class="fa fa-spinner fa-pulse"></i>');
     $('#uploadButtonDiv').append(i);
 
-	var checkModelAjax = jsRoutes.controllers.Application.checkModel();
+	var checkModelAjax = jsRoutes.controllers.BnApp.checkModel();
     $.ajax({
         url: checkModelAjax.url,
         type: 'POST',
@@ -587,7 +629,7 @@ function getModelUpload() {
                             modelSharedByArray,
                             rawDataSharedByArray );
         } else {
-            var uploadModelAjax = jsRoutes.controllers.Application.uploadModel(
+            var uploadModelAjax = jsRoutes.controllers.BnApp.uploadModel(
                 updateModelFile, updateDataFile, isModelPublic, isRawDataPublic,
                 modelSharedByArray, rawDataSharedByArray );
 
@@ -602,8 +644,13 @@ function getModelUpload() {
                 $('.uploading').hide();
                 $('i').remove();
                 if( data == "success") {
+                    //alert("upload success.");
                     //successBoxShow("The network file has been uploaded successfully.");
-                    location.href = "/network/private";
+                    //$('#flashSuccessWindow').show();
+                    //$('#flash-success-box').show();
+                    location.href = "/bn/private";
+                    //$('#flashSuccessWindow').show();
+                    //$('#flash-success-box').show();
                 } else {
                     alertBoxShow(data);
                 }
@@ -715,7 +762,7 @@ function getModelUpdate() {
     var i = $('<i class="fa fa-spinner fa-pulse"></i>');
     $('#uploadButtonDiv').append(i);
 
-	var checkModelAjax = jsRoutes.controllers.Application.checkModel();
+	var checkModelAjax = jsRoutes.controllers.BnApp.checkModel();
     $.ajax({
         url: checkModelAjax.url,
         type: 'POST',
@@ -724,7 +771,7 @@ function getModelUpdate() {
         contentType: false,
         processData: false
     }).done(function(data) {
-        var uploadModelAjax = jsRoutes.controllers.Application.uploadModel(
+        var uploadModelAjax = jsRoutes.controllers.BnApp.uploadModel(
                 updateModelFile, updateDataFile, isModelPublic, isRawDataPublic,
                 modelSharedByArray, rawDataSharedByArray );
 
@@ -740,7 +787,8 @@ function getModelUpdate() {
             $('i').remove();
             if( data == "success") {
                 //successBoxShow("The network file has been uploaded successfully.");
-                location.href = "/network/private";
+                //alert("update return here.");
+                location.href = "/bn/private";
             } else {
                 alertBoxShow(data);
             }
@@ -767,7 +815,7 @@ function clearAllEvidence(showMessage)
         alertBoxShow("Please view a network first.");
         return false;
     }
-	var clearAllEvidenceAjax = jsRoutes.controllers.Application.clearAllEvidence();
+	var clearAllEvidenceAjax = jsRoutes.controllers.BnApp.clearAllEvidence();
 	$.ajax({
 		url: clearAllEvidenceAjax.url
 	}).done(function(data) {
@@ -799,7 +847,7 @@ function clearEvidence()
 		}
 	}
 
-	var clearEvidenceAjax = jsRoutes.controllers.Application.clearEvidence(nodeID);
+	var clearEvidenceAjax = jsRoutes.controllers.BnApp.clearEvidence(nodeID);
 	$.ajax({
 		url: clearEvidenceAjax.url
 	}).done(function(data) {
@@ -850,7 +898,7 @@ function setEvidence()
 
 	var values = {nodeID:nodeID, outcomeID:outcomeID};
 
-	var setEvidenceAjax = jsRoutes.controllers.Application.setEvidence();
+	var setEvidenceAjax = jsRoutes.controllers.BnApp.setEvidence();
 	$.ajax({
 		type: 'POST',
 		url: setEvidenceAjax.url,
@@ -902,7 +950,7 @@ function setVirtualEvidence()
 
 	var values = {nodeID:nodeID, outcomeVals:outcomeVals};
 
-	var setVirtualEvidenceAjax = jsRoutes.controllers.Application.setVirtualEvidence();
+	var setVirtualEvidenceAjax = jsRoutes.controllers.BnApp.setVirtualEvidence();
 	$.ajax({
 		type: 'POST',
 		url: setVirtualEvidenceAjax.url,
@@ -940,7 +988,7 @@ function setAsTarget()
 	var nodeID = $('#nodeMenu #nodeID').val();
 	//console.log(nodeID);
 
-	var setAsTargetAjax = jsRoutes.controllers.Application.setAsTarget(nodeID);
+	var setAsTargetAjax = jsRoutes.controllers.BnApp.setAsTarget(nodeID);
 	$.ajax({
 		url: setAsTargetAjax.url
 	}).done(function(data) {
@@ -970,7 +1018,7 @@ function removeTarget()
 	var nodeID = $('#nodeMenu #nodeID').val();
 	//console.log(nodeID);
 
-	var removeTargetAjax = jsRoutes.controllers.Application.removeTarget(nodeID);
+	var removeTargetAjax = jsRoutes.controllers.BnApp.removeTarget(nodeID);
 	$.ajax({
 		url: removeTargetAjax.url
 	}).done(function(data) {
@@ -1005,7 +1053,7 @@ function clearAllTargets(showMessage)
         return false;
     }
 
-	var clearAllTargetsAjax = jsRoutes.controllers.Application.clearAllTargets();
+	var clearAllTargetsAjax = jsRoutes.controllers.BnApp.clearAllTargets();
 	$.ajax({
 		url: clearAllTargetsAjax.url
 	}).done(function(data) {
@@ -1032,7 +1080,7 @@ function clearAllTargets(showMessage)
 
 function getCPT(nodeID)
 {
-	var getCPTAjax = jsRoutes.controllers.Application.getCPT(nodeID);
+	var getCPTAjax = jsRoutes.controllers.BnApp.getCPT(nodeID);
 	$.ajax({
 		url: getCPTAjax.url
 	}).done(function(data) {

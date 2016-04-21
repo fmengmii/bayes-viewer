@@ -1,7 +1,6 @@
 @(models: List[String], dataType:String, users: List[User])
-@**logList: List[Log] ) **@
 
-@main{
+@main("BN Viewer"){
 	@**
 	<div id="confirm-box" class="alert alert-info" >
 		<a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>
@@ -22,7 +21,11 @@
 		<strong>Success!</strong>&nbsp;<span class="successBoxMessage"></span>
 	</div>
 	**@
-
+	<div id="topButtonsDiv">
+		<button class="button topButton homeButton" type="button" onclick="location.href='/bn/home';">Home</button>
+		<button class="button topButton publicButton" type="button" onclick="location.href='/bn/public';">Public Bayesian Network</button>
+		<button class="button topButton privateButton" type="button" onclick="location.href='/bn/private';">Private Bayesian Network</button>
+	</div>
 	<div id="lowerButtonsDiv">
 		<table class="lowerButtonsTable">
             <tr class="lowerButtonsTr">
@@ -46,12 +49,12 @@
                 <td class="lowerButtonsTd">
                     <button type="button" class="button lowerButton showNetworkButton" onclick="loadModel()">View Network</button>
                     @**<button type="button" class="button lowerButton showProbButton">Show All Posterior Probabilities</button>**@
-                    <button type="button" class="button lowerButton clearEviButton" onclick="clearAllEvidence(true)">Clear All Evidences</button>
-                    <button type="button" class="button lowerButton clearTarButton" onclick="clearAllTargets(true)">Clear All Targets</button>
+                    <button type="button" class="button lowerButton clearEviButton" onclick="clearAllEvidence()">Clear All Evidences</button>
+                    <button type="button" class="button lowerButton clearTarButton" onclick="clearAllTargets()">Clear All Targets</button>
                     @if(dataType.equals("public")) {
-                         <button type="button" class="button lowerButton centerButton centerButtonLast" onclick="centerNetwork(true)">Center Network</button>
+                         <button type="button" class="button lowerButton centerButton centerButtonLast" onclick="centerNetwork()">Center Network</button>
                     } else {
-                        <button type="button" class="button lowerButton centerButton" onclick="centerNetwork(true)">Center Network</button>
+                        <button type="button" class="button lowerButton centerButton" onclick="centerNetwork()">Center Network</button>
                     }
                     @if(dataType.equals("private")) {
                         <button type="button" class="button lowerButton updateModelButton" onclick="updateModel()">Update Network File</button>
@@ -81,21 +84,22 @@
         </table>
 	</div>
 
+
 	@if(flash.containsKey("success")){
-		<div id="successWindow">
+		<div id="flashSuccessWindow">
 			<div>title</div>
 			<div id="flash-success-box" class="alert alert-success" >
-				<a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+				<p class="close" onclick="hideFlashSuccessBox()" data-dismiss="alert" aria-label="close">&times;</p>
 				<strong>Success!</strong>&nbsp;@flash.get("success")
 			</div>
 		</div>
 	}
 
 	@if(flash.containsKey("error")){
-		<div id="errorWindow">
+		<div id="flashErrorWindow">
 			<div>title</div>
 			<div id="flash-error-box" class="alert alert-danger">
-				<a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+				<p class="close" onclick="hideFlashErrorBox()" data-dismiss="alert" aria-label="close">&times;</p>
 				<strong>Error:</strong>&nbsp;@flash.get("error")
 			</div>
 		</div>
@@ -105,8 +109,8 @@
 		<div>title</div>
 		<div id="confirm-box" class="alert alert-info" >
 			@** <a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a> **@
-			<p class="close" data-dismiss="alert" aria-label="close"
-                   onclick="hideConfirmBox()">&times;</p>
+			@**<p class="close" data-dismiss="alert" aria-label="close"
+                   onclick="hideConfirmBox()">&times;</p> **@
 			&nbsp;&nbsp;
 			<button id="btnYesConfirmYesNo" type="button" class="btn btn-primary">Yes</button>
 			<button id="btnNoConfirmYesNo"

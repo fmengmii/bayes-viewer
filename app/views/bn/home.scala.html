@@ -1,14 +1,15 @@
-@main(){
+@main("BN Viewer"){
 	<div id="topButtonsDiv">
-		<button class="button topButton homeButton privateButton" type="button" onclick="location.href='/';">Home</button>
+		<button class="button topButton homeButton" type="button" onclick="location.href='/bn/home';">Home</button>
+		<button class="button topButton publicButton" type="button" onclick="location.href='/bn/public';">Public Bayesian Network</button>
+		<button class="button topButton privateButton" type="button" onclick="location.href='/bn/private';">Private Bayesian Network</button>
 	</div>
 	<div class="homeDiv">
 		<br><br>
-		Welcome to <strong class="homeStrong">Predictive Modeling Viewers!</strong>
-		@**
 	<p>
 		The <strong class="homeStrong">Bayesian Network Viewer</strong> is a tool for viewing and sharing clinical Bayesian
 		networks.
+		@** as well as various other types of predictive models. **@
 	</p>
 		<br>
 	<p>For <strong><span class="publicNetwork">Public Bayesian Network</span></strong>,
@@ -24,13 +25,9 @@
 		<a class="homeLink" href="https://dslpitt.org/genie/wiki/GeNIe_Tutorials:_Tutorial_3_-_Building_a_Bayesian_network">
 			GeNIe</a>.</p>
 		<br>
-		**@
-
-		<br><br>
 	<p>Any question or comment please
 		<a href="mailto:bnviewer@@mii.ucla.edu?Subject=Bayesian%20network%20viewer"
 		   target="_top">contact us</a>.
 	</p>
-
 	</div>
 }

@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 
 import static play.data.Form.form;
 import models.*;
+import controllers.Application.*;
 
 public class BnApp extends Controller {
        private Gson gson;
@@ -66,7 +67,7 @@ public class BnApp extends Controller {
 		}
 	}
 
-	public static Result index() {
+	public static Result home() {
 		/*
 		File folder = new File("public/models");
     	String[] files = folder.list();
@@ -76,126 +77,18 @@ public class BnApp extends Controller {
     		fileList.add(files[i]);
 		return ok(index.render(fileList));
 		*/
-		return ok(index.render());
-	}
-    /*
-	public static Result login() {
-		return ok(login.render(Form.form(Login.class)));
-	}*
-
-	public static Result changePassword() {
-		return ok(changePassword.render(Form.form(ChangePassword.class)));
+		return ok(views.html.bn.home.render());
 	}
 
-	public static Result saveNewPassword() {
-		Form<ChangePassword> passwordForm = Form.form(ChangePassword.class).bindFromRequest();
-		if (passwordForm.hasErrors()) {
-			//flash("error", "Please input correct field.");
-			//return redirect("/changePassword");
-			return ok(changePassword.render(passwordForm));
-		}
-
-		String oldPassword = passwordForm.get().oldPassword;
-		User user = User.findByUserName(session().get("user"));
-		if( user == null ||
-				!user.password.equals(User.passwordDecoded(oldPassword)) ) {
-			flash("error", "The old password is not correct!");
-			return redirect("/changePassword");
-		}
-
-		String newPassword = passwordForm.get().newPassword;
-		user.password = User.passwordDecoded(newPassword);
-		user.update();
-		flash("success", "The password has been updated. ");
-		return redirect("/");
-	}
-
-	public static Result authenticate() {
-		Form<Login> loginForm = Form.form(Login.class).bindFromRequest();
-		if (loginForm.hasErrors()) {
-			//flash("error", "Please correct the form below.");
-			//return redirect("/login");
-			//return badRequest(login.render(loginForm));
-			return ok(login.render(loginForm));
-		}
-		String userName = loginForm.get().userName;
-		String password = loginForm.get().password;
-
-		String resultOfAuthenticate = User.authenticate(userName, password);
-		if (resultOfAuthenticate.equals("userNotExist")) {
-			flash("error", "We don't have the user, please register!");
-			return redirect("/register");
-		} else if (resultOfAuthenticate.equals("notMatch")) {
-			flash("error", "Invalid password, please try again!");
-			return redirect("/login");
-		} else if( resultOfAuthenticate.equals("notApproved") ) {
-			flash("error", "Please wait for your account approval. ");
-			return redirect("/");
-		} else {
-			flash("success", "login successful.");
-			session().clear();
-			session("user", userName);
-			return redirect("/");
-		}
-	}
-
-	public static Result register() {
-		return ok(register.render(Form.form(Register.class)));
-	}
-
-	public static Result logout() {
-		session().clear();
-		return ok(index.render());
-	}
-
-	public static Result saveRegistration() {
-		Form<Register> registerForm = Form.form(Register.class).bindFromRequest();
-		if (registerForm.hasErrors()) {
-			//flash("error", "Please fully complete the form below.");
-			//return badRequest(register.render(registerForm));
-			return ok(register.render(registerForm));
-		}
-
-		String userName = registerForm.get().userName;
-		String email = registerForm.get().email;
-		if( User.findByUserName(userName) == null ) {
-			//check email unique
-			User oldUser = User.findByEmail(email);
-			if( oldUser != null ) {
-				flash("error", "The email has been registered with another " +
-						"user name. If you forget the user name, " +
-						"please contact our administrator. ");
-				return badRequest(login.render(Form.form(Login.class)));
-			}
-			String password = registerForm.get().password;
-
-			String firstName = registerForm.get().firstName;
-			String lastName = registerForm.get().lastName;
-			String title = registerForm.get().title;
-			String organization = registerForm.get().organization;
-			User user = new User(userName, password, email, firstName,
-									lastName, title, organization);
-			user.save();
-
-			session().clear();
-			flash("success", "The registration has been submitted. " +
-					"We will send an email to confirm that later.");
-			return redirect("/");
-		} else {
-			flash("error", "The user name has been registered. " +
-					"Please change the user name. ");
-			return badRequest(register.render(registerForm));
-		}
-	}
-    */
     //public static Result network(String loadFileName) {
 	public static Result network(String dataType) {
 		List<String> modelFileList = new ArrayList<String>();
-        /*
+
 		if( dataType.equals("private") && ! session().containsKey("user") ) {
-			return ok(login.render(Form.form(Login.class)));
+			//return ok(login.render(Form.form(Login.class)));
+			return redirect("/login");
 		}
-        */
+
 		/*
     	File folder = new File("public/models");
     	String[] files = folder.list();
@@ -212,7 +105,7 @@ public class BnApp extends Controller {
 			modelFileList = getModelFileList(user);
 			users = User.findAllApprovedList();
 			users.remove(user);
-			return ok(network.render(modelFileList, dataType, users));
+			return ok(views.html.bn.network.render(modelFileList, dataType, users));
 		} else if( dataType.equals("public") ){
 			List<NetworkFile> networkFileList = NetworkFile.findAllPublicNetworkFileList();
 			for( int i=0; i<networkFileList.size(); i++ ){
@@ -220,7 +113,7 @@ public class BnApp extends Controller {
 					networkFileList.get(i).fileType);
 			}
 
-			return ok(network.render(modelFileList, dataType, users));
+			return ok(views.html.bn.network.render(modelFileList, dataType, users));
 		} else {
 			flash("error", "The dataType has to be private or public.");
 			return redirect("/network/" + dataType);
@@ -400,7 +293,7 @@ public class BnApp extends Controller {
 			Boolean isModelPublic, Boolean isRawDataPublic,
 			String modelSharedByArray, String rawDataSharedByArray) {
 
-		//Logger.info("modelSharedByArray=" + modelSharedByArray);
+		Logger.info("start uploadModel...");
 		ModelReader modelReader = new ModelReader();
 
 		MultipartFormData body = request().body().asMultipartFormData();
@@ -448,6 +341,7 @@ public class BnApp extends Controller {
 				//logging
 				logAdvice(networkFile,"update");
 				flash("success", "The file has been updated successfully.");
+				Logger.info("after flash success.");
 			} else {
 				return badRequest("The model file is not allowed to update.");
 			}
@@ -560,9 +454,7 @@ public class BnApp extends Controller {
 		NetworkFile networkFile = NetworkFile.findByFileNameAndType(
 					fileName, fileType);
 
-
 		if( networkFile != null ) {
-			Logger.info("delete file " + networkFile);
 			List<Log> logList = Log.findByNetworkFile(networkFile);
 			if( logList.size() > 0 ) {
 				for( Log log : logList) {
@@ -570,7 +462,6 @@ public class BnApp extends Controller {
 					log.update();
 				}
 			}
-			Logger.info("before delete");
 			networkFile.delete();
 			//logAdvice(networkFile, "delete");
 			return ok("success");

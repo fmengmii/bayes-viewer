@@ -63,6 +63,10 @@ public class Application extends Controller
 		}
 	}
 
+	public static Result test() {
+		return ok(indextest.render());
+	}
+
 	public static Result index() {
 		/*
 		File folder = new File("public/models");
@@ -74,6 +78,10 @@ public class Application extends Controller
 		return ok(index.render(fileList));
 		*/
 		return ok(index.render());
+	}
+
+	public static Result underConstruction() {
+		return ok(underConstruction.render());
 	}
 
 	public static Result login() {
@@ -184,7 +192,7 @@ public class Application extends Controller
 			return badRequest(register.render(registerForm));
 		}
 	}
-
+	/*
     //public static Result network(String loadFileName) {
 	public static Result network(String dataType) {
 		List<String> modelFileList = new ArrayList<String>();
@@ -192,16 +200,6 @@ public class Application extends Controller
 			return ok(login.render(Form.form(Login.class)));
 		}
 
-		/*
-    	File folder = new File("public/models");
-    	String[] files = folder.list();
-    	List<String> fileList = new ArrayList<String>();
-		fileList.add("");
-    	for (int i=0; i<files.length; i++)
-    		fileList.add(files[i]);
-
-        return ok(network.render(fileList, loadFileName));
-        */
 		List<User> users = new ArrayList<User>();
 		if( dataType.equals("private")){
 			User user = User.findByUserName(session("user"));
@@ -525,28 +523,14 @@ public class Application extends Controller
 		}
 		//Logger.info("save OR update successful.");
 
-			/*
-			File modelTemp = null;
-			try
-			{
-				modelTemp = File.createTempFile("tempmodel", ".xdsl");
-				file.renameTo(modelTemp);
-			} catch (IOException e){
-				e.printStackTrace();
-			}
-			String modelStr = modelReader.readUpload(modelTemp.getAbsolutePath(), modelUpload.getFilename());
-			System.out.println("temp file path=" + modelTemp.getAbsolutePath() );
 
-			Object network = modelReader.getNetwork();
-			Cache.set("network", network);
-			session("modelName", modelTemp.getAbsolutePath());
-			*/
 
 		//flash("success", "The files have been uploaded successfully.");
 		return ok("success");
 		//return ok(modelStr);
 	}
-
+	*/
+	/*
 	public static Result deleteModel(String modelName) {
 		String[] parseFullFileName = modelName.split("\\.");
 
@@ -679,7 +663,7 @@ public class Application extends Controller
 	public static Result readMe() {
 		return ok();
 	}
-
+	*/
 	public static class Login {
 		@Constraints.Required
 		public String userName;

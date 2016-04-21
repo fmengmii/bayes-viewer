@@ -39,9 +39,10 @@ html, body{
     height: 68px;
     weight: 100%;
 }
+
 .lowerButtonsTd{
     /*vertical-align:top;*/
-    /*background-color:#4c91cd;*/
+    background-color:#ffebcc; /*#ffebcc;*/ /*#4c91cd;*/
     height: 29px;
 }
 
@@ -79,8 +80,8 @@ html, body{
 	padding-left:20px;*/
 	/*text-align:center;*/
 	height:100%;
-	/*font-family:Segoe UI, Segoe UI Semilight;*/
-	font-family:'Brush Script MT',Phyllis,'Lucida Handwriting',cursive;
+	font-family:Segoe UI, Segoe UI Semilight;
+	/*font-family:'Brush Script MT',Phyllis,'Lucida Handwriting',cursive;*/
 	font-size:60px;
 }
 
@@ -110,7 +111,7 @@ html, body{
 }
 
 .bayesHrBottom {
-    height: 2px;
+    height: 1px;
     background:#4c91cd; /*#000000;*/ /*#1a4156;*/
     margin-bottom:0 !important;
     margin-top: 0 !important;
@@ -133,8 +134,8 @@ html, body{
 }
 
 #flash-success-box, #flash-error-box{
-    margin-top:20px;
-    margin-bottom:0px;
+    /*margin-top:20px;
+    margin-bottom:0px;*/
 }
 
 .button {
@@ -166,7 +167,7 @@ html, body{
 }
 
 .topButton:hover{
-    background-color:#ffffff; /*#1a4156;*/ /*#153451;*/ /*#21578A;*/
+    background-color:#bfbfbf; /*#ffffff;*/ /*#1a4156;*/ /*#153451;*/ /*#21578A;*/
     font-weight:bold;
     /*border:1px solid #000000;*/
     font-weight:bold;
@@ -175,18 +176,20 @@ html, body{
 }
 
 .topButton.selected{
-    background-color: #ffffff; /*#1a4156;*/ /*#153451;*/ /*#21578A;*/
+    background-color: #ffebcc; /*#ffffff;*/ /*#1a4156;*/ /*#153451;*/ /*#21578A;*/
     font-weight:bold;
     /*border:1px solid #000000;*/
     font-weight:bold;
     color:#1a4156; /*#000000;*/
     outline:none;
 }
+
 .privateButton{
     border-right:none !important;
 }
+
 .lowerButton {
-    background-color: #ffffff; /*#4c91cd;*/ /*#4da6ff;*/ /*#1EC0FF;*/   /*#3E95F7;*/ /*#35A2CE*/
+    background-color:#ffebcc; /*#ffffff;*/ /*#4c91cd;*/ /*#4da6ff;*/ /*#1EC0FF;*/   /*#3E95F7;*/ /*#35A2CE*/
     font-size: 16px;
     /*padding: 0px 4px 0px 0px !important;*/
     text-align:bottom;
@@ -199,44 +202,76 @@ html, body{
 }
 
 .lowerButton:hover{
-    /*background-color:#004280; /*#245D73;*/
+    background-color:#bfbfbf; /*#004280;*/ /*#245D73;*/
     /*font-weight:bold;*/
     /*border:1px solid #000000;*/
     color:#000000; /*#1a4156;*/
-    text-decoration:underline;
+    /*text-decoration:underline;*/
     /*border-bottom: 2px solid black;*/
     /*font-weight:bold;*/
     border-right:1px solid #737373; /*#737373;*/
+    margin-left: -1px;
+    margin-bottom: -2px;
+    /*margin-top: 1px;*/
     /*padding: 0px 4px 0px 0px !important;*/
 }
 
 .lowerButton.selected{
-    /*background-color:#004280; /*#245D73;*/
+    background-color:#ffffff; /*#004280;*/ /*#245D73;*/
     /*font-weight:bold;*/
-    /*border:1px solid #000000;*/
+    border:4px solid #ffffff;
     color:#000000; /*#1a4156;*/
     /*font-weight:bold;*/
     border-right:1px solid #737373; /*#737373;*/
-    text-decoration:underline;
-    /*border-bottom: 2px solid black;*/
-    /*padding: 0px 4px 0px 0px !important;*/
+    /*text-decoration:underline;*/
+    margin-bottom: -2px;
+    margin-top: 1px;
+    margin-left: -2px;
+    /*padding: 2px 0px 2px 0px !important;*/
+}
+
+.showNetworkButton.selected{
+    margin-left: 0px !important;
 }
 
 .leftButton{
     background-color:#4c91cd;/*#337ab7;*/
-    font-size: 18px;
+    font-size: 22px;
     font-weight:bold;
-    font-family:'Brush Script MT',Phyllis,'Lucida Handwriting',cursive;
-    text-decoration:underline;
+    font-family:Segoe UI, Segoe UI Semilight;
+    /*font-family:'Brush Script MT',Phyllis,'Lucida Handwriting',cursive;*/
+    /*text-decoration:underline;*/
     color:#d9d9d9;
+    cursor: none;
 }
-
+.activeButton{
+    text-decoration:underline;
+    cursor: pointer;
+}
+/*
 .leftButton:hover{
     color:#ffffff;
+    font-size: 22px;
+    text-decoration:none;
 }
 
 .leftButton.selected{
     color:#ffffff;
+    font-size: 22px;
+    text-decoration:none;
+}*/
+
+
+.activeButton:hover{
+    color:#d9d9d9; /*#ffffff;*/
+    font-size: 27px;
+    text-decoration:none;
+}
+
+.activeButton.selected{
+    color:#ffffff;
+    font-size: 27px;
+    text-decoration:none;
 }
 
 .viewLogButton, .centerButtonLast {
@@ -354,7 +389,8 @@ option:not(:checked) {
 
 .homeStrong {
     color:#1a4156; /*#e65c00;*/
-    font-family:'Brush Script MT',Phyllis,'Lucida Handwriting',cursive;
+    font-family:Segoe UI, Segoe UI Semilight;
+    /*font-family:'Brush Script MT',Phyllis,'Lucida Handwriting',cursive;*/
     font-size:25px;
 }
 
@@ -493,6 +529,14 @@ a:hover, a:active{
     border: solid blue 2px;
 }*/
 
+#flashSuccessWindow{
+    //display: none;
+}
+
+#flashErrorWindow{
+    //display: none;
+}
+
 #confirmWindow{
     display: none;
 }
@@ -546,7 +590,9 @@ a:hover, a:active{
     display: inline;
     text-align:center !important;
     color:#b3b3b3; /*#e6e6e6;*/ /*#1a4156;*/
-    font-family:'Brush Script MT',Phyllis,'Lucida Handwriting',cursive;
+    font-size: 24px;
+    font-family:Segoe UI, Segoe UI Semilight;
+    /*font-family:'Brush Script MT',Phyllis,'Lucida Handwriting',cursive;*/
 }
 
 .viewerTable{

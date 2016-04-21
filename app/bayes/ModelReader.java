@@ -7,6 +7,7 @@ import java.util.*;
 
 import com.google.gson.Gson;
 
+import play.Logger;
 import smile.*;
 
 public class ModelReader
@@ -74,6 +75,11 @@ public class ModelReader
 				int node = nodes[i];
 				String nodeID = network.getNodeId(node);
 				String nodeName = network.getNodeName(node);
+				//modify all first character of node name to lower case
+				String nodeNameLastPart = nodeName.substring(1);
+				String nodeNameFirstPart = nodeName.substring(0, 1);
+				nodeName = nodeNameFirstPart.toLowerCase() + nodeNameLastPart;
+
 				Rectangle rect = network.getNodePosition(node);
 
 				if (i > 0)
@@ -112,6 +118,11 @@ public class ModelReader
 			for (int i=0; i<nodes.length; i++) {
 				StringBuilder outcomeBlder = new StringBuilder();
 				String nodeName = network.getNodeName(nodes[i]);
+
+				//modify all first character of node name to lower case
+				String nodeNameLastPart = nodeName.substring(1);
+				String nodeNameFirstPart = nodeName.substring(0, 1);
+				nodeName = nodeNameFirstPart.toLowerCase() + nodeNameLastPart;
 
 				outcomeBlder.append("{\"nodename\":\"" + nodeName + "\", \"id\":\"" + network.getNodeId(nodes[i]) + "\", \"values\":[");
 				String[] outcomeIDs = network.getOutcomeIds(nodes[i]);

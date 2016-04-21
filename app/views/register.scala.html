@@ -2,7 +2,10 @@
 @import helper._
 @import helper.twitterBootstrap._
 
-@main {
+@main() {
+    <div id="topButtonsDiv">
+        <button class="button topButton homeButton privateButton" type="button" onclick="location.href='/';">Home</button>
+    </div>
     @helper.form(helper.CSRF(routes.Application.saveRegistration) ) {
         <div class="homeDiv">
             <br>

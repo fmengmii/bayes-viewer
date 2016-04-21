@@ -38,7 +38,7 @@ public class RawDataFile extends Model {
     @Constraints.Required
     public Boolean isPublic = false;
 
-    @ManyToMany
+    @ManyToMany(cascade=CascadeType.ALL)
     @JoinTable(name="raw_data_shared_users")
     public List<User> rawDataSharedUsers = new ArrayList<User>();
 

@@ -1,4 +1,5 @@
-@(content: Html)
+@(headTitle:String="Model Viewer")(content:Html)
+
 <!DOCTYPE html>
 <html>
 	<head>
@@ -21,7 +22,7 @@
 		<meta charset=utf-8 />
 
 		<link rel="shortcut icon" type="image/icon" href="@routes.Assets.at("images/favicon.ico")"/>
-		<title>BN Viewer</title>
+		<title>@headTitle</title>
 
         <script src="@routes.Assets.at("javascripts/jquery-2.1.3.min.js")"></script>
 
@@ -47,105 +48,32 @@
 		<script src="@routes.Assets.at("javascripts/jquery.multiselect.filter.js")"></script>
 		<script src="@routes.Assets.at("javascripts/sorttable.js")"></script>
 
-		<script src="@routes.Assets.at("javascripts/network.js")"></script>
-		<script src="@routes.Assets.at("javascripts/chart.js")"></script>
-		<script src="@routes.Assets.at("javascripts/model.js")"></script>
-		<script src="@routes.Assets.at("javascripts/viewer.js")"></script>
-        <script src="@routes.Assets.at("javascripts/main.js")"></script>
-
-		<script type="text/javascript">
-			//alert("before main ready function.");
-			//$(document).ready(documentReady);
-			//documentReady();
-            //$(document).ready(function () {
-            	/*
-				var maxContentHeight = $(window).height() - $("#headerDiv").height() -
-					$('#footerDiv').height() - 82;
-                $("#centerLeftDiv").css("height", maxContentHeight);
-                $("#contentDiv").css("height", maxContentHeight);
-
-               	var maxContentWidth = $(window).width() - $(".centerLeftTd").width() - 20;
-               	$(".centerRightTd").css("width", maxContentWidth);
-				$("#contentDiv").css("width", maxContentWidth);
-				*/
-                /*
-                if( window.location.search ) {
-                    var definedLoadFile = window.location.search.split('loadFile=')[1];
-                    if( definedLoadFile ) {
-                        $("#load option[value=definedLoadFile]").attr('selected', true);
-                        alert("browserLoadValue=" + definedLoadFile);
-                    }
-                }*/
-                /*
-                $("#txtConfirmPassword").keyup(function() {
-                    var password = $("#txtNewPassword").val();
-                    $("#divCheckPasswordMatch").html(password == $(this).val() ? "Passwords match." : "Passwords do not match!");
-                });
-                */
-                /*
-                $('input[type="file"]').change(function(){
-                    alert("file uploaded.");
-                });
-                */
-               /* $('input[type="file"]'.on('change', function() { $(this).append('<input type="file" name="file[]"/>'}); */
-
-                //multiple select
-                /*
-                $("#modelSharedBy").multiselect().multiselectfilter();
-                $("#rawDataSharedBy").multiselect().multiselectfilter();
-				$("#updateModelSharedBy").multiselect().multiselectfilter();
-                $("#updateRawDataSharedBy").multiselect().multiselectfilter();
-
-                var location = window.location.pathname;
-                if( location == "/" ) {
-                    $('.topButton').removeClass('selected');
-                    $('.homeButton').addClass('selected');
-                } else if( location == "/network/public" ) {
-                    $('.topButton').removeClass('selected');
-                    $('.publicButton').addClass('selected');
-                } else if( location == "/network/private" ) {
-                    $('.topButton').removeClass('selected');
-                    $('.privateButton').addClass('selected');
-                } else {
-                    //alert("location undefined: " + location);
-                    $('.topButton').removeClass('selected');
-                    $('.homeButton').addClass('selected');
-                }
-				*/
-				//alert("main before call ready");
-            	//documentReady();
-            	//alert("main after call ready");
-            //});
-			//documentReady();
-        </script>
 
 		<!-- our own scripts -->
-		@**
-	    <script src="@routes.Assets.at("javascripts/network.js")"></script>
+		<script src="@routes.Assets.at("javascripts/bnetwork.js")"></script>
 		<script src="@routes.Assets.at("javascripts/chart.js")"></script>
-		<script src="@routes.Assets.at("javascripts/model.js")"></script>
+		<script src="@routes.Assets.at("javascripts/bnmodel.js")"></script>
 		<script src="@routes.Assets.at("javascripts/viewer.js")"></script>
         <script src="@routes.Assets.at("javascripts/main.js")"></script>
-		**@
-		@** old code: 4/15 routes.javascript.Application.index,**@
+
 	    <!-- Embedded Javascript router -->
         @helper.javascriptRouter("jsRoutes")(
-              routes.javascript.BnApp.index,
-              routes.javascript.Application.network,
-              routes.javascript.Application.loadModel,
-              routes.javascript.Application.setEvidence,
-              routes.javascript.Application.setVirtualEvidence,
-              routes.javascript.Application.clearAllEvidence,
-              routes.javascript.Application.clearEvidence,
-              routes.javascript.Application.setAsTarget,
-			  routes.javascript.Application.removeTarget,
-              routes.javascript.Application.clearAllTargets,
-              routes.javascript.Application.getCPT,
-              routes.javascript.Application.checkModel,
-		      routes.javascript.Application.uploadModel,
-		      routes.javascript.Application.deleteModel,
-		      routes.javascript.Application.getModelStatus,
-		      routes.javascript.Application.getModelHistory
+              routes.javascript.BnApp.network,
+              routes.javascript.BnApp.loadModel,
+              routes.javascript.BnApp.setEvidence,
+              routes.javascript.BnApp.setVirtualEvidence,
+              routes.javascript.BnApp.clearAllEvidence,
+              routes.javascript.BnApp.clearEvidence,
+              routes.javascript.BnApp.setAsTarget,
+			  routes.javascript.BnApp.removeTarget,
+              routes.javascript.BnApp.clearAllTargets,
+              routes.javascript.BnApp.getCPT,
+              routes.javascript.BnApp.checkModel,
+		      routes.javascript.BnApp.uploadModel,
+		      routes.javascript.BnApp.deleteModel,
+		      routes.javascript.BnApp.getModelStatus,
+		      routes.javascript.BnApp.getModelHistory,
+		      routes.javascript.BnApp.home
               )
 	</head>
 
@@ -153,7 +81,6 @@
          <div id="headerDiv">
              <table>
                  <tr>
-                     @**<td class="leftTop">**@
                      <td>
                      	<div class="wrap-branding leftTop">
 							<a class="logo navbar-btn" href="http://www.ucla.edu" title="UCLA">
@@ -171,7 +98,7 @@
                         </div>
                      </td>
                      <td class="center">
-                         Bayesian Network Viewer
+                     	 Predictive Modeling Viewers
                      </td>
                      <td class="right">
                          @if(session.containsKey("user")){
@@ -184,17 +111,6 @@
                          }
                      </td>
                  </tr>
-                 @**
-                 <tr>
-                     <td class="leftBottom">
-                         <div id="topButtonsDiv">
-                             <button class="button topButton homeButton" type="button" onclick="location.href='/';">Home</button>
-                             <button class="button topButton publicButton" type="button" onclick="location.href='/network/public';">Public Bayesian Network</button>
-                             <button class="button topButton privateButton" type="button" onclick="location.href='/network/private';">Private Bayesian Network</button>
-                         </div>
-                     </td>
-                 </tr>
-                 **@
              </table>
              <hr class="bayesHrTop">
          </div>
@@ -204,24 +120,28 @@
 		 	<tr><td class="centerLeftTd">
 		 	<div id="centerLeftDiv">
 		 		<br><br><br>
-				<table class="viewerTable"><tr><th class="modelHeader">Predictive Modeling</th></tr>
-					<tr><th class="modelHeader">Viewers</th></tr>
+				<table class="viewerTable">
+					<tr><td>
+							<button class="button leftButton predictiveButton activeButton"
+								type="button" onclick="location.href='/';">Predictive Models</button>
+						</td>
+					</tr>
 					<tr>
 						<td><br>
-							<button class="button leftButton bnButton"
-								type="button" onclick="location.href='/viewbn/home';">Bayesian Network</button>
+							<button class="button leftButton bnButton activeButton"
+								type="button" onclick="location.href='/bn/home';">Bayesian Network</button>
 						</td>
 					</tr>
 					<tr>
 						<td><br>
 							<button class="button leftButton regressionButton"
-								type="button" onclick="location.href='/';">Regression</button>
+								type="button" onclick="location.href='/under-construction';">Regression</button>
 						</td>
 					</tr>
 					<tr>
 						<td><br>
 							<button class="button leftButton neuralNetworkButton"
-								type="button" onclick="location.href='/';">Neural Network</button>
+								type="button" onclick="location.href='/under-construction';">Neural Network</button>
 						</td>
 					</tr>
 				</table>
@@ -229,12 +149,13 @@
 		 	</td>
 		 	<td class="centerRightTd">
 			<div id="contentDiv">
+				@**
 				<div id="topButtonsDiv">
-                	<button class="button topButton homeButton" type="button" onclick="location.href='/';">Home</button>
-                    <button class="button topButton publicButton" type="button" onclick="location.href='/network/public';">Public Bayesian Network</button>
-                   	<button class="button topButton privateButton" type="button" onclick="location.href='/network/private';">Private Bayesian Network</button>
+                	<button class="button topButton homeButton" type="button" onclick="location.href='/bn/home';">Home</button>
+                    <button class="button topButton publicButton" type="button" onclick="location.href='/bn/public';">Public Bayesian Network</button>
+                   	<button class="button topButton privateButton" type="button" onclick="location.href='/bn/private';">Private Bayesian Network</button>
                 </div>
-				 @**
+
 				 @@if(flash.containsKey("success")){
 					 <div id="flash-success-box" class="alert alert-success" >
 						 <a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>
@@ -254,6 +175,7 @@
 			</tr>
 			</table>
 		 </div>
+
          <div id="footDiv">
              <hr class="bayesHrBottom">
              &nbsp;&nbsp;&#169;2016 Medical Imaging Informatics Group | Department of Radiological Sciences, UCLA | Regents of the University of California. All rights reserved.
