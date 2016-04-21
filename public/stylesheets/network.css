@@ -4,6 +4,7 @@
 	position: absolute;
 	left: 0px;
 	top: 0px;
+	background:url(data:image/gif;base64,R0lGODlhFAAUAIAAAMDAwP///yH5BAEAAAEALAAAAAAUABQAAAImhI+pwe3vAJxQ0hssnnq/7jVgmJGfGaGiyoyh68GbjNGXTeEcGxQAOw==);
 }
 
 node {
@@ -22,6 +23,7 @@ node {
     border-right-color: #4c91cd; /*#1a4156;*/ /*#004280;*/ /*#245D73;*/
     border-width:thin medium thin thin;
     width: 100%;
+    margin-top:-1px;
 }
 
 #uploadDiv{
@@ -29,6 +31,7 @@ node {
     display: none;
     padding-left: 20px;
 }
+
 #updateDiv{
     overflow:hidden;
     display: none;

@@ -30,12 +30,13 @@ function documentReady() {
         $('.leftButton').removeClass('selected');
         $('.predictiveButton').addClass('selected');
         $('.topButton').removeClass('selected');
-        $('.homeButton').addClass('selected');
+        $('.homeButton').addClass('selectedHome');
     } else if( location.startsWith("/bn/home")) {
         $('.leftButton').removeClass('selected');
         $('.bnButton').addClass('selected');
         $('.topButton').removeClass('selected');
-        $('.homeButton').addClass('selected');
+        $('.homeButton').addClass('selectedHome');
+
     } else if( location == "/bn/public" ) {
         $('.leftButton').removeClass('selected');
         $('.bnButton').addClass('selected');
@@ -383,7 +384,30 @@ function truncateOutcome(name)
 
 function showRawData()
 {
-	$("#rawData").jqxWindow('open');
+    if( $("#load").val() == null || $("#load").val() == '') {
+        alertBoxShow("Please select a network file first.");
+        return false;
+    }
+    var modelName = $("#load").val();
+    if(modelName == null) {
+	    alertBoxShow("Sorry, there is not an existed network yet.");
+	} else {
+        var getRawDataAjax = jsRoutes.controllers.BnApp.getRawData(modelName);
+        $.ajax({
+            url: getRawDataAjax.url
+        }).done(function(data) {
+            if( data.startsWith("Error:") ) {
+                var message = data.replace("Error:", "");
+                alertBoxShow(message);
+            } else {
+                getRawData(modelName, data);
+                $("#rawData").jqxWindow('open');
+
+            }
+        }).fail(function(){
+        });
+    }
+
 }
 
 function getRawDataOptions(type)
@@ -394,53 +418,26 @@ function getRawDataOptions(type)
 	}
 }
 
-function getRawData(type)
+function getRawData(modelName, fileContent)
 {
-	$("#buttonsDiv").append('<input type="button" onclick="showRawData()" value="Raw Data" id="rawDataButton" />');
-	$("#rawDataButton").attr("disabled", false);
-
-	var name = networkInfoArray[2][0].modelname;
-	$('#rawData').jqxWindow("setTitle", name);
-
+	$('#rawData').jqxWindow("setTitle", "Raw Data for " + modelName);
 	var fields = [];
 	var columnStruct = [];
 
-	if (type === "load"){
-		var url = "assets/raw-data/" + name + ".csv";
-		var columns = networkInfoArray[3][0].columnnames;
+	var lines = fileContent.split('\n');
+	var colNames = lines[0].split(',');
 
-		createColumnStruct(columns,fields,columnStruct);
+	createColumnStruct(colNames,fields,columnStruct);
 
-		var source = {
-			dataType: "csv",
-			dataFields: fields,
-			url: url
-		};
-
-		createRawTable(source,columnStruct);
-	}
-	else {
-		var reader = new FileReader();
-		reader.onload = function(e)
+	var data = csvToJSON(fileContent);
+	var source =
 		{
-			var lines = reader.result.split('\n');
-			var colNames = lines[0].split(',');
-
-			createColumnStruct(colNames,fields,columnStruct);
-
-			var data = csvToJSON(reader.result);
-			var source =
-			{
-				dataType: "json",
-				dataFields: fields,
-				localData: data
-
-			};
-
-			createRawTable(source,columnStruct);
+			dataType: "json",
+			dataFields: fields,
+			localData: data
 		};
-		reader.readAsText($('#dataFile')[0].files[0]);
-	}
+
+	createRawTable(source,columnStruct);
 }
 
 function createColumnStruct(columns,fields,columnStruct) {

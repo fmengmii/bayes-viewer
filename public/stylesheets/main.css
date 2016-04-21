@@ -184,6 +184,14 @@ html, body{
     outline:none;
 }
 
+.topButton.selectedHome{
+    background-color: #ffffff;
+    font-weight:bold;
+    font-weight:bold;
+    color:#1a4156; /*#000000;*/
+    outline:none;
+}
+
 .privateButton{
     border-right:none !important;
 }

@@ -185,6 +185,28 @@ public class BnApp extends Controller {
 		return ok(Json.toJson(networkFileMap));
 	}
 
+	public static Result getRawData ( String modelName ) {
+		String[] parseFullFileName = modelName.split("\\.");
+
+		String fileName = parseFullFileName[0];
+		String fileType = parseFullFileName[1];
+		NetworkFile networkFile = NetworkFile.findByFileNameAndType(
+				fileName, fileType);
+
+		if( networkFile != null ) {
+			RawDataFile rawDataFile = networkFile.rawDataFile;
+
+			if( rawDataFile != null ) {
+				String content = rawDataFile.fileContent;
+				return ok(content);
+			} else {
+				return ok("Error:The raw data file didn't uploaded by the file owner yet.");
+			}
+		} else {
+			return ok("Error:The network file didn't exist in database.");
+		}
+	}
+
 	public static Result getModelHistory ( String modelName ) {
 		String[] parseFullFileName = modelName.split("\\.");
 

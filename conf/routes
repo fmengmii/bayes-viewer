@@ -5,8 +5,6 @@
 # Home page
 GET         /                                   controllers.Application.index()
 GET         /under-construction                 controllers.Application.underConstruction()
-GET         /test                               controllers.Application.test()
-#GET         /bn/home                            controllers.BnApp.index()
 GET         /model/load/:path                   controllers.BnApp.loadModel(path: String)
 POST        /model/setevidence                  controllers.BnApp.setEvidence()
 POST        /model/setvirtualevidence           controllers.BnApp.setVirtualEvidence()
@@ -21,6 +19,7 @@ POST        /model/checkmodel                   controllers.BnApp.checkModel()
 POST        /model/deletemodel/:modelName       controllers.BnApp.deleteModel(modelName: String)
 GET         /model/getmodelstatus/:modelName    controllers.BnApp.getModelStatus(modelName: String)
 GET         /model/getmodelhistory/:modelName   controllers.BnApp.getModelHistory(modelName: String)
+GET         /viewer/getrawdata/:modelName       controllers.BnApp.getRawData(modelName: String)
 #GET        /shared                             controllers.Application.shared()
 #GET        /network/:loadFileName              controllers.Application.network(loadFileName: String)
 

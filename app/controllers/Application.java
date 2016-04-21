@@ -63,10 +63,6 @@ public class Application extends Controller
 		}
 	}
 
-	public static Result test() {
-		return ok(indextest.render());
-	}
-
 	public static Result index() {
 		/*
 		File folder = new File("public/models");

@@ -51,10 +51,11 @@
                     @**<button type="button" class="button lowerButton showProbButton">Show All Posterior Probabilities</button>**@
                     <button type="button" class="button lowerButton clearEviButton" onclick="clearAllEvidence()">Clear All Evidences</button>
                     <button type="button" class="button lowerButton clearTarButton" onclick="clearAllTargets()">Clear All Targets</button>
-                    @if(dataType.equals("public")) {
-                         <button type="button" class="button lowerButton centerButton centerButtonLast" onclick="centerNetwork()">Center Network</button>
+					<button type="button" class="button lowerButton centerButton" onclick="centerNetwork()">Center Network</button>
+					@if(dataType.equals("public")) {
+                         <button type="button" class="button lowerButton centerButton centerButtonLast" onclick="showRawData()">View Raw Data</button>
                     } else {
-                        <button type="button" class="button lowerButton centerButton" onclick="centerNetwork()">Center Network</button>
+                        <button type="button" class="button lowerButton centerButton" onclick="showRawData()">View Raw Data</button>
                     }
                     @if(dataType.equals("private")) {
                         <button type="button" class="button lowerButton updateModelButton" onclick="updateModel()">Update Network File</button>
@@ -190,7 +191,7 @@
     <div id="rawData">
 		<div id="windowContent" style="overflow: hidden">
 			<div id="rawTable"></div>
-			<div style="float: right"> <input type="button" value="Done" id="rawDoneButton" /></div>
+			<div style="float: right"> <input type="button" value="Close" id="rawDoneButton" /></div>
 		</div>
 	</div>
 
