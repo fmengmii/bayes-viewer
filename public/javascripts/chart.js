@@ -9,11 +9,10 @@ function drawCharts(nodesInfoArray)
 		var oneCellDiv = chartDiv.append("div").attr("class", "cell").attr("style", "width:250px");
 		var oneChartDiv = oneCellDiv.append("div").attr("class", "chart");
 		oneChartDiv.append("svg").attr("class", "chart"+i);
+
 		drawChart(nodesInfoArray[i], '.chart' + i);
 	}
-	
 	wall.refresh();
-
 }
 
 
@@ -24,6 +23,10 @@ function drawChart(nodeInfoArray, divSelect)
 	
 	var nodeName = nodeInfoArray["nodename"];
 	var nodeOutcomes = nodeInfoArray["values"];
+	var isRealEvidence = nodeInfoArray["isRealEvidence"];
+	var isVirtualEvidence = nodeInfoArray["isVirtualEvidence"];
+
+	var isTarget = nodeInfoArray["isTarget"];
 	var i;
 	for (i=0; i<nodeOutcomes.length; i++) {
 		outcomes.push(truncateOutcome((nodeOutcomes[i])["outcomeid"]));
@@ -43,7 +46,7 @@ function drawChart(nodeInfoArray, divSelect)
 	
 	width = 200,
     barHeight = 15,
-	height = barHeight * outcomes.length;
+	height = barHeight * outcomes.length ; //+ 10;
 
 	var x = d3.scale.linear()
 	    .domain([0, 1.0])
@@ -74,11 +77,28 @@ function drawChart(nodeInfoArray, divSelect)
 	    .data(data)
 	  .enter().append("g")
 	    .attr("transform", function(d, i) { return "translate(0," + i * barHeight + ")"; });
-	
-	bar.append("rect")
+
+	if(isRealEvidence == "true"){
+	    bar.append("rect")
+	    .style("fill", "Green")
 	    .attr("width", x)
 	    .attr("height", barHeight - 1);
-	
+	}else if( isVirtualEvidence == "true"){
+	    bar.append("rect")
+	    .style("fill", "#8FBC8F")  //DarkSeeGreen
+	    .attr("width", x)
+	    .attr("height", barHeight - 1);
+	}else if(isTarget == "true"){
+	    bar.append("rect")
+	    .style("fill", "DarkSalmon")
+	    .attr("width", x)
+	    .attr("height", barHeight - 1);
+	} else {
+	    bar.append("rect")
+	    .attr("width", x)
+	    .attr("height", barHeight - 1);
+	}
+
 	bar.append("text")
 	    .attr("x", function(d) { return x(d) + 30; })
 	    .attr("y", barHeight / 2)

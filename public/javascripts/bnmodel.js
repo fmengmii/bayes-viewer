@@ -403,10 +403,10 @@ function confirmYesFunctionForDelete(modelName) {
             alertBoxShow(data);
         }
 
-    }).fail(function(data) {
+    }).fail(function() {
         $('.deleting').hide();
         $("i").remove();
-        alertBoxShow("Deleting failed.");
+        alertBoxShow("Delete Network File failed. Please try again.");
     });
 }
 
@@ -445,10 +445,10 @@ function confirmYesFunctionForUpload(updateModelFile,
         } else {
             alertBoxShow(data);
         }
-    }).fail(function(ts){
+    }).fail(function(){
         $('.uploading').hide();
         $('i').remove();
-        alertBoxShow(ts.responseText);
+        alertBoxShow("Upload Network File failed. Please try again.");
     });
 }
 
@@ -667,10 +667,10 @@ function getModelUpload() {
             drawCharts(networkInfoArray[1]);
             getRawDataOptions("upload");
             */
-    }).fail(function(ts) {
+    }).fail(function() {
         $('.uploading').hide();
         $('i').remove();
-        alertBoxShow(ts.responseText);
+        alertBoxShow("Upload New Network File failed. Please try again.");
     });
 	    /*
         var uploadModelAjax = jsRoutes.controllers.Application.uploadModel();
@@ -797,10 +797,10 @@ function getModelUpdate() {
             $('i').remove();
             alertBoxShow(ts.responseText);
         });
-    }).fail(function(ts) {
+    }).fail(function() {
         $('.uploading').hide();
         $('i').remove();
-        alertBoxShow(ts.responseText);
+        alertBoxShow("Update Network File failed. Please try again.");
     });
 }
 
@@ -822,15 +822,17 @@ function clearAllEvidence(showMessage)
 		//console.log(data);
 		networkInfoArray = JSON.parse(data);
 		networkLoadModel(networkInfoArray[0]);
+
 		drawCharts(networkInfoArray[1]);
+		setNodeColorAll('lightblue');
 
 		$('#chartDiv').trigger('resize');
 
 		if(showMessage) {
             successBoxShow("All evidences have been removed.");
         }
-	}).fail(function(ts) {
-	    alertBoxShow(ts.responseText);
+	}).fail(function() {
+	    alertBoxShow("Clear All Evidence failed. Please try again.");
 	});
 
 }
@@ -856,6 +858,8 @@ function clearEvidence()
 		drawCharts(networkInfoArray[1]);
 
 		var outcomeValues = networkInfoArray[1];
+		setNodeColorAll('lightblue');
+
 		var nodeOutcomes = outcomeValues.filter(function(e) {
 			if (e.id == nodeID)
 				return e;
@@ -874,8 +878,8 @@ function clearEvidence()
 		}
 
 		$('input[name=outcomeids]').attr('checked',false);
-	}).fail(function(ts) {
-	    alertBoxShow(ts.responseText);
+	}).fail(function() {
+	    alertBoxShow("Clear Evidence failed. Please try again.");
 	});
 }
 
@@ -906,7 +910,7 @@ function setEvidence()
 	}).done(function(data) {
 		networkInfoArray = JSON.parse(data);
 		drawCharts(networkInfoArray[1]);
-
+        /*
 		var outcomeValues = networkInfoArray[1];
 		var nodeOutcomes = outcomeValues.filter(function(e) {
 			if (e.id == nodeID)
@@ -923,11 +927,22 @@ function setEvidence()
 				formV.elements[i].value = nodeOutcomes[0].values[j].value;
 				j++;
 			}
+		}*/
+		var outcomeValues = networkInfoArray[1];
+		var nodeOutcomes;
+		var nodeIndex;
+		for( var index=0; index < outcomeValues.length; index++ ) {
+		    if(outcomeValues[index].id == nodeID ) {
+		       nodeOutcomes = outcomeValues[index];
+		       nodeIndex = index;
+		       break;
+		    }
 		}
-
+        drawChart(nodeOutcomes, '.chart' + nodeIndex);
+		setNodeColor(nodeID, 'Green');
 		$('#chartDiv').trigger('resize');
-	}).fail(function(ts) {
-	    alertBoxShow(ts.responseText);
+	}).fail(function(){
+	    alertBoxShow("Set Evidence failed. Please try again.");
 	});
 }
 
@@ -958,7 +973,7 @@ function setVirtualEvidence()
 	}).done(function(data) {
 		networkInfoArray = JSON.parse(data);
 		drawCharts(networkInfoArray[1]);
-
+        /*
 		var outcomeValues = networkInfoArray[1];
 		var nodeOutcomes = outcomeValues.filter(function(e) {
 			if (e.id == nodeID)
@@ -978,38 +993,66 @@ function setVirtualEvidence()
 		}
 
 		$('#chartDiv').trigger('resize');
-	}).fail(function(ts) {
-	    alertBoxShow(ts.responseText);
+		*/
+		var outcomeValues = networkInfoArray[1];
+		var nodeOutcomes;
+		var nodeIndex;
+		for( var index=0; index < outcomeValues.length; index++ ) {
+		    if(outcomeValues[index].id == nodeID ) {
+		       nodeOutcomes = outcomeValues[index];
+		       nodeIndex = index;
+		       break;
+		    }
+		}
+        drawChart(nodeOutcomes, '.chart' + nodeIndex);
+		setNodeColor(nodeID, 'DarkSeaGreen');
+		$('#chartDiv').trigger('resize');
+	}).fail(function() {
+	    alertBoxShow("Set Virtual Evidence failed. Please try again.");
 	});
 }
 
 function setAsTarget()
 {
 	var nodeID = $('#nodeMenu #nodeID').val();
-	//console.log(nodeID);
 
 	var setAsTargetAjax = jsRoutes.controllers.BnApp.setAsTarget(nodeID);
 	$.ajax({
 		url: setAsTargetAjax.url
 	}).done(function(data) {
-		networkInfoArray = JSON.parse(data);
-		drawCharts(networkInfoArray[1]);
+	    if(data.startsWith("Error:")){
+	        alertBoxShow(data.substring(7));
+	    }else{
+		    networkInfoArray = JSON.parse(data);
+		    //drawCharts(networkInfoArray[1]);
 
-		var outcomeValues = networkInfoArray[1];
-		var nodeOutcomes = outcomeValues.filter(function(e) {
-			if (e.id == nodeID)
-				return e;
-		});
+		    var outcomeValues = networkInfoArray[1];
+		    var nodeOutcomes;
+		    var nodeIndex;
+		    for( var index=0; index < outcomeValues.length; index++ ) {
+		        if(outcomeValues[index].id == nodeID ) {
+		            nodeOutcomes = outcomeValues[index];
+		            nodeIndex = index;
+		            break;
+		        }
+		    }
+		    /*
+		    var nodeOutcomes = outcomeValues.filter(function(e) {
+			    if (e.id == nodeID)
+			        return e;
+		    });
+            */
 
-		$('.chartEvidence').empty();
-		drawChart(nodeOutcomes[0], '.chartEvidence');
+		    $('.chartEvidence').empty();
+		    //drawChart(nodeOutcomes[0], '.chartEvidence', false, true);
+		    drawChart(nodeOutcomes, '.chart' + nodeIndex);
 
-		//cy.getElementById(nodeID).css('background-color', 'yellow');
-		setNodeColor(nodeID, 'yellow');
-		$('#chartDiv').trigger('resize');
-
-	}).fail(function(ts) {
-	    alertBoxShow(ts.responseText);
+		    //cy.getElementById(nodeID).css('background-color', 'yellow');
+		    setNodeColor(nodeID, 'DarkSalmon');
+		    $('#chartDiv').trigger('resize');
+		}
+	}).fail(function() {
+	    alertBoxShow("Set As Target failed. Please try again.");
 	});
 }
 
@@ -1036,12 +1079,12 @@ function removeTarget()
 
 		setNodeColor(nodeID, 'lightblue');
 		$('#chartDiv').trigger('resize');
-	}).fail(function(ts) {
-	    alertBoxShow(ts.responseText);
+	}).fail(function() {
+	    alertBoxShow("Remove Target failed. Please try again.");
 	});
 }
 
-function clearAllTargets(showMessage)
+function clearAllTargets()
 {
     if( $("#load").val() == null || $("#load").val() == '') {
         alertBoxShow("Please select a network file first.");
@@ -1061,20 +1104,25 @@ function clearAllTargets(showMessage)
 		drawCharts(networkInfoArray[1]);
 
 		var outcomeValues = networkInfoArray[1];
+		for(i=0; i< outcomeValues.length; i++){
+		    if( outcomeValues[i].isRealEvidence != "true" &&
+		        outcomeValues[i].isVirtualEvidence != "true" ){
+		        setNodeColor(outcomeValues[i].id, 'lightblue');
+		    }
+		}
+		/*
 		var nodeOutcomes = outcomeValues.filter(function(e) {
 			if (e.id == nodeID)
 				return e;
 		});
-
+        */
 		//cy.$('node').css('background-color', 'lightblue');
-		setNodeColorAll('lightblue');
-		$('#chartDiv').trigger('resize');
-		if(showMessage) {
-            successBoxShow("All targets have been removed.");
-        }
 
-	}).fail(function(ts) {
-	    alertBoxShow(ts.responseText);
+		//setNodeColor(nodeID, 'lightblue');
+		$('#chartDiv').trigger('resize');
+
+	}).fail(function() {
+	    alertBoxShow("Clear All Targets failed. Please try again.");
 	});
 }
 

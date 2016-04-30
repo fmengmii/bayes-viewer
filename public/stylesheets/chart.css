@@ -17,7 +17,7 @@ div[class='chart'] {
 }
 
 svg[class^='chart'] rect {
-  fill: steelblue;
+  fill:steelblue;
 }
 
 svg[class^='chart'] text {

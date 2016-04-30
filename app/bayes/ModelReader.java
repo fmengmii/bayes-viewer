@@ -57,13 +57,16 @@ public class ModelReader
 
 	public String getModelStr()
 	{
+		//Logger.info("before getModelStr().");
 		NumberFormat formatter = new DecimalFormat("#0.00");
 		
 		//System.out.println("read!");
 		StringBuilder strBlder = new StringBuilder("[");
+		//List<String> targetIdList = new ArrayList<String>();
 		try {
 			//System.out.println(System.getProperty("java.library.path"));
 			//System.out.println(network.getName());
+			//network.clearAllTargets();
 			network.updateBeliefs();
 
 			//nodes
@@ -71,14 +74,18 @@ public class ModelReader
 			List<int[]> edgeList = new ArrayList<int[]>();
 
 			int[] nodes = network.getAllNodes();
+
 			for (int i=0; i<nodes.length; i++) {
 				int node = nodes[i];
 				String nodeID = network.getNodeId(node);
 				String nodeName = network.getNodeName(node);
-				//modify all first character of node name to lower case
-				String nodeNameLastPart = nodeName.substring(1);
-				String nodeNameFirstPart = nodeName.substring(0, 1);
-				nodeName = nodeNameFirstPart.toLowerCase() + nodeNameLastPart;
+
+				if(!isAllUpperCase(nodeName)) {
+					//modify all first character of node name to lower case
+					String nodeNameLastPart = nodeName.substring(1);
+					String nodeNameFirstPart = nodeName.substring(0, 1);
+					nodeName = nodeNameFirstPart.toLowerCase() + nodeNameLastPart;
+				}
 
 				Rectangle rect = network.getNodePosition(node);
 
@@ -98,7 +105,6 @@ public class ModelReader
 			}
 			strBlder.append("], \"edges\":[");
 
-
 			//edges
 			int count = 0;
 			for (int[] arcIDs : edgeList) {
@@ -110,7 +116,6 @@ public class ModelReader
 
 			strBlder.append("]},");
 
-
 			//node values
 			strBlder.append("[");
 			Map<String, String> outcomeMap = new TreeMap<String, String>();
@@ -118,15 +123,25 @@ public class ModelReader
 			for (int i=0; i<nodes.length; i++) {
 				StringBuilder outcomeBlder = new StringBuilder();
 				String nodeName = network.getNodeName(nodes[i]);
+				String nodeID = network.getNodeId(nodes[i]);
 
-				//modify all first character of node name to lower case
-				String nodeNameLastPart = nodeName.substring(1);
-				String nodeNameFirstPart = nodeName.substring(0, 1);
-				nodeName = nodeNameFirstPart.toLowerCase() + nodeNameLastPart;
-
-				outcomeBlder.append("{\"nodename\":\"" + nodeName + "\", \"id\":\"" + network.getNodeId(nodes[i]) + "\", \"values\":[");
+				if( !isAllUpperCase(nodeName) ) {
+					//modify all first character of node name to lower case
+					String nodeNameLastPart = nodeName.substring(1);
+					String nodeNameFirstPart = nodeName.substring(0, 1);
+					nodeName = nodeNameFirstPart.toLowerCase() + nodeNameLastPart;
+				}
+				outcomeBlder.append("{\"nodename\":\"" + nodeName + "\", \"id\":\"" + network.getNodeId(nodes[i]) + "\", ");
+				outcomeBlder.append("\"isVirtualEvidence\":\"" + network.isVirtualEvidence(nodeID) + "\", ");
+				outcomeBlder.append("\"isRealEvidence\":\"" + network.isRealEvidence(nodeID) + "\", ");
+				//outcomeBlder.append("\"isPropagatedEvidence\":\"" + network.isPropagatedEvidence(nodeID) + "\", ");
+				//outcomeBlder.append("\"isEvidence\":\"" + network.isEvidence(nodeID) + "\", ");
+				outcomeBlder.append("\"isTarget\":\"" + network.isTarget(nodeID) + "\", ");
+				outcomeBlder.append("\"values\":[");
 				String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
+
 				double[] values = network.getNodeValue(nodes[i]);
+
 				for (int j=0; j<outcomeIDs.length; j++) {
 					//System.out.println("outcome: " + outcomeIDs[j] + ", value: " + values[j]);
 					if (j > 0)
@@ -136,8 +151,8 @@ public class ModelReader
 
 				outcomeBlder.append("]}");
 				outcomeMap.put(nodeName, outcomeBlder.toString());
+				//Logger.info(nodeName + ": values " + outcomeBlder.toString());
 			}
-
 			count = 0;
 			for (Map.Entry<String, String> entry : outcomeMap.entrySet()) {
 				if (count > 0)
@@ -147,13 +162,14 @@ public class ModelReader
 			}
 
 			strBlder.append("]");
-
+			/*
 			//model name
 			String modelPath = network.getName();
 			String[]tokens = modelPath.split("/|\\\\");
 			String modelName = tokens[tokens.length-1];
 			modelName = modelName.substring(0,modelName.length()-5);
 			strBlder.append(", [{\"modelname\":\"" + modelName +"\"}]");
+
 
 			//raw data column names
 			String csvFile = "public/raw-data/" + modelName + ".csv";
@@ -177,9 +193,9 @@ public class ModelReader
 					strBlder.append("]}]");
 				}
 			}
-			/*catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} */
+			catch (FileNotFoundException e) {
+				//e.printStackTrace();
+			}
 			catch (IOException e) {
 				e.printStackTrace();
 			} finally {
@@ -191,18 +207,27 @@ public class ModelReader
 					}
 				}
 			}
-
+			*/
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
 		}
-
+		/*for (String nodeID : targetIdList){
+			network.setTarget(nodeID, true);
+		}*/
 		strBlder.append("]");
-
 		return strBlder.toString();
 	}
 
+	public boolean isAllUpperCase( String nodeName) {
+		for(int i=0; i<nodeName.length(); i++) {
+			if(Character.isLowerCase(nodeName.charAt(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
 	public String setEvidence(String modelName, String nodeID, String outcomeID)
 	{
 		loadModel(modelName);
@@ -213,23 +238,27 @@ public class ModelReader
 	
 	public String setVirtualEvidence(String modelName, String nodeID, double[] outcomeVals)
 	{
+		/*for( int i=0; i< outcomeVals.length; i++) {
+			Logger.info("ModelReader, setVirtualEvidence:" + outcomeVals[i]);
+		}*/
 		loadModel(modelName);
 		network.setVirtualEvidence(nodeID, outcomeVals);
-		
 		return getModelStr();
 	}
 	
 	public String clearAllEvidence(String modelName)
 	{
 		loadModel(modelName);
+		network.clearAllTargets();
 		network.clearAllEvidence();
-		
+		//Logger.info("clearAllEvidence.");
 		return getModelStr();
 	}
 	
 	public String clearEvidence(String modelName, String nodeID)
 	{
 		loadModel(modelName);
+		network.clearAllTargets();
 		network.clearEvidence(nodeID);
 		
 		return getModelStr();
@@ -238,9 +267,29 @@ public class ModelReader
 	public String setAsTarget(String modelName, String nodeID)
 	{
 		loadModel(modelName);
+		if( !hasEvidence(network) ){
+			return "Error: Please set an evidence first.";
+		}
 		network.setTarget(nodeID, true);
-		
+		//Logger.info("set a target.");
 		return getModelStr();
+	}
+
+	public boolean hasEvidence(Network network) {
+		boolean hasEvidence = false;
+		try {
+			int[] nodes = network.getAllNodes();
+			for (int i = 0; i < nodes.length; i++) {
+				String nodeID = network.getNodeId(nodes[i]);
+				if(network.isRealEvidence(nodeID) || network.isVirtualEvidence(nodeID)){
+					hasEvidence = true;
+					break;
+				}
+			}
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+		return hasEvidence;
 	}
 
 	public String removeTarget(String modelName, String nodeID)

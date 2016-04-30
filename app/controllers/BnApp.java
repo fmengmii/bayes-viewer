@@ -2,6 +2,7 @@ package controllers;
 
 /**
  * Created by wyu on 4/15/16.
+ * That controller used dor bayesian network.
  */
 
 import bayes.ModelReader;
@@ -226,6 +227,7 @@ public class BnApp extends Controller {
 
     //public static Result loadModel(String modelPath) {
 	public static Result loadModel(String modelName) {
+		//Logger.info("before loadMode.");
     	ModelReader modelReader = new ModelReader();
 
 		String[] modelFullName = modelName.split("\\.");
@@ -240,6 +242,7 @@ public class BnApp extends Controller {
     	Cache.set("network", network);
 		session("modelName", modelName);
     	//session("modelName", modelPath);
+		//Logger.info("before clean all evidence in loadModel.");
 		String modelStrClean = modelReader.clearAllEvidence(modelName);
 
 		//logging
@@ -315,7 +318,6 @@ public class BnApp extends Controller {
 			Boolean isModelPublic, Boolean isRawDataPublic,
 			String modelSharedByArray, String rawDataSharedByArray) {
 
-		Logger.info("start uploadModel...");
 		ModelReader modelReader = new ModelReader();
 
 		MultipartFormData body = request().body().asMultipartFormData();
@@ -519,8 +521,8 @@ public class BnApp extends Controller {
 
     	for (int i=0; i<outcomeStrArray.length; i++) {
     		outcomeVals[i] = Double.parseDouble(outcomeStrArray[i]);
+			Logger.info("setVirtualEvidence: value=" + outcomeVals[i]);
     	}
-
 
     	ModelReader modelReader = new ModelReader();
     	modelReader.setNetwork(Cache.get("network"));
@@ -536,7 +538,7 @@ public class BnApp extends Controller {
     	ModelReader modelReader = new ModelReader();
     	modelReader.setNetwork(Cache.get("network"));
     	String modelName = session("modelName");
-		System.out.println(modelName);
+		//System.out.println(modelName);
     	String modelStr = modelReader.clearAllEvidence(modelName);
 
     	return ok(modelStr);
@@ -554,7 +556,8 @@ public class BnApp extends Controller {
 
     public static Result setAsTarget(String nodeID)
     {
-    	ModelReader modelReader = new ModelReader();
+    	//Logger.info("setAsTarget in with nodeID=" + nodeID);
+		ModelReader modelReader = new ModelReader();
     	modelReader.setNetwork(Cache.get("network"));
     	String modelName = session("modelName");
     	String modelStr = modelReader.setAsTarget(modelName, nodeID);

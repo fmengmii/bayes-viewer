@@ -22,8 +22,10 @@ $(function() { // on dom ready
 	      .css({
 	        'target-arrow-shape': 'triangle',
 	        'width': 2,
-	        'line-color': 'lightgray',
-	        'target-arrow-color': '#ddd'
+	        'line-color': '#a6a6a6',
+	        //'lightgray',
+	        'target-arrow-color':'#a6a6a6'
+	         //'#ddd'
 	      }),
 	      
 	        layout: {
