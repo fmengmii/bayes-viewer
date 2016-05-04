@@ -126,7 +126,9 @@ $(document).ready(function () {
     } else {
         splitterWidth = $("#contentDiv").width()
     }
-	$('#splitter').jqxSplitter({ width: splitterWidth, height: maxSplitterHeight, panels: [{ size: '72%'}, { size: 600}] });
+    var networkWidth = splitterWidth - 330;
+	//$('#splitter').jqxSplitter({ width: splitterWidth, height: maxSplitterHeight, panels: [{ size: '75%'}, { size: 600}] });
+	$('#splitter').jqxSplitter({ width: splitterWidth, height: maxSplitterHeight, panels: [{size: networkWidth}] });
 	//$("#jqxSplitter").jqxSplitter({ width: 250});
 	$('#splitter').on('resize', function(ev) {
 		cy.resize();
@@ -262,12 +264,35 @@ function nodeSelected(nodeID, nodeName)
 	});
 
 	drawChart(nodeOutcomes[0], '.chartEvidence');
+    /*
+    var nodeName = nodeOutcomes[0].nodename;
+	var nodeOutcomes = nodeOutcomes[0].values;
+	var nodeVirtualEvidenceValues = nodeOutcomes[0].virtaulEvidenceValues;
+	*/
+	var isRealEvidence = nodeOutcomes[0].isRealEvidence;
+	var isVirtualEvidence = nodeOutcomes[0].isVirtualEvidence;
 
 	var i;
 	for (i=0; i<nodeOutcomes[0].values.length; i++) {
 		//$form.append(nodeOutcomes[0].values[i].outcomeid + ": ");
-		$form.append('<input name="outcomeids" type="radio" value="' + nodeOutcomes[0].values[i].outcomeid + '" />' + truncateOutcome(nodeOutcomes[0].values[i].outcomeid) + '<br>');
-		$formVirtual.append(truncateOutcome(nodeOutcomes[0].values[i].outcomeid) + ': <input name="voutcomeids" type="text" value="' + nodeOutcomes[0].values[i].value + '"/><br>');
+		if(isRealEvidence == "true" && nodeOutcomes[0].values[i].value == 1) {
+		    $form.append('<input name="outcomeids" type="radio" value="' +
+		        nodeOutcomes[0].values[i].outcomeid + '" checked />' +
+		        truncateOutcome(nodeOutcomes[0].values[i].outcomeid) + '<br>');
+		} else {
+		    $form.append('<input name="outcomeids" type="radio" value="' +
+		        nodeOutcomes[0].values[i].outcomeid + '" />' +
+		        truncateOutcome(nodeOutcomes[0].values[i].outcomeid) + '<br>');
+		}
+
+		if(isVirtualEvidence == "true") {
+		    $formVirtual.append(truncateOutcome(nodeOutcomes[0].values[i].outcomeid) +
+		    ': <input name="voutcomeids" type="text" value="' +
+		    nodeOutcomes[0].virtualEvidenceValues[i].value + '"/><br>');
+		} else {
+		    $formVirtual.append(truncateOutcome(nodeOutcomes[0].values[i].outcomeid) +
+		    ': <input name="voutcomeids" type="text" value="0"/><br>');
+		}
 	}
 
 	$("#dialogSetEvidencePanel #formDiv").append($form);

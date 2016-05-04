@@ -2,16 +2,24 @@ function drawCharts(nodesInfoArray)
 {
 	var chartDiv = d3.select("#chartDiv")
 	$('#chartDiv').empty();
-	
 	var i;
 	for (i=0; i<nodesInfoArray.length; i++) {
 		//chartDiv.append("<svg class='chart" + i + "'></svg>");
+		var nodeInfoArrayValue = nodesInfoArray[i];
+		var nodeOutcomes = nodeInfoArrayValue["values"];
+		var barHeight = 15;
+	    var height = barHeight * nodeOutcomes.length ;
+        var svgH =  height + 20 + 50;
+
 		var oneCellDiv = chartDiv.append("div").attr("class", "cell").attr("style", "width:250px");
+		//    .attr("style", "height:"+svgH);
+
 		var oneChartDiv = oneCellDiv.append("div").attr("class", "chart");
 		oneChartDiv.append("svg").attr("class", "chart"+i);
 
 		drawChart(nodesInfoArray[i], '.chart' + i);
 	}
+
 	wall.refresh();
 }
 
@@ -38,15 +46,23 @@ function drawChart(nodeInfoArray, divSelect)
 	//console.log(JSON.stringify(data));
 	
 	var margins = {
-		    top: 20,
+		    top: 27, //original 20
 		    left: 48,
-		    right: 24,
-		    bottom: 50
+		    right: 24,  //original 24
+		    bottom: 50  //original 50
 		},
 	
 	width = 200,
     barHeight = 15,
-	height = barHeight * outcomes.length ; //+ 10;
+	height = barHeight * outcomes.length ;
+    svgH =  height + margins.top + margins.bottom;
+   // $(divSelect).parents(".cell").css("height", svgH);
+    /*
+    if($(divSelect).parents(".cell").height() < svgH ) {
+        $(divSelect).parents(".cell").css("top", svgH);
+        alert(divSelect + "cell height=" + $(divSelect).parents(".cell").height() +
+        " and the svg height=" + svgH + " and svgH=" + $(divSelect).height());
+    }*/
 
 	var x = d3.scale.linear()
 	    .domain([0, 1.0])
@@ -59,20 +75,22 @@ function drawChart(nodeInfoArray, divSelect)
 	xAxis = d3.svg.axis()
 	    .scale(x)
 	    .orient('bottom'),
-    
+
     yAxis = d3.svg.axis()
 	    .scale(y)
 	    .orient('left');
 	
 	var maxOutcomeLen = d3.max(outcomes, function(o) {return o.length;});
-	margins.left = (maxOutcomeLen * 5) + 20;
-	
+	//margins.left = (maxOutcomeLen * 5) + 20;
+	//margins.top = (maxOutcomeLen * 5) + 20;
+
 	var chart = d3.select(divSelect)
-	    .attr("width", width + 50 + margins.left + margins.right)
-	    .attr("height", height + margins.top + margins.bottom)
+	    .attr("width", width + 50 + margins.left + margins.right)  //original width+50+margins.left+margins.right
+	    .attr("height", height + margins.top + margins.bottom )
 	    .append('g')
         .attr('transform', 'translate(' + margins.left + ',' + margins.top + ')');
-	
+
+
 	var bar = chart.selectAll("g")
 	    .data(data)
 	  .enter().append("g")
@@ -85,7 +103,7 @@ function drawChart(nodeInfoArray, divSelect)
 	    .attr("height", barHeight - 1);
 	}else if( isVirtualEvidence == "true"){
 	    bar.append("rect")
-	    .style("fill", "#8FBC8F")  //DarkSeeGreen
+	    .style("fill", "#8FBC8F")
 	    .attr("width", x)
 	    .attr("height", barHeight - 1);
 	}else if(isTarget == "true"){

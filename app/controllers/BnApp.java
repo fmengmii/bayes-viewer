@@ -521,7 +521,7 @@ public class BnApp extends Controller {
 
     	for (int i=0; i<outcomeStrArray.length; i++) {
     		outcomeVals[i] = Double.parseDouble(outcomeStrArray[i]);
-			Logger.info("setVirtualEvidence: value=" + outcomeVals[i]);
+			//Logger.info("setVirtualEvidence: value=" + outcomeVals[i]);
     	}
 
     	ModelReader modelReader = new ModelReader();

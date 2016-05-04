@@ -67,6 +67,11 @@ public class ModelReader
 			//System.out.println(System.getProperty("java.library.path"));
 			//System.out.println(network.getName());
 			//network.clearAllTargets();
+
+			//get original value before updating beliefs
+			Network networkLast = network;
+			int[] nodesLast = networkLast.getAllNodes();
+
 			network.updateBeliefs();
 
 			//nodes
@@ -132,18 +137,50 @@ public class ModelReader
 					nodeName = nodeNameFirstPart.toLowerCase() + nodeNameLastPart;
 				}
 				outcomeBlder.append("{\"nodename\":\"" + nodeName + "\", \"id\":\"" + network.getNodeId(nodes[i]) + "\", ");
+
+				//adding isVirtualEvidence, is RealEvidence and isTarget for each node
 				outcomeBlder.append("\"isVirtualEvidence\":\"" + network.isVirtualEvidence(nodeID) + "\", ");
 				outcomeBlder.append("\"isRealEvidence\":\"" + network.isRealEvidence(nodeID) + "\", ");
 				//outcomeBlder.append("\"isPropagatedEvidence\":\"" + network.isPropagatedEvidence(nodeID) + "\", ");
 				//outcomeBlder.append("\"isEvidence\":\"" + network.isEvidence(nodeID) + "\", ");
 				outcomeBlder.append("\"isTarget\":\"" + network.isTarget(nodeID) + "\", ");
-				outcomeBlder.append("\"values\":[");
+
 				String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
 
+				//adding virtualEvidenceValue
+				if( network.isVirtualEvidence(nodeID) ) {
+					outcomeBlder.append("\"virtualEvidenceValues\":[");
+					double[] virtualEvidenceValues = network.getVirtualEvidence(nodes[i]);
+
+					//double[] values = network.getNodeValue(nodes[i]);
+
+					for (int j = 0; j < outcomeIDs.length; j++) {
+						//System.out.println("virtualEvidence value: " + virtualEvidenceValues[j]);
+						if (j > 0)
+							outcomeBlder.append(",");
+						outcomeBlder.append("{\"outcomeid\":\"" + outcomeIDs[j] + "\",\"value\":" +
+								formatter.format((virtualEvidenceValues[j])) + "}");
+					}
+
+					outcomeBlder.append("], ");
+				}
+				//end of adding virtual evidence values
+
+				outcomeBlder.append("\"values\":[");
+				//String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
+
 				double[] values = network.getNodeValue(nodes[i]);
+				double[] valuesLast = networkLast.getNodeValue(nodesLast[i]);
 
 				for (int j=0; j<outcomeIDs.length; j++) {
 					//System.out.println("outcome: " + outcomeIDs[j] + ", value: " + values[j]);
+					String change = "no";
+					if(values[j] > valuesLast[j]) {
+						change = "increase";
+					}
+					if(values[j] < valuesLast[j]){
+						change = "decrease";
+					}
 					if (j > 0)
 						outcomeBlder.append(",");
 					outcomeBlder.append("{\"outcomeid\":\"" + outcomeIDs[j] + "\",\"value\":" + formatter.format((values[j])) + "}");
@@ -153,6 +190,7 @@ public class ModelReader
 				outcomeMap.put(nodeName, outcomeBlder.toString());
 				//Logger.info(nodeName + ": values " + outcomeBlder.toString());
 			}
+
 			count = 0;
 			for (Map.Entry<String, String> entry : outcomeMap.entrySet()) {
 				if (count > 0)

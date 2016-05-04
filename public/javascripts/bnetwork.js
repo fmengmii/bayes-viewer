@@ -43,22 +43,23 @@ $(function() { // on dom ready
 	cy.on('cxttap', 'node', function(evt) {
 		console.log(evt.cyTarget.id());
 		var color = cy.getElementById(evt.cyTarget.id()).css('background-color');
-		if (color == 'yellow') {
+		if (color == 'DarkSalmon') {
 			console.log(color);
 			$('#nodeMenu #target').css({'color':'#F8F8F8'});
-			$('#nodeMenu #offTarget').css({'color':'black'});
+			$('#nodeMenu #offTarget').css({'color':'#000000'});
 			$('#nodeMenu').jqxMenu('disable', 'target', true);
 			$('#nodeMenu').jqxMenu('disable', 'offTarget', false);
 		} else {
 			console.log(color);
-			$('#nodeMenu #target').css({'color':'black'});
+			$('#nodeMenu #target').css({'color':'#000000'});
 			$('#nodeMenu #offTarget').css({'color':'#F8F8F8'});
 			$('#nodeMenu').jqxMenu('disable', 'target', false);
 			$('#nodeMenu').jqxMenu('disable', 'offTarget', true);
 		}
 		var scrollTop = $(window).scrollTop();
         var scrollLeft = $(window).scrollLeft();
-		$('#nodeMenu').jqxMenu('open', parseInt(event.clientX) + 5 + scrollLeft, parseInt(event.clientY) + 5 + scrollTop);
+		$('#nodeMenu').jqxMenu('open', parseInt(event.clientX) + 5 + scrollLeft,
+		    parseInt(event.clientY) + 5 + scrollTop);
 		$('#nodeMenu #nodeID').val(evt.cyTarget.id());
 	});
 

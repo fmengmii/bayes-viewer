@@ -952,20 +952,27 @@ function setVirtualEvidence()
 	var i;
 	var nodeID = '';
 	var outcomeVals = [];
+	var sum = 0;
 	for (i = 0; i < form.length; i++) {
 		if (form.elements[i].id == 'nodeID') {
 			nodeID = form.elements[i].value;
 		}
 		else {
 			outcomeVals.push(form.elements[i].value);
+			sum += Number(form.elements[i].value);
 		}
 	}
 
+    if( Math.round(sum) != 1 ) {
+        alertBoxShow("Sum of probabilities should be equal to 1.");
+        return false;
+    }
 	//console.log(nodeID);
 
 	var values = {nodeID:nodeID, outcomeVals:outcomeVals};
 
 	var setVirtualEvidenceAjax = jsRoutes.controllers.BnApp.setVirtualEvidence();
+
 	$.ajax({
 		type: 'POST',
 		url: setVirtualEvidenceAjax.url,
@@ -1023,6 +1030,7 @@ function setAsTarget()
 	    if(data.startsWith("Error:")){
 	        alertBoxShow(data.substring(7));
 	    }else{
+	        $('#nodeMenu').jqxMenu('close');
 		    networkInfoArray = JSON.parse(data);
 		    //drawCharts(networkInfoArray[1]);
 
@@ -1065,6 +1073,7 @@ function removeTarget()
 	$.ajax({
 		url: removeTargetAjax.url
 	}).done(function(data) {
+	    $('#nodeMenu').jqxMenu('close');
 		networkInfoArray = JSON.parse(data);
 		drawCharts(networkInfoArray[1]);
 
