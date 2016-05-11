@@ -288,7 +288,7 @@ function nodeSelected(nodeID, nodeName)
 		if(isVirtualEvidence == "true") {
 		    $formVirtual.append(truncateOutcome(nodeOutcomes[0].values[i].outcomeid) +
 		    ': <input name="voutcomeids" type="text" value="' +
-		    nodeOutcomes[0].virtualEvidenceValues[i].value + '"/><br>');
+		    nodeOutcomes[0].values[i].value + '"/><br>');
 		} else {
 		    $formVirtual.append(truncateOutcome(nodeOutcomes[0].values[i].outcomeid) +
 		    ': <input name="voutcomeids" type="text" value="0"/><br>');

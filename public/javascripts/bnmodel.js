@@ -821,10 +821,16 @@ function clearAllEvidence(showMessage)
 	}).done(function(data) {
 		//console.log(data);
 		networkInfoArray = JSON.parse(data);
-		networkLoadModel(networkInfoArray[0]);
+		//networkLoadModel(networkInfoArray[0]);
 
 		drawCharts(networkInfoArray[1]);
-		setNodeColorAll('lightblue');
+		var outcomeValues = networkInfoArray[1];
+        for(i=0; i< outcomeValues.length; i++){
+		    if( outcomeValues[i].isTarget != "true" ) {
+		        //outcomeValues[i].isVirtualEvidence != "true" ){
+		        setNodeColor(outcomeValues[i].id, 'lightblue');
+		    }
+		}
 
 		$('#chartDiv').trigger('resize');
 
@@ -834,15 +840,13 @@ function clearAllEvidence(showMessage)
 	}).fail(function() {
 	    alertBoxShow("Clear All Evidence failed. Please try again.");
 	});
-
 }
 
 function clearEvidence()
 {
 	var form = document.getElementById("setEvidenceForm");
-	var i;
 	var nodeID = '';
-	for (i = 0; i < form.length; i++) {
+	for ( var i = 0; i < form.length; i++) {
 		if (form.elements[i].id == 'nodeID') {
 			nodeID = form.elements[i].value;
 			break;
@@ -856,28 +860,8 @@ function clearEvidence()
 		//console.log(data);
 		networkInfoArray = JSON.parse(data);
 		drawCharts(networkInfoArray[1]);
-
-		var outcomeValues = networkInfoArray[1];
-		setNodeColorAll('lightblue');
-
-		var nodeOutcomes = outcomeValues.filter(function(e) {
-			if (e.id == nodeID)
-				return e;
-		});
-
-		$('.chartEvidence').empty();
-		drawChart(nodeOutcomes[0], '.chartEvidence');
-
-		var formV = document.getElementById("setVirtualEvidenceForm");
-		var j = 0;
-		for (i = 0; i < formV.length; i++) {
-			if (formV.elements[i].id != 'nodeID') {
-				formV.elements[i].value = nodeOutcomes[0].values[j].value;
-				j++;
-			}
-		}
-
-		$('input[name=outcomeids]').attr('checked',false);
+        setNodeColor(nodeID, 'lightblue');
+        $('#chartDiv').trigger('resize');
 	}).fail(function() {
 	    alertBoxShow("Clear Evidence failed. Please try again.");
 	});
@@ -889,15 +873,13 @@ function setEvidence()
 	//console.log(outcomeID);
 
 	var form = document.getElementById("setEvidenceForm");
-	var i;
 	var nodeID = '';
-	for (i = 0; i < form.length; i++) {
+	for (var i = 0; i < form.length; i++) {
 		if (form.elements[i].id == 'nodeID') {
 			nodeID = form.elements[i].value;
 			break;
 		}
 	}
-
 	//console.log(nodeID);
 
 	var values = {nodeID:nodeID, outcomeID:outcomeID};
@@ -908,37 +890,12 @@ function setEvidence()
 		url: setEvidenceAjax.url,
 		data: values
 	}).done(function(data) {
+	    if( data == "Error" ) {
+	        alertBoxShow("Value is not valid, Please try again.");
+	        return false;
+	    }
 		networkInfoArray = JSON.parse(data);
 		drawCharts(networkInfoArray[1]);
-        /*
-		var outcomeValues = networkInfoArray[1];
-		var nodeOutcomes = outcomeValues.filter(function(e) {
-			if (e.id == nodeID)
-				return e;
-		});
-
-		$('.chartEvidence').empty();
-		drawChart(nodeOutcomes[0], '.chartEvidence');
-
-		var formV = document.getElementById("setVirtualEvidenceForm");
-		var j = 0;
-		for (i = 0; i < formV.length; i++) {
-			if (formV.elements[i].id != 'nodeID') {
-				formV.elements[i].value = nodeOutcomes[0].values[j].value;
-				j++;
-			}
-		}*/
-		var outcomeValues = networkInfoArray[1];
-		var nodeOutcomes;
-		var nodeIndex;
-		for( var index=0; index < outcomeValues.length; index++ ) {
-		    if(outcomeValues[index].id == nodeID ) {
-		       nodeOutcomes = outcomeValues[index];
-		       nodeIndex = index;
-		       break;
-		    }
-		}
-        drawChart(nodeOutcomes, '.chart' + nodeIndex);
 		setNodeColor(nodeID, 'Green');
 		$('#chartDiv').trigger('resize');
 	}).fail(function(){
@@ -949,11 +906,10 @@ function setEvidence()
 function setVirtualEvidence()
 {
 	var form = document.getElementById("setVirtualEvidenceForm");
-	var i;
 	var nodeID = '';
 	var outcomeVals = [];
 	var sum = 0;
-	for (i = 0; i < form.length; i++) {
+	for ( var i = 0; i < form.length; i++) {
 		if (form.elements[i].id == 'nodeID') {
 			nodeID = form.elements[i].value;
 		}
@@ -963,10 +919,11 @@ function setVirtualEvidence()
 		}
 	}
 
-    if( Math.round(sum) != 1 ) {
+    if ( Math.round(sum*10) != 10 ) {
         alertBoxShow("Sum of probabilities should be equal to 1.");
         return false;
     }
+
 	//console.log(nodeID);
 
 	var values = {nodeID:nodeID, outcomeVals:outcomeVals};
@@ -978,40 +935,12 @@ function setVirtualEvidence()
 		url: setVirtualEvidenceAjax.url,
 		data: values
 	}).done(function(data) {
+	    if( data == "Error" ) {
+	        alertBoxShow("Value is not valid, Please try again.");
+	        return false;
+	    }
 		networkInfoArray = JSON.parse(data);
 		drawCharts(networkInfoArray[1]);
-        /*
-		var outcomeValues = networkInfoArray[1];
-		var nodeOutcomes = outcomeValues.filter(function(e) {
-			if (e.id == nodeID)
-				return e;
-		});
-
-		$('.chartEvidence').empty();
-		drawChart(nodeOutcomes[0], '.chartEvidence');
-
-		var formV = document.getElementById("setVirtualEvidenceForm");
-		var j = 0;
-		for (i = 0; i < formV.length; i++) {
-			if (formV.elements[i].id != 'nodeID') {
-				formV.elements[i].value = nodeOutcomes[0].values[j].value;
-				j++;
-			}
-		}
-
-		$('#chartDiv').trigger('resize');
-		*/
-		var outcomeValues = networkInfoArray[1];
-		var nodeOutcomes;
-		var nodeIndex;
-		for( var index=0; index < outcomeValues.length; index++ ) {
-		    if(outcomeValues[index].id == nodeID ) {
-		       nodeOutcomes = outcomeValues[index];
-		       nodeIndex = index;
-		       break;
-		    }
-		}
-        drawChart(nodeOutcomes, '.chart' + nodeIndex);
 		setNodeColor(nodeID, 'DarkSeaGreen');
 		$('#chartDiv').trigger('resize');
 	}).fail(function() {
@@ -1051,9 +980,10 @@ function setAsTarget()
 		    });
             */
 
-		    $('.chartEvidence').empty();
-		    //drawChart(nodeOutcomes[0], '.chartEvidence', false, true);
-		    drawChart(nodeOutcomes, '.chart' + nodeIndex);
+		    //$('.chartEvidence').empty();
+		    var chartClass = '.chart' + nodeIndex;
+		    $(chartClass).empty();
+		    drawChart(nodeOutcomes, chartClass);
 
 		    //cy.getElementById(nodeID).css('background-color', 'yellow');
 		    setNodeColor(nodeID, 'DarkSalmon');
@@ -1075,17 +1005,26 @@ function removeTarget()
 	}).done(function(data) {
 	    $('#nodeMenu').jqxMenu('close');
 		networkInfoArray = JSON.parse(data);
-		drawCharts(networkInfoArray[1]);
+		//drawCharts(networkInfoArray[1]);
 
 		var outcomeValues = networkInfoArray[1];
-		var nodeOutcomes = outcomeValues.filter(function(e) {
+		/*var nodeOutcomes = outcomeValues.filter(function(e) {
 			if (e.id == nodeID)
 				return e;
 		});
-
-		$('.chartEvidence').empty();
-		drawChart(nodeOutcomes[0], '.chartEvidence');
-
+        */
+        var nodeOutcomes;
+		var nodeIndex;
+		for( var index=0; index < outcomeValues.length; index++ ) {
+		    if(outcomeValues[index].id == nodeID ) {
+		        nodeOutcomes = outcomeValues[index];
+		        nodeIndex = index;
+		        break;
+		    }
+		}
+		var chartClass = '.chart' + nodeIndex;
+		$(chartClass).empty();
+        drawChart(nodeOutcomes, chartClass);
 		setNodeColor(nodeID, 'lightblue');
 		$('#chartDiv').trigger('resize');
 	}).fail(function() {
@@ -1115,7 +1054,7 @@ function clearAllTargets()
 		var outcomeValues = networkInfoArray[1];
 		for(i=0; i< outcomeValues.length; i++){
 		    if( outcomeValues[i].isRealEvidence != "true" &&
-		        outcomeValues[i].isVirtualEvidence != "true" ){
+		            outcomeValues[i].isVirtualEvidence != "true" ){
 		        setNodeColor(outcomeValues[i].id, 'lightblue');
 		    }
 		}

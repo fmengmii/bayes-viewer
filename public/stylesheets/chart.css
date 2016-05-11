@@ -35,3 +35,16 @@ svg[class^='chart'] text {
 .axis text {
     font-size: 10px;
 }
+
+path {
+    stroke: black;
+    fill: none;
+}
+
+line {
+    stroke: black;
+}
+
+path.marker {
+    fill: black;
+}

@@ -8,11 +8,15 @@ import java.util.*;
 import com.google.gson.Gson;
 
 import play.Logger;
+import play.api.libs.json.Json;
 import smile.*;
 
 public class ModelReader
 {
 	private Network network;
+	private Map<Integer, double[]> networkLastMap = new HashMap();
+	private Map<Integer, Boolean> networkTargetMap = new HashMap();
+
 	private Gson gson;
 	private String modelPath;
 
@@ -25,7 +29,7 @@ public class ModelReader
 	{
 		return network;
 	}
-	
+
 	public void setNetwork(Object network)
 	{
 		this.network = (Network) network;
@@ -55,6 +59,54 @@ public class ModelReader
 		return getModelStr();
 	}
 
+	public void modifyNetworkLast(){
+		try{
+			int[] nodes = network.getAllNodes();
+
+			for (int i=0; i<nodes.length; i++) {
+				//int node = nodes[i];
+				//String nodeID = network.getNodeId(node);
+				//String nodeName = network.getNodeName(node);
+				double[] values = network.getNodeValue(nodes[i]);
+				networkLastMap.put(nodes[i], values);
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void recordNetworkTarget(){
+		try{
+			int[] nodes = network.getAllNodes();
+
+			for (int i=0; i<nodes.length; i++) {
+				//int node = nodes[i];
+				String nodeID = network.getNodeId(nodes[i]);
+				//String nodeID = network.getNodeId(node);
+				//String nodeName = network.getNodeName(node);
+				networkTargetMap.put(nodes[i], network.isTarget(nodeID));
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void recoverNetworkTarget(){
+		try{
+			int[] nodes = network.getAllNodes();
+
+			for (int i=0; i<nodes.length; i++) {
+				String nodeID = network.getNodeId(nodes[i]);
+				if( networkTargetMap.get(nodes[i]) ) {
+					//Logger.info(nodeID + " " + networkTargetMap.get(nodes[i]));
+					network.setTarget(nodeID, true);
+				}
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public String getModelStr()
 	{
 		//Logger.info("before getModelStr().");
@@ -69,10 +121,11 @@ public class ModelReader
 			//network.clearAllTargets();
 
 			//get original value before updating beliefs
-			Network networkLast = network;
-			int[] nodesLast = networkLast.getAllNodes();
-
+			//Network networkLast = network;
+			recordNetworkTarget();
+			network.clearAllTargets();
 			network.updateBeliefs();
+			recoverNetworkTarget();
 
 			//nodes
 			strBlder.append("{\"nodes\":[");
@@ -146,46 +199,61 @@ public class ModelReader
 				outcomeBlder.append("\"isTarget\":\"" + network.isTarget(nodeID) + "\", ");
 
 				String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
+				double[] valuesLast = networkLastMap.get(nodes[i]);
+
 
 				//adding virtualEvidenceValue
 				if( network.isVirtualEvidence(nodeID) ) {
-					outcomeBlder.append("\"virtualEvidenceValues\":[");
+					outcomeBlder.append("\"values\":[");
 					double[] virtualEvidenceValues = network.getVirtualEvidence(nodes[i]);
 
 					//double[] values = network.getNodeValue(nodes[i]);
 
 					for (int j = 0; j < outcomeIDs.length; j++) {
 						//System.out.println("virtualEvidence value: " + virtualEvidenceValues[j]);
+						String change = "no";
+						if( valuesLast != null ){
+							//Logger.info("nodeName:" + nodeName + " j=" + j + ", old value=" +valuesLast[j] + " and new value=" +  values[j]);
+							if(virtualEvidenceValues[j] > valuesLast[j]) {
+								change = "increase";
+							}
+							if(virtualEvidenceValues[j] < valuesLast[j]){
+								change = "decrease";
+							}
+						}
 						if (j > 0)
 							outcomeBlder.append(",");
-						outcomeBlder.append("{\"outcomeid\":\"" + outcomeIDs[j] + "\",\"value\":" +
-								formatter.format((virtualEvidenceValues[j])) + "}");
+						outcomeBlder.append("{\"outcomeid\":\"" + outcomeIDs[j] + "\", " +
+							"\"change\":\"" + change + "\", " +
+							"\"value\":" + formatter.format((virtualEvidenceValues[j])) + "}");
 					}
 
-					outcomeBlder.append("], ");
+					//outcomeBlder.append("], ");
+				} else {
+					outcomeBlder.append("\"values\":[");
+					double[] values = network.getNodeValue(nodes[i]);
+					for (int j = 0; j < outcomeIDs.length; j++) {
+						//System.out.println("outcome: " + outcomeIDs[j] + ", value: " + values[j]);
+						String change = "no";
+						if (valuesLast != null) {
+							//Logger.info("nodeName:" + nodeName + " j=" + j + ", old value=" +valuesLast[j] + " and new value=" +  values[j]);
+							//if (values[j] > valuesLast[j]) {
+							if( Double.valueOf(formatter.format(values[j])) >
+									Double.valueOf(formatter.format(valuesLast[j])) ) {
+								change = "increase";
+							} else if ( Double.valueOf(formatter.format(values[j])) <
+									Double.valueOf(formatter.format(valuesLast[j])) ) {
+							//if (values[j] < valuesLast[j]) {
+								change = "decrease";
+							}
+						}
+						if (j > 0)
+							outcomeBlder.append(",");
+						outcomeBlder.append("{\"outcomeid\":\"" + outcomeIDs[j] + "\", " +
+								"\"change\":\"" + change + "\", " +
+								"\"value\":" + formatter.format((values[j])) + "}");
+					}
 				}
-				//end of adding virtual evidence values
-
-				outcomeBlder.append("\"values\":[");
-				//String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
-
-				double[] values = network.getNodeValue(nodes[i]);
-				double[] valuesLast = networkLast.getNodeValue(nodesLast[i]);
-
-				for (int j=0; j<outcomeIDs.length; j++) {
-					//System.out.println("outcome: " + outcomeIDs[j] + ", value: " + values[j]);
-					String change = "no";
-					if(values[j] > valuesLast[j]) {
-						change = "increase";
-					}
-					if(values[j] < valuesLast[j]){
-						change = "decrease";
-					}
-					if (j > 0)
-						outcomeBlder.append(",");
-					outcomeBlder.append("{\"outcomeid\":\"" + outcomeIDs[j] + "\",\"value\":" + formatter.format((values[j])) + "}");
-				}
-
 				outcomeBlder.append("]}");
 				outcomeMap.put(nodeName, outcomeBlder.toString());
 				//Logger.info(nodeName + ": values " + outcomeBlder.toString());
@@ -249,7 +317,8 @@ public class ModelReader
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
+			//e.printStackTrace();
+			return "Error"; // value is not valid.
 		}
 		/*for (String nodeID : targetIdList){
 			network.setTarget(nodeID, true);
@@ -268,9 +337,9 @@ public class ModelReader
 	}
 	public String setEvidence(String modelName, String nodeID, String outcomeID)
 	{
-		loadModel(modelName);
+		//loadModel(modelName);
+		modifyNetworkLast();
 		network.setEvidence(nodeID, outcomeID);
-		
 		return getModelStr();
 	}
 	
@@ -279,15 +348,17 @@ public class ModelReader
 		/*for( int i=0; i< outcomeVals.length; i++) {
 			Logger.info("ModelReader, setVirtualEvidence:" + outcomeVals[i]);
 		}*/
-		loadModel(modelName);
+		//loadModel(modelName);
+		modifyNetworkLast();
 		network.setVirtualEvidence(nodeID, outcomeVals);
 		return getModelStr();
 	}
 	
 	public String clearAllEvidence(String modelName)
 	{
-		loadModel(modelName);
-		network.clearAllTargets();
+		//loadModel(modelName);
+		modifyNetworkLast();
+		//network.clearAllTargets();
 		network.clearAllEvidence();
 		//Logger.info("clearAllEvidence.");
 		return getModelStr();
@@ -295,19 +366,19 @@ public class ModelReader
 	
 	public String clearEvidence(String modelName, String nodeID)
 	{
-		loadModel(modelName);
-		network.clearAllTargets();
+		//loadModel(modelName);
+		modifyNetworkLast();
+		//network.clearAllTargets();
 		network.clearEvidence(nodeID);
-		
 		return getModelStr();
 	}
 	
 	public String setAsTarget(String modelName, String nodeID)
 	{
-		loadModel(modelName);
-		if( !hasEvidence(network) ){
+		//loadModel(modelName);
+		/*if( !hasEvidence(network) ){
 			return "Error: Please set an evidence first.";
-		}
+		}*/
 		network.setTarget(nodeID, true);
 		//Logger.info("set a target.");
 		return getModelStr();
@@ -332,7 +403,7 @@ public class ModelReader
 
 	public String removeTarget(String modelName, String nodeID)
 	{
-		loadModel(modelName);
+		//loadModel(modelName);
 		network.setTarget(nodeID, false);
 
 		return getModelStr();
@@ -340,7 +411,7 @@ public class ModelReader
 	
 	public String clearAllTargets(String modelName)
 	{
-		loadModel(modelName);
+		//loadModel(modelName);
 		network.clearAllTargets();
 		
 		return getModelStr();
@@ -348,7 +419,7 @@ public class ModelReader
 	
 	public String getCPT(String modelName, String nodeID)
 	{
-		loadModel(modelName);
+		//loadModel(modelName);
 		
 		StringBuilder strBlder = new StringBuilder("{\"parents\":[");				
 		String[] parentIDs = network.getParentIds(nodeID);
@@ -394,6 +465,7 @@ public class ModelReader
 	private void loadModel(String modelName)
 	{
 		if (network == null) {
+			Logger.info("starting loadModel...");
 			network = new Network();
 			network.readFile(modelName);
 
@@ -405,6 +477,7 @@ public class ModelReader
 	private void uploadModel(String modelPath, String modelName)
 	{
 		if (network == null) {
+			Logger.info("starting uploadModel...");
 			network = new Network();
 			network.readFile(modelPath);
 

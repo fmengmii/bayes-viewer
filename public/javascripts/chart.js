@@ -16,7 +16,9 @@ function drawCharts(nodesInfoArray)
 
 		var oneChartDiv = oneCellDiv.append("div").attr("class", "chart");
 		oneChartDiv.append("svg").attr("class", "chart"+i);
-
+        /*if( i == 0 ) {
+            console.log("drawChart input type=" + typeof nodesInfoArray[i] );
+        }*/
 		drawChart(nodesInfoArray[i], '.chart' + i);
 	}
 
@@ -27,24 +29,28 @@ function drawCharts(nodesInfoArray)
 function drawChart(nodeInfoArray, divSelect)
 {
 	var outcomes = [];
-	var data = [];
-	
+	var finalData = [];
+
 	var nodeName = nodeInfoArray["nodename"];
 	var nodeOutcomes = nodeInfoArray["values"];
 	var isRealEvidence = nodeInfoArray["isRealEvidence"];
 	var isVirtualEvidence = nodeInfoArray["isVirtualEvidence"];
-
 	var isTarget = nodeInfoArray["isTarget"];
 	var i;
-	for (i=0; i<nodeOutcomes.length; i++) {
-		outcomes.push(truncateOutcome((nodeOutcomes[i])["outcomeid"]));
-		//outcomes.push((nodeOutcomes[i])["outcomeid"]);
-		data.push((nodeOutcomes[i])["value"]);
+
+    for (i=0; i<nodeOutcomes.length; i++) {
+	    outcomes.push(truncateOutcome((nodeOutcomes[i])["outcomeid"]));
+		var item = {};  //JSON object
+		item["value"] = (nodeOutcomes[i])["value"];
+		item["change"] = (nodeOutcomes[i])["change"];
+		finalData.push(item);
 	}
-	
-	//console.log(JSON.stringify(outcomes));
-	//console.log(JSON.stringify(data));
-	
+
+	/*
+	console.log("data value= " + JSON.stringify(data));
+	console.log("change value= " + JSON.stringify(change));
+	console.log("final data= " + JSON.stringify(finalData));
+	*/
 	var margins = {
 		    top: 27, //original 20
 		    left: 48,
@@ -56,13 +62,6 @@ function drawChart(nodeInfoArray, divSelect)
     barHeight = 15,
 	height = barHeight * outcomes.length ;
     svgH =  height + margins.top + margins.bottom;
-   // $(divSelect).parents(".cell").css("height", svgH);
-    /*
-    if($(divSelect).parents(".cell").height() < svgH ) {
-        $(divSelect).parents(".cell").css("top", svgH);
-        alert(divSelect + "cell height=" + $(divSelect).parents(".cell").height() +
-        " and the svg height=" + svgH + " and svgH=" + $(divSelect).height());
-    }*/
 
 	var x = d3.scale.linear()
 	    .domain([0, 1.0])
@@ -81,8 +80,6 @@ function drawChart(nodeInfoArray, divSelect)
 	    .orient('left');
 	
 	var maxOutcomeLen = d3.max(outcomes, function(o) {return o.length;});
-	//margins.left = (maxOutcomeLen * 5) + 20;
-	//margins.top = (maxOutcomeLen * 5) + 20;
 
 	var chart = d3.select(divSelect)
 	    .attr("width", width + 50 + margins.left + margins.right)  //original width+50+margins.left+margins.right
@@ -90,39 +87,86 @@ function drawChart(nodeInfoArray, divSelect)
 	    .append('g')
         .attr('transform', 'translate(' + margins.left + ',' + margins.top + ')');
 
-
 	var bar = chart.selectAll("g")
-	    .data(data)
-	  .enter().append("g")
+	    .data(finalData) // .data(data)
+	    .enter().append("g")
 	    .attr("transform", function(d, i) { return "translate(0," + i * barHeight + ")"; });
 
 	if(isRealEvidence == "true"){
 	    bar.append("rect")
 	    .style("fill", "Green")
-	    .attr("width", x)
+	    .attr("width", function(d){ return x(d.value);})
 	    .attr("height", barHeight - 1);
 	}else if( isVirtualEvidence == "true"){
 	    bar.append("rect")
 	    .style("fill", "#8FBC8F")
-	    .attr("width", x)
+	    .attr("width", function(d){ return x(d.value);})
 	    .attr("height", barHeight - 1);
 	}else if(isTarget == "true"){
 	    bar.append("rect")
 	    .style("fill", "DarkSalmon")
-	    .attr("width", x)
+	    .attr("width", function(d){ return x(d.value);})
 	    .attr("height", barHeight - 1);
 	} else {
 	    bar.append("rect")
-	    .attr("width", x)
+	    .style("fill", "steelblue")
+	    .attr("width", function(d){ return x(d.value);})
 	    .attr("height", barHeight - 1);
 	}
 
 	bar.append("text")
-	    .attr("x", function(d) { return x(d) + 30; })
+	    .attr("x", function(d) { return x(d.value) + 30; })
 	    .attr("y", barHeight / 2)
 	    .attr("dy", ".35em")
-	    .text(function(d) { return d; });
-	
+	    .text(function(d) { return d.value; });
+
+    bar.append("defs").append("marker")
+        .attr("id", "arrow")
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 6)
+        .attr("markerWidth", 4)
+        .attr("markerHeight", 4)
+        .attr("orient", "auto")
+        .append("path")
+        .attr("class", "marker")
+        .attr("d", "M0,-5L10,0L0,5");
+
+    if( isTarget == "true" && isRealEvidence=="false" &&
+        isVirtualEvidence == "false" ) {
+
+        bar.append("line")
+        .attr("class", "arrow")
+        .attr("x1", function (d) {
+            if( d.change == "increase") {
+                return x(d.value) + 40;
+            } else if( d.change == "decrease" ) {
+                return x(d.value) + 50;
+            } else {
+                return 0;
+            }
+        })
+        .attr("x2", function (d) {
+            if( d.change == "increase") {
+                return x(d.value) + 50;
+            } else if( d.change == "decrease" ) {
+                return x(d.value) + 40;
+            } else {
+                return 0;
+            }
+        })
+        .attr("y1", barHeight / 2)
+        .attr("y2", barHeight / 2)
+        .attr("stroke-width", 1)
+        .attr("stroke", "black")
+        .attr("marker-end", function(d){
+            if( d.change == "no") {
+                return "";
+            } else {
+                return "url(#arrow)";
+            }
+        });
+    }
+
 	chart.append('g')
 	    .attr('class', 'axis')
 	    .attr('transform', 'translate(0,' + height + ')')
