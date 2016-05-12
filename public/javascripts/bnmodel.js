@@ -41,7 +41,7 @@ function loadModel() {
             drawCharts(networkInfoArray[1]);
             $('#chartDiv').trigger('resize');
 
-            clearAllEvidence();
+            //clearAllEvidence();
             //location.reload();
             //getRawDataOptions("load");
             //console.log(networkInfoArray);

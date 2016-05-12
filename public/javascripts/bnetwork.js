@@ -94,10 +94,47 @@ function setNodeColor(nodeID, color)
 	cy.getElementById(nodeID).css('background-color', color);
 }
 
-function networkLoadModel(model)
-{
+function networkLoadModel(model) {
 	//cy.load(networkInfoArray[0]);
 	cy.load(model);
+    if( !$("#network svg").length ) {
+        drawLegend();
+    }
+}
+
+function drawLegend() {
+    var data = [{"y":11, "color":"Lightblue", "value":"Network Node"},
+                {"y":31, "color":"Green", "value":"Real Evidence Node"},
+                {"y":51, "color":"#8FBC8F", "value":"Virtual Evidence Node"},
+                {"y":71, "color":"DarkSalmon", "value":"Target Node"}];
+
+	var maxWidth = $("#network").width();
+
+    var left = 11; //maxWidth - 180;
+    var x = 20;
+    var r=8;
+	var svg = d3.select("#network")
+	    .append("svg")
+	    .attr("width", maxWidth)
+	    .attr("height", 300)
+	    .append("g")
+	    .attr('transform', 'translate(' + left + ', 20)');
+
+    var g = svg.selectAll("g").data(data).enter().append("g");
+
+    var circle = g.append("circle")
+        .attr("cx", x)
+        .attr("cy", function(d){ return d.y; })
+        .attr("r", r)
+        .style("fill", function(d){ return d.color;});
+
+
+    var text = g.append("text")
+	    .attr("x", x + 20)
+	    .attr("y", function(d){ return d.y;})
+	    .attr("dy", ".45em")
+	    .attr("fill", "black")
+	    .text(function(d){ return d.value;});
 }
 
 /*function showUpload()
