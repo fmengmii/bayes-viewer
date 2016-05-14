@@ -24,6 +24,7 @@ function documentReady() {
     $("#rawDataSharedBy").multiselect().multiselectfilter();
     $("#updateModelSharedBy").multiselect().multiselectfilter();
     $("#updateRawDataSharedBy").multiselect().multiselectfilter();
+    $("#queryNodeNameSelect").multiselect().multiselectfilter();
 
     var location = window.location.pathname;
     if( location == "/" ) {
@@ -118,7 +119,7 @@ $(document).ready(function () {
     }
 
     var maxSplitterHeight = $("#contentDiv").height() - $("#topButtonsDiv").height() -
-        $("#lowerButtonsDiv").height();
+        $("#lowerButtonsDiv").height() ;
     var maxSplitterWidth = 1400;
     var splitterWidth;
     if( $("#contentDiv").width() > maxSplitterWidth ) {

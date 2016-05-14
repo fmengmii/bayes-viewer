@@ -29,31 +29,13 @@
 	<div id="lowerButtonsDiv">
 		<table class="lowerButtonsTable">
             <tr class="lowerButtonsTr">
-				@**
-                <td>
-                    @if( models == null || models.size() == 0 ) {
-                        <select id="load" onMouseDown="loadModel();">
-                            <option selected disabled hidden value=''>No existed bayesian network</option>
-                        </select>
-                    }else{
-                        <select id="load">
-                            <option selected disabled hidden value=''>Show existed bayesian network</option>
-                            @for(model <- models) {
-                                <option value="@model">@model</option>
-                            }
-                        </select>
-                    }
-                </td>
-                <td>&nbsp;</td>
-				**@
                 <td class="lowerButtonsTd">
                     <button type="button" class="button lowerButton showNetworkButton" onclick="loadModel()">View Network</button>
-                    @**<button type="button" class="button lowerButton showProbButton">Show All Posterior Probabilities</button>**@
                     <button type="button" class="button lowerButton clearEviButton" onclick="clearAllEvidence()">Clear All Evidences</button>
                     <button type="button" class="button lowerButton clearTarButton" onclick="clearAllTargets()">Clear All Targets</button>
 					<button type="button" class="button lowerButton centerButton" onclick="centerNetwork()">Center Network</button>
 					@if(dataType.equals("public")) {
-                         <button type="button" class="button lowerButton centerButton centerButtonLast" onclick="showRawData()">View Raw Data</button>
+					    <button type="button" class="button lowerButton centerButton centerButtonLast" onclick="showRawData()">View Raw Data</button>
                     } else {
                         <button type="button" class="button lowerButton centerButton" onclick="showRawData()">View Raw Data</button>
                     }
@@ -67,24 +49,30 @@
             </tr>
 			<tr >
 				<td class="lowerSelectTd">
-				@if( models == null || models.size() == 0 ) {
-					<select id="load" onMouseDown="loadModel();">
-						<option selected disabled hidden value=''>No existed bayesian network</option>
-					</select>
-				}else{
-					@**<select id="load" onChange="loadModel(this.options[this.selectedIndex].value)">**@
-					<select id="load">
-						<option selected disabled hidden value=''>Show existed bayesian network</option>
-						@for(model <- models) {
-							<option value="@model">@model</option>
+					<div id="lowerSelectDiv">
+						<label class="lowerSelectLabel">Select a network file:</label>
+						@if( models == null || models.size() == 0 ) {
+							<select id="load" onMouseDown="loadModel();">
+								<option selected disabled hidden value=''>No existed bayesian network</option>
+							</select>
+						}else{
+							<select id="load">
+								<option selected disabled hidden value=''>Show existed bayesian network</option>
+								@for(model <- models) {
+									<option value="@model">@model</option>
+								}
+							</select>
 						}
-					</select>
-				}
+					</div>
+					<div id="queryNodeNameDiv">
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<label for="queryNodeNameSelect" class="queryNodeNameLabel">Query node name:</label>
+
+					</div>
 				</td>
 			</tr>
         </table>
 	</div>
-
 
 	@if(flash.containsKey("success")){
 		<div id="flashSuccessWindow">

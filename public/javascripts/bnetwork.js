@@ -97,6 +97,9 @@ function setNodeColor(nodeID, color)
 function networkLoadModel(model) {
 	//cy.load(networkInfoArray[0]);
 	cy.load(model);
+    if( $('#queryNodeNameDiv').css('display') == "none" ) {
+        addQueryNodeNameSelect(model);
+    }
     if( !$("#network svg").length ) {
         drawLegend();
     }
@@ -106,7 +109,8 @@ function drawLegend() {
     var data = [{"y":11, "color":"Lightblue", "value":"Network Node"},
                 {"y":31, "color":"Green", "value":"Real Evidence Node"},
                 {"y":51, "color":"#8FBC8F", "value":"Virtual Evidence Node"},
-                {"y":71, "color":"DarkSalmon", "value":"Target Node"}];
+                {"y":71, "color":"DarkSalmon", "value":"Target Node"},
+                {"y":91, "color":"#dd99ff", "value":"Query Node"}];
 
 	var maxWidth = $("#network").width();
 
@@ -135,6 +139,38 @@ function drawLegend() {
 	    .attr("dy", ".45em")
 	    .attr("fill", "black")
 	    .text(function(d){ return d.value;});
+}
+
+function addQueryNodeNameSelect( model ) {
+    var nodes = model.nodes;
+    var nodeIDs = [];
+    var selectString = "<select size='5' id='queryNodeNameSelect' " +
+        "name='queryNodeNameSelect' multiple='multiple'>";
+
+    for( var i=0; i<nodes.length; i++){
+	    selectString += "<option value='" + nodes[i].data.id + "'>" +
+	        nodes[i].data.name + "</option>";
+	}
+	selectString +=	"</select>";
+
+    selectString += "&nbsp;"
+	selectString += "<button class='queryNodeNameButton' " +
+	    "onclick='queryNodeName();'>query</button>";
+	$("#queryNodeNameDiv").append(selectString);
+	$("#queryNodeNameSelect").multiselect().multiselectfilter();
+	$('#queryNodeNameDiv').show();
+
+}
+
+function queryNodeName(){
+    var queryNodeNameArray = $("#queryNodeNameSelect").val();
+    if( queryNodeNameArray.length == 0 ) {
+        alertBoxShow("Please select node name first.");
+    } else {
+        for( var i=0; i< queryNodeNameArray.length; i++ ) {
+            cy.getElementById(queryNodeNameArray[i]).css('background-color', "#dd99ff");
+        }
+    }
 }
 
 /*function showUpload()
