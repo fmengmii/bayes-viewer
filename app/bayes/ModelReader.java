@@ -2,6 +2,7 @@ package bayes;
 
 import java.awt.Rectangle;
 import java.io.*;
+import java.lang.reflect.Field;
 import java.text.*;
 import java.util.*;
 
@@ -50,12 +51,23 @@ public class ModelReader
 		return getModelStr();
 	}
 
-	public String readModelFromFileContent ( String modelFullName, String modelXdslContent ) {
-		if (network == null) {
-			network = new Network();
-			network.readString( modelXdslContent );
-			network.setName(modelFullName);
+	public String readModelFromFileContent ( String modelFullName,
+											 String modelXdslContent,
+											 String algorithm ) {
+		int algorithmType = 0;
+		try {
+			Field field = Network.BayesianAlgorithmType.class.getDeclaredField(algorithm);
+			Object object = field.get(Network.BayesianAlgorithmType.class);
+			algorithmType = field.getInt(object);
+		} catch ( Exception ex ) {
+			Logger.info("get algorithm type error:" + ex.toString());
 		}
+
+		network = new Network();
+		network.readString( modelXdslContent );
+		network.setName(modelFullName);
+		network.setBayesianAlgorithm(algorithmType);
+
 		return getModelStr();
 	}
 
@@ -315,14 +327,17 @@ public class ModelReader
 			}
 			*/
 		}
-		catch(Exception e)
-		{
+		catch(Exception e) {
+			recoverNetworkTarget();
+			String message = e.toString();
+			if( message.contains("Logged information:") ) {
+				String[] infoArray = message.split("Logged information:");
+				message = infoArray[1];
+			}
 			//e.printStackTrace();
-			return "Error"; // value is not valid.
+			return "Error:" + message + " Please try to change another inference algorithm."; // value is not valid.
 		}
-		/*for (String nodeID : targetIdList){
-			network.setTarget(nodeID, true);
-		}*/
+
 		strBlder.append("]");
 		return strBlder.toString();
 	}

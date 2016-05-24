@@ -100,6 +100,10 @@ function networkLoadModel(model) {
     if( $('#queryNodeNameDiv').css('display') == "none" ) {
         addQueryNodeNameSelect(model);
     }
+
+    if( $('#showAlgorithmChangeDiv').css('display') == "none" ) {
+        $('#showAlgorithmChangeDiv').show();
+    }
     if( !$("#network svg").length ) {
         drawLegend();
     }

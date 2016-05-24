@@ -72,7 +72,7 @@ function documentReady() {
 $(document).ready(function () {
 
     var notificationWidth = 720;
-    var notificationHeight = 54;
+    var notificationHeight = 68;
 
     if($(".lowerButtonsTr").length ) {
         //var lowerButtonsTrHeight = $(".lowerButtonsTr").height();

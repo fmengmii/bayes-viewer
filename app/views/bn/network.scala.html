@@ -1,30 +1,22 @@
-@(models: List[String], dataType:String, users: List[User])
+@(models: List[String], dataType:String, users: List[User], bnAlgorithmTypeNameList: List[String])
 
 @main("BN Viewer"){
-	@**
-	<div id="confirm-box" class="alert alert-info" >
-		<a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-		&nbsp;&nbsp;
-		<button id="btnYesConfirmYesNo" type="button" class="btn btn-primary">Yes</button>
-		<button id="btnNoConfirmYesNo"
-                type="button" class="btn btn-default">No</button>
-	</div>
-
-	<div id="alert-box" class="alert alert-danger" >
-        <p class="close" data-dismiss="alert" aria-label="close"
-                   onclick="hideAlertBox()">&times;</p>
-        <strong>Alert:</strong>&nbsp;<span class="alertBoxMessage"></span>
-	</div>
-
-	<div id="success-box" class="alert alert-success" >
-		<p class="close" data-dismiss="alert" aria-label="close" onclick="hideSuccessBox()">&times;</p>
-		<strong>Success!</strong>&nbsp;<span class="successBoxMessage"></span>
-	</div>
-	**@
 	<div id="topButtonsDiv">
 		<button class="button topButton homeButton" type="button" onclick="location.href='/bn/home';">Home</button>
-		<button class="button topButton publicButton" type="button" onclick="location.href='/bn/public';">Public Bayesian Network</button>
-		<button class="button topButton privateButton" type="button" onclick="location.href='/bn/private';">Private Bayesian Network</button>
+		<button class="button topButton publicButton" type="button" onclick="location.href='/bn/public';">Public</button>
+		<button class="button topButton privateButton" type="button" onclick="location.href='/bn/private';">Private</button>
+		 @** @if( models != null ) {  **@
+		<div id="showAlgorithmChangeDiv">
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<label for="algorithmSelect" class="algorithmSelectLabel">Inference algorithm:</label>
+			<select id="algorithmSelect">
+				@for(algorithm <- bnAlgorithmTypeNameList ) {
+					<option value="@algorithm">@algorithm</option>
+				}
+			</select>
+			<button class="queryNodeNameButton" type="button" onclick="changeAlgorithm();">change</button>
+		</div>
 	</div>
 	<div id="lowerButtonsDiv">
 		<table class="lowerButtonsTable">
@@ -50,7 +42,7 @@
 			<tr >
 				<td class="lowerSelectTd">
 					<div id="lowerSelectDiv">
-						<label class="lowerSelectLabel">Select a network file:</label>
+						<label for="load" class="lowerSelectLabel">Select a network file:</label>
 						@if( models == null || models.size() == 0 ) {
 							<select id="load" onMouseDown="loadModel();">
 								<option selected disabled hidden value=''>No existed bayesian network</option>

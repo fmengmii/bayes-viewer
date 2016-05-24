@@ -1,12 +1,51 @@
 var networkInfoArray;
 
-//function loadModel(modelName) {
+function changeAlgorithm(){
+    if( $("#load").val() == null || $("#load").val() == '') {
+        //alertBoxShow("Please select a network file first.");
+        return true;
+    }
+    var modelName = $("#load").val();
+    var algorithm = $("#algorithmSelect").val();
+    if(modelName.indexOf("sharedBy") != -1){
+        var modelNameArray = modelName.split("sharedBy");
+        modelName = modelNameArray[0].trim();
+    }
+    var loadModelAjax = jsRoutes.controllers.BnApp.changeAlgorithm(modelName, algorithm);
+    //var loadModelAjax = jsRoutes.controllers.BnApp.loadModel(modelName, algorithm);
+    $.ajax({
+        url: loadModelAjax.url
+    }).done(function(data) {
+        //alert("changeAlgorithm return data=" + data);
+        if( data.startsWith("Error:")) {
+            var message = data.substr(6, data.length);
+            alertBoxShow(message);
+            $("#algorithmSelect").val("Lauritzen");
+            return false;
+        } else if( data =="Error") {
+           alertBoxShow("The change of inference algorithm is failed. Please try again. ");
+           $("#algorithmSelect").val("Lauritzen");
+           return false;
+        } else {
+            networkInfoArray = JSON.parse(data);
+            //networkLoadModel(networkInfoArray[0]);
+		    drawCharts(networkInfoArray[1]);
+		    $('#chartDiv').trigger('resize');
+		    successBoxShow("The change of inference algorithm is successfully.");
+		}
+    }).fail(function() {
+    });
+
+}
+
 function loadModel() {
     if( $("#load").val() == null || $("#load").val() == '') {
         alertBoxShow("Please select a network file first.");
         return false;
     }
     var modelName = $("#load").val();
+    var algorithm = $("#algorithmSelect").val();
+    //alert("algorithm val=" + algorithm);
     $('.lowerButton').removeClass('selected');
     $('.showNetworkButton').addClass('selected');
 
@@ -26,25 +65,36 @@ function loadModel() {
             var modelNameArray = modelName.split("sharedBy");
             modelName = modelNameArray[0].trim();
         }
-        var loadModelAjax = jsRoutes.controllers.BnApp.loadModel(modelName);
+        var loadModelAjax = jsRoutes.controllers.BnApp.loadModel(modelName, algorithm);
         $.ajax({
             url: loadModelAjax.url
         }).done(function(data) {
-            //console.log(data);
-            //$('#uploadDiv').hide();
-            //$('#splitter').css('display', 'block');
-            $('#splitter').show();
-            networkInfoArray = JSON.parse(data);
-            //cy.load(networkInfoArray[0]);
-            //clearAllEvidence();
-            networkLoadModel(networkInfoArray[0]);
-            drawCharts(networkInfoArray[1]);
-            $('#chartDiv').trigger('resize');
+            if( data.startsWith("Error:")) {
+                var message = data.substr(6, data.length);
+                alertBoxShow(message);
+                $("#algorithmSelect").val("Lauritzen");
+                return false;
+            } else if( data =="Error") {
+                alertBoxShow("The change of inference algorithm is failed. Please try again. ");
+                $("#algorithmSelect").val("Lauritzen");
+                return false;
+            } else {
+                //console.log(data);
+                //$('#uploadDiv').hide();
+                //$('#splitter').css('display', 'block');
+                $('#splitter').show();
+                networkInfoArray = JSON.parse(data);
+                //cy.load(networkInfoArray[0]);
+                //clearAllEvidence();
+                networkLoadModel(networkInfoArray[0]);
+                drawCharts(networkInfoArray[1]);
+                $('#chartDiv').trigger('resize');
 
-            //clearAllEvidence();
-            //location.reload();
-            //getRawDataOptions("load");
-            //console.log(networkInfoArray);
+                //clearAllEvidence();
+                //location.reload();
+                //getRawDataOptions("load");
+                //console.log(networkInfoArray);
+            }
         }).fail(function() {
         });
 

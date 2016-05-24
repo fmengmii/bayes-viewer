@@ -14,10 +14,12 @@ import play.mvc.*;
 import play.mvc.Http.*;
 import play.mvc.Http.MultipartFormData.*;
 import play.data.validation.*;
+import smile.Network;
 import views.html.*;
 
 import java.io.*;
 import java.util.*;
+import java.lang.reflect.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
@@ -84,6 +86,17 @@ public class BnApp extends Controller {
     //public static Result network(String loadFileName) {
 	public static Result network(String dataType) {
 		List<String> modelFileList = new ArrayList<String>();
+		Field[] fields = Network.BayesianAlgorithmType.class.getDeclaredFields();
+		List<String> bnAlgorithmTypeNameList = new ArrayList<String>();
+
+		for( int i=0; i < fields.length; i++ ) {
+			if( Modifier.isPublic(fields[i].getModifiers()) &&
+				Modifier.isFinal(fields[i].getModifiers()) &&
+				!fields[i].getName().equals("LBP")	){
+
+				bnAlgorithmTypeNameList.add(fields[i].getName());
+			}
+		}
 
 		if( dataType.equals("private") && ! session().containsKey("user") ) {
 			//return ok(login.render(Form.form(Login.class)));
@@ -106,7 +119,8 @@ public class BnApp extends Controller {
 			modelFileList = getModelFileList(user);
 			users = User.findAllApprovedList();
 			users.remove(user);
-			return ok(views.html.bn.network.render(modelFileList, dataType, users));
+			return ok(views.html.bn.network.render(modelFileList, dataType,
+					users, bnAlgorithmTypeNameList));
 		} else if( dataType.equals("public") ){
 			List<NetworkFile> networkFileList = NetworkFile.findAllPublicNetworkFileList();
 			for( int i=0; i<networkFileList.size(); i++ ){
@@ -114,7 +128,8 @@ public class BnApp extends Controller {
 					networkFileList.get(i).fileType);
 			}
 
-			return ok(views.html.bn.network.render(modelFileList, dataType, users));
+			return ok(views.html.bn.network.render(modelFileList, dataType,
+					users, bnAlgorithmTypeNameList));
 		} else {
 			flash("error", "The dataType has to be private or public.");
 			return redirect("/network/" + dataType);
@@ -225,8 +240,40 @@ public class BnApp extends Controller {
 		return ok(Json.toJson(logMap));
 	}
 
+	public static Result changeAlgorithm(String modelName, String algorithm) {
+		ModelReader modelReader = new ModelReader();
+    	modelReader.setNetwork(Cache.get("network"));
+		Network network = modelReader.getNetwork();
+
+		int algorithmType = -1;
+		try {
+			Field field = Network.BayesianAlgorithmType.class.getDeclaredField(algorithm);
+			Object object = field.get(Network.BayesianAlgorithmType.class);
+			algorithmType = field.getInt( object);
+		} catch( IllegalAccessException ex ) {
+			Logger.info( ex.toString());
+		} catch( Exception ex ) {
+			Logger.info( ex.toString());
+		}
+
+		if( network == null ){
+			Logger.info("changeAlgorithm network is null.");
+			return ok("Error");
+		} else if( algorithmType == -1 ) {
+			Logger.info("changeAlgorithm algorithmtype is -1.");
+			return ok("Error");
+		} else {
+			network.setBayesianAlgorithm(algorithmType);
+			Cache.set("network", network);
+			//Logger.info("change algorithm return success.");
+			modelReader.modifyNetworkLast();
+			String modelString = modelReader.getModelStr();
+			//Logger.info("changeAlgorithm return modelString=" + modelString);
+			return ok(modelString);
+		}
+	}
     //public static Result loadModel(String modelPath) {
-	public static Result loadModel(String modelName) {
+	public static Result loadModel(String modelName, String algorithm) {
 		//Logger.info("before loadMode.");
     	ModelReader modelReader = new ModelReader();
 
@@ -236,15 +283,16 @@ public class BnApp extends Controller {
 
 		String modelContent = networkFile.fileContent;
 		String modelStr = modelReader.readModelFromFileContent(
-				modelName, modelContent);
+				modelName, modelContent, algorithm);
 
     	Object network = modelReader.getNetwork();
+
     	Cache.set("network", network);
 		session("modelName", modelName);
     	//session("modelName", modelPath);
 		//Logger.info("before clean all evidence in loadModel.");
-		String modelStrClean = modelReader.clearAllEvidence(modelName);
-
+		//String modelStrClean = modelReader.clearAllEvidence(modelName);
+		String modelStrClean = modelReader.getModelStr();
 		//logging
 		logAdvice(networkFile, "view");
 
