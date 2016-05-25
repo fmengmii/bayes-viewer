@@ -87,16 +87,32 @@ public class BnApp extends Controller {
 	public static Result network(String dataType) {
 		List<String> modelFileList = new ArrayList<String>();
 		Field[] fields = Network.BayesianAlgorithmType.class.getDeclaredFields();
-		List<String> bnAlgorithmTypeNameList = new ArrayList<String>();
+		//List<String> bnAlgorithmTypeNameList = new ArrayList<String>();
+		//List<String> bnAlgorithmTypeDisplayNameList = new ArrayList<String>();
 
+		//map algorithm in GeNIE interface to Network.BayesianAlgorithmType properties
+		Map<String, String> bnAlgorithmNameMap = new HashMap<String, String>();
+		bnAlgorithmNameMap.put("Lauritzen", "Clustering");
+		bnAlgorithmNameMap.put("Pearl", "Polytree");
+		bnAlgorithmNameMap.put("Henrion", "Logic Sampling");
+		bnAlgorithmNameMap.put("LSampling", "Likelihood Sampling");
+		bnAlgorithmNameMap.put("SelfImportance", "Self-Importance");
+		bnAlgorithmNameMap.put("BackSampling", "Backward Sampling");
+		bnAlgorithmNameMap.put("AisSampling", "AIS Sampling");
+		bnAlgorithmNameMap.put("EpisSampling", "EPIS Sampling");
+
+		//bnAlgorithmNameMap.put("HeuristicImportance", "Heuristic Importance");
+		//bnAlgorithmNameMap.put("????", "Relevance-based Decomposition");
+		/*
 		for( int i=0; i < fields.length; i++ ) {
 			if( Modifier.isPublic(fields[i].getModifiers()) &&
 				Modifier.isFinal(fields[i].getModifiers()) &&
 				!fields[i].getName().equals("LBP")	){
 
 				bnAlgorithmTypeNameList.add(fields[i].getName());
+				bnAlgorithmTypeDisplayNameList.add(bnAlgorithmNameMap.get(fields[i].getName()));
 			}
-		}
+		}*/
 
 		if( dataType.equals("private") && ! session().containsKey("user") ) {
 			//return ok(login.render(Form.form(Login.class)));
@@ -120,7 +136,7 @@ public class BnApp extends Controller {
 			users = User.findAllApprovedList();
 			users.remove(user);
 			return ok(views.html.bn.network.render(modelFileList, dataType,
-					users, bnAlgorithmTypeNameList));
+					users, bnAlgorithmNameMap));
 		} else if( dataType.equals("public") ){
 			List<NetworkFile> networkFileList = NetworkFile.findAllPublicNetworkFileList();
 			for( int i=0; i<networkFileList.size(); i++ ){
@@ -129,7 +145,7 @@ public class BnApp extends Controller {
 			}
 
 			return ok(views.html.bn.network.render(modelFileList, dataType,
-					users, bnAlgorithmTypeNameList));
+					users, bnAlgorithmNameMap));
 		} else {
 			flash("error", "The dataType has to be private or public.");
 			return redirect("/network/" + dataType);

@@ -1,4 +1,4 @@
-@(models: List[String], dataType:String, users: List[User], bnAlgorithmTypeNameList: List[String])
+@(models: List[String], dataType:String, users: List[User], bnAlgorithmNameMap: Map[String, String])
 
 @main("BN Viewer"){
 	<div id="topButtonsDiv">
@@ -9,10 +9,17 @@
 		<div id="showAlgorithmChangeDiv">
 			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<label for="algorithmSelect" class="algorithmSelectLabel">Inference algorithm:</label>
+			<label for="algorithmSelect" class="algorithmSelectLabel">Inference algorithm
+				<a class="logo navbar-btn" target="_blank" href="@routes.Assets.at("files/BN_algorithm_review.pdf")"
+					title="references"><img src="@routes.Assets.at("images/question.png")">
+				</a>:</label>
 			<select id="algorithmSelect">
-				@for(algorithm <- bnAlgorithmTypeNameList ) {
-					<option value="@algorithm">@algorithm</option>
+				@for((key,value) <- bnAlgorithmNameMap ) {
+					@if( value == "Clustering" ) {
+						<option selected value="@key">@value</option>
+					} else {
+						<option value="@key">@value</option>
+					}
 				}
 			</select>
 			<button class="queryNodeNameButton" type="button" onclick="changeAlgorithm();">change</button>
