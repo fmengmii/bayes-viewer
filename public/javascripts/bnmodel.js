@@ -96,6 +96,7 @@ function loadModel() {
                 //console.log(networkInfoArray);
             }
         }).fail(function() {
+
         });
 
         //clearAllEvidence();
@@ -585,6 +586,7 @@ function getModelUpload() {
 	    var modelFileName = modelFile.name;
 
         formData.append('modelFile', modelFile);
+        updateModelFile = true;
 	    var modelFileNameArray = modelFileName.split(".");
         if( modelFileNameArray[1] != "xdsl") {
 	        alertBoxShow(
@@ -599,6 +601,7 @@ function getModelUpload() {
 	var dataFile = $('#dataFile')[0].files[0];
 	if( dataFile != null ) {
 	    formData.append('dataFile', dataFile);
+	    updateDataFile = true;
 	    var dataFileName = dataFile.name;
 	    var dataFileNameArray = dataFileName.split(".");
         if( dataFileNameArray[1] != "csv") {
@@ -681,7 +684,7 @@ function getModelUpload() {
         } else {
             var uploadModelAjax = jsRoutes.controllers.BnApp.uploadModel(
                 updateModelFile, updateDataFile, isModelPublic, isRawDataPublic,
-                modelSharedByArray, rawDataSharedByArray );
+                modelSharedByArray, rawDataSharedByArray, "" );
 
             $.ajax({
                 url: uploadModelAjax.url,
@@ -751,12 +754,15 @@ function getModelUpdate() {
 	var formData = new FormData();
 	var upload = false;
 	var modelFile = $('#updateModelFile')[0].files[0];
-	var updateModelFile = true;
-	var updateDataFile = true;
+	var dataFile = $('#updateDataFile')[0].files[0];
+
+	var updateModelFile = false;
+	var updateDataFile = false;
 	var isModelPublic = $('#isUpdateModelPublic').is(":checked");
 	var isRawDataPublic = $('#isUpdateRawDataPublic').is(":checked");
 	var isSameSharedBy = $('#isUpdateSameSharedBy').is(":checked");
 	var modelSharedByArray = $('#updateModelSharedBy').val();
+    var modelFileName;
 
 	if( !isModelPublic && modelSharedByArray != null ) {
 	    modelSharedByArray = modelSharedByArray.toString();
@@ -778,29 +784,38 @@ function getModelUpdate() {
 	    rawDataSharedByArray = null;
 	}
 
-	if( modelFile != null ) {
-	    var modelFileName = modelFile.name;
+    if( !modelFile  && !dataFile  ) {
+        //including null and undefined
+        alertBoxShow("No file is chosen. Please choose a model file or raw data file.");
+    } else {
+        upload = true;
+    }
+
+	if( modelFile ) {
+	    modelFileName = modelFile.name;
         if( modelFileName != $('#load').val()) {
 	        alertBoxShow("The model file name you chose is not the same " +
 	            "as you are updating, please change the model file name.");
 	    } else {
             formData.append('modelFile', modelFile);
-	        upload = true;
+            updateModelFile = true;
+	        //upload = true;
 	    }
 	} else {
-	    alertBoxShow("No model file is chosen. Please choose a model file.");
+	    modelFileName = $('#load').val();
+	    //alertBoxShow("No model file is chosen. Please choose a model file.");
 	}
 
-	var dataFile = $('#updateDataFile')[0].files[0];
-	if( dataFile != null ) {
+	if( dataFile ) {
 	    formData.append('dataFile', dataFile);
-	    var dataFileName = dataFile.name;
-	    var dataFileNameArray = dataFileName.split(".");
-        if( dataFileNameArray[1] != "csv") {
+	    updateDataFile = true;
+	    //var dataFileName = dataFile.name;
+	    //var dataFileNameArray = dataFileName.split(".");
+        /*if( dataFileNameArray[1] != "csv") {
 	        alertBoxShow("The data file extension is not  '.csv'. \nPlease choose a correct file. ");
 	    } else {
 	        upload = true;
-	    }
+	    }*/
 	}
 
 	if( !upload ) {
@@ -811,7 +826,7 @@ function getModelUpdate() {
     $('.uploading').show();
     var i = $('<i class="fa fa-spinner fa-pulse"></i>');
     $('#uploadButtonDiv').append(i);
-
+    /*
 	var checkModelAjax = jsRoutes.controllers.BnApp.checkModel();
     $.ajax({
         url: checkModelAjax.url,
@@ -821,9 +836,11 @@ function getModelUpdate() {
         contentType: false,
         processData: false
     }).done(function(data) {
+        alert( "check model file return=" + data);
+    */
         var uploadModelAjax = jsRoutes.controllers.BnApp.uploadModel(
                 updateModelFile, updateDataFile, isModelPublic, isRawDataPublic,
-                modelSharedByArray, rawDataSharedByArray );
+                modelSharedByArray, rawDataSharedByArray, modelFileName );
 
         $.ajax({
             url: uploadModelAjax.url,
@@ -847,11 +864,12 @@ function getModelUpdate() {
             $('i').remove();
             alertBoxShow(ts.responseText);
         });
+        /*
     }).fail(function() {
         $('.uploading').hide();
         $('i').remove();
         alertBoxShow("Update Network File failed. Please try again.");
-    });
+    });*/
 }
 
 function clearAllEvidence(showMessage)

@@ -42,7 +42,7 @@ public class RawDataFile extends Model {
     @JoinTable(name="raw_data_shared_users")
     public List<User> rawDataSharedUsers = new ArrayList<User>();
 
-    @Column(columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     public Timestamp updateTime;
 
     public RawDataFile(){}

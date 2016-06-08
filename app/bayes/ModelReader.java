@@ -11,12 +11,17 @@ import com.google.gson.Gson;
 import play.Logger;
 import play.api.libs.json.Json;
 import smile.*;
+import smile.learning.*;
 
 public class ModelReader
 {
 	private Network network;
+	private DataSet dataSet;
+
 	private Map<Integer, double[]> networkLastMap = new HashMap();
 	private Map<Integer, Boolean> networkTargetMap = new HashMap();
+
+	private Map<String, int[]> dataSetStateMap = new HashMap();
 
 	private Gson gson;
 	private String modelPath;
@@ -31,10 +36,21 @@ public class ModelReader
 		return network;
 	}
 
+	public DataSet getDataSet() { return dataSet; }
+
 	public void setNetwork(Object network)
 	{
 		this.network = (Network) network;
 	}
+
+	public void setDataSet ( Object dataSet) {
+		this.dataSet = (DataSet) dataSet; }
+
+	public void setDataSetStateMap( Map<String, int[]> dataSetStateMap ) {
+		this.dataSetStateMap = dataSetStateMap;
+	}
+
+	public Map<String, int[]> getDataSetStateMap() { return dataSetStateMap; }
 
 	public void setModelPath(String path) {this.modelPath = path;}
 
@@ -127,6 +143,79 @@ public class ModelReader
 		//System.out.println("read!");
 		StringBuilder strBlder = new StringBuilder("[");
 		//List<String> targetIdList = new ArrayList<String>();
+		//Logger.info("ModelReader getModelStr...");
+		//Logger.info("dataSet=" + dataSet);
+		//Logger.info("network=" + network);
+		Map<String, String> nodeAccuracyMap = new HashMap<String, String>();
+
+		if( dataSet != null ) {
+			try {
+				DataMatch[] matches = dataSet.matchNetwork(network);
+				/*Logger.info("matches size=" + matches.length);
+				Logger.info("matches0 info=" + matches[0].column + "," + matches[0].node + ", " + matches[0].slice);
+				Logger.info("dataSet info=" + dataSet.getRecordCount());
+				Logger.info("dataSet first record " + dataSet.getInt(0, 0) +
+						", " + dataSet.getInt(1,0) + ", " + dataSet.getInt(2,0) +
+						", " + dataSet.getInt(3, 0));
+				*/
+				EM em = new EM();
+				em.setEqSampleSize(347);
+				//em.learn( dataSet, network, matches);
+
+				Validator validator = new Validator(network, dataSet, matches);
+				int[] nodes = network.getAllNodes();
+				for (int i=0; i<nodes.length; i++) {
+					int node = nodes[i];
+					String nodeID = network.getNodeId(node);
+					validator.addClassNode(nodeID);
+				}
+				//validator.test();
+				//validator.leaveOneOut(em);
+				validator.kFold( em, 10 );  //10 is K-foldCount
+				//Logger.info("EM getLastScore=" + em.getLastScore() );
+				//Logger.info("EM getEqSampleSize=" + em.getEqSampleSize());
+				int totalCorrectCaseNum = 0;
+				int totalRecordNum = 0;
+				for (int i=0; i<nodes.length; i++) {
+					int node = nodes[i];
+					String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
+
+					String nodeID = network.getNodeId(node);
+					for (int j = 0; j < outcomeIDs.length; j++) {
+						double accuracy = validator.getAccuracy(nodeID, outcomeIDs[j]);
+						if( Math.abs(accuracy - 1.0) <= 0.00001 ) {
+							int state;
+							if (outcomeIDs[j].startsWith("State") ||
+									outcomeIDs[j].startsWith("state")) {
+								state = Integer.parseInt(outcomeIDs[j].substring(5));
+							} else {
+								state = Integer.parseInt(outcomeIDs[j]);
+							}
+							int[] stateArray = dataSetStateMap.get(nodeID);
+							int stateCount = stateArray[state];
+							totalCorrectCaseNum += stateCount;
+							int totalRecord = dataSet.getRecordCount();
+							totalRecordNum += totalRecord;
+							double nodeAccuracy = (double)stateCount / (double)totalRecord;
+							DecimalFormat numberFormat = new DecimalFormat("0.00");
+							String nodeAccuracyFormat = numberFormat.format(nodeAccuracy).toString();
+							nodeAccuracyMap.put(nodeID, nodeAccuracyFormat);
+						}
+					}
+				}
+				if( totalRecordNum != 0 ) {
+					double allNodeAccuracy = (double) totalCorrectCaseNum / (double) totalRecordNum;
+					DecimalFormat numberFormat = new DecimalFormat("0.00");
+					String allNodeAccuracyFormat = numberFormat.format(allNodeAccuracy).toString();
+					nodeAccuracyMap.put("total", allNodeAccuracyFormat);
+				}
+			} catch( Exception ex ) {
+				Logger.info("matches return=" + ex.toString());
+			}
+		} else {
+			//Logger.info("dataSet is null.");
+		}
+
 		try {
 			//System.out.println(System.getProperty("java.library.path"));
 			//System.out.println(network.getName());
@@ -140,9 +229,15 @@ public class ModelReader
 			recoverNetworkTarget();
 
 			//nodes
-			strBlder.append("{\"nodes\":[");
+			//strBlder.append("{\"nodes\":[");
 			List<int[]> edgeList = new ArrayList<int[]>();
-
+			if( nodeAccuracyMap.size() > 0 ) {
+				strBlder.append("{\"allNodeAcc\":\"" + nodeAccuracyMap.get("total") + "\",");
+				//Logger.info("strBlder="+ strBlder);
+				strBlder.append("\"nodes\":[");
+			} else {
+				strBlder.append("{\"nodes\":[");
+			}
 			int[] nodes = network.getAllNodes();
 
 			for (int i=0; i<nodes.length; i++) {
@@ -162,7 +257,11 @@ public class ModelReader
 				if (i > 0)
 					strBlder.append(",");
 
-				strBlder.append("{\"data\":{\"id\":\"" + nodeID + "\",\"name\":\"" + nodeName + "\"}, \"position\":{\"x\":" + rect.x + ", \"y\":" + rect.y + "}}");
+				strBlder.append("{\"data\":{\"id\":\"" + nodeID + "\"," +
+						"\"acc\":\"" + nodeAccuracyMap.get(nodeID) + "\"," +
+						"\"name\":\"" + nodeName + "\"," +
+						"\"nameLabel\":\"" + nodeName + "(" + nodeAccuracyMap.get(nodeID) + ")" + "\"}, \"position\":{\"x\":" +
+						rect.x + ", \"y\":" + rect.y + "}}");
 
 				//edges
 				int[] childrenIDs = network.getChildren(node);
@@ -337,7 +436,6 @@ public class ModelReader
 			//e.printStackTrace();
 			return "Error:" + message + " Please try to change another inference algorithm."; // value is not valid.
 		}
-
 		strBlder.append("]");
 		return strBlder.toString();
 	}

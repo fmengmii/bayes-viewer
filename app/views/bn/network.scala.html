@@ -10,9 +10,8 @@
 			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			<label for="algorithmSelect" class="algorithmSelectLabel">Inference algorithm
-				<a class="logo navbar-btn" target="_blank" href="@routes.Assets.at("files/BN_algorithm_review.pdf")"
-					title="references"><img src="@routes.Assets.at("images/question.png")">
-				</a>:</label>
+				<a class="logo navbar-btn" target="_blank" href="@routes.Assets.at("files/BN_inference_algorithm.pdf")"
+					title="references"><img src="@routes.Assets.at("images/question.png")"></a>&nbsp;:</label>
 			<select id="algorithmSelect">
 				@for((key,value) <- bnAlgorithmNameMap ) {
 					@if( value == "Clustering" ) {

@@ -130,7 +130,7 @@ public class Application extends Controller
 			flash("error", "Invalid password, please try again!");
 			return redirect("/login");
 		} else if( resultOfAuthenticate.equals("notApproved") ) {
-			flash("error", "Please wait for your account approval. ");
+			flash("alert", "Please wait for your account approval. We will notify you by email. ");
 			return redirect("/");
 		} else {
 			flash("success", "login successful.");

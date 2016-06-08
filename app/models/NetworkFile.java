@@ -52,7 +52,7 @@ public class NetworkFile extends Model {
     @JoinTable(name="model_shared_users")
     public List<User> modelSharedUsers = new ArrayList<User>();
 
-    @Column(columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     public Timestamp updateTime;
 
     public NetworkFile() {}

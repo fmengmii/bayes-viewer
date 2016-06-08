@@ -11,7 +11,7 @@ $(function() { // on dom ready
 	  
 	    .selector('node')
 	      .css({
-	        'content': 'data(name)',
+	        'content': 'data(nameLabel)',
 	        'background-color': 'lightblue',
 	        'font-size': 12,
 			'font-family': "Helvetica"
@@ -79,7 +79,7 @@ function centerNetwork(showMessage)
 	cy.center();
 	cy.fit();
 	if(showMessage) {
-	    alert("here.");
+	    //alert("here.");
         successBoxShow("The network has been put at the center.");
     }
 }
@@ -104,17 +104,18 @@ function networkLoadModel(model) {
     if( $('#showAlgorithmChangeDiv').css('display') == "none" ) {
         $('#showAlgorithmChangeDiv').show();
     }
+    //alert("acc=" + model.allNodeAcc);
     if( !$("#network svg").length ) {
-        drawLegend();
+        drawLegend(model.allNodeAcc);
     }
 }
 
-function drawLegend() {
-    var data = [{"y":11, "color":"Lightblue", "value":"Network Node"},
-                {"y":31, "color":"Green", "value":"Real Evidence Node"},
-                {"y":51, "color":"#8FBC8F", "value":"Virtual Evidence Node"},
-                {"y":71, "color":"DarkSalmon", "value":"Target Node"},
-                {"y":91, "color":"#dd99ff", "value":"Query Node"}];
+function drawLegend(allNodeAcc) {
+    var data = [{"y":51, "color":"Lightblue", "value":"Network Node"},
+                {"y":71, "color":"Green", "value":"Real Evidence Node"},
+                {"y":91, "color":"#8FBC8F", "value":"Virtual Evidence Node"},
+                {"y":111, "color":"DarkSalmon", "value":"Target Node"},
+                {"y":131, "color":"#dd99ff", "value":"Query Node"}];
 
 	var maxWidth = $("#network").width();
 
@@ -129,6 +130,22 @@ function drawLegend() {
 	    .attr('transform', 'translate(' + left + ', 20)');
 
     var g = svg.selectAll("g").data(data).enter().append("g");
+
+    var accText = g.append("text")
+	    .attr("x", 11)
+	    .attr("y", 10)
+	    .attr("dy", ".45em")
+	    .attr("fill", "Crimson")
+	    .attr("font-size", "14px")
+	    .text("10-fold model validation: accuracy for all nodes = " + allNodeAcc);
+
+	var commentText = g.append("text")
+	    .attr("x", 11)
+	    .attr("y", 30)
+	    .attr("dy", ".45em")
+	    .attr("fill", "Crimson")
+	    .attr("font-size", "14px")
+	    .text("Accuracy for each node listed behind the node name with ()");
 
     var circle = g.append("circle")
         .attr("cx", x)
