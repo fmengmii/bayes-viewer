@@ -150,7 +150,8 @@ public class ModelReader
 
 		if( dataSet != null ) {
 			try {
-				DataMatch[] matches = dataSet.matchNetwork(network);
+				//DataMatch[] matches = dataSet.matchNetwork(network);
+				ArrayList<DataMatch> tempMatching = new ArrayList<DataMatch>();
 				/*Logger.info("matches size=" + matches.length);
 				Logger.info("matches0 info=" + matches[0].column + "," + matches[0].node + ", " + matches[0].slice);
 				Logger.info("dataSet info=" + dataSet.getRecordCount());
@@ -158,9 +159,42 @@ public class ModelReader
 						", " + dataSet.getInt(1,0) + ", " + dataSet.getInt(2,0) +
 						", " + dataSet.getInt(3, 0));
 				*/
+				int numDataSetColumn = dataSet.getVariableCount();
+				int numNodes = network.getNodeCount();
+				for(int col = 0; col < numDataSetColumn; col++) {
+					//get name of current column in the data set
+					String colName = dataSet.getVariableId(col);
+					//separate string in name and slice
+					//String[] nameSlice = colName.split("_");
+					//String curNodeName = nameSlice[0];
+					String curNodeName = colName;
+					int curSlice = 0;
+					/*
+					if( nameSlice.length == 2 ){
+						curSlice = Integer.parseInt(nameSlice[1]);
+					}*/
+
+					if(Arrays.asList(network.getAllNodeIds()).contains(curNodeName)) {
+						int nodeNum = network.getNode(curNodeName);
+						//Logger.info("Match -> colName " + colName + ", nodeName:" + curNodeName + ", slice: " + curSlice + ",NodeNum=" + nodeNum);
+						tempMatching.add(new DataMatch(col, nodeNum, curSlice)); //associate: column, node, slice
+					} else {
+						Logger.info("No node found for columnname: " + colName);
+					}
+
+					/*else{
+						curSlice = 0;
+					}*/
+				}
+				//Convert dataMatch array
+				DataMatch[] matches = tempMatching.toArray(new DataMatch[tempMatching.size()]);
 				EM em = new EM();
-				em.setEqSampleSize(347);
+				em.setEqSampleSize(dataSet.getRecordCount());
+				em.setRandomizeParameters(false);
+				em.setUniformizeParameters(true);
+				//em.setSeed(2);
 				//em.learn( dataSet, network, matches);
+				//network.writeFile("/tmp/testAfterLearn.xdsl");
 
 				Validator validator = new Validator(network, dataSet, matches);
 				int[] nodes = network.getAllNodes();

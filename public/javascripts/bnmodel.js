@@ -35,7 +35,6 @@ function changeAlgorithm(){
 		}
     }).fail(function() {
     });
-
 }
 
 function loadModel() {
@@ -53,6 +52,7 @@ function loadModel() {
     $('#viewLogDiv').hide();
     $('#uploadDiv').hide();
     $('#updateDiv').hide();
+    $('#testModelDiv').hide();
 
 	if(modelName == null) {
 	    alertBoxShow("Sorry, there is not an existed network yet.");
@@ -155,50 +155,58 @@ function updateModel() {
     $('.lowerButton').removeClass('selected');
     $('.updateModelButton').addClass('selected');
 
+    $('#testModelDiv').hide();
     $('#updateDiv').hide();
     $('#splitter').hide();
     $('#uploadDiv').hide();
     $('#viewLogDiv').hide();
 
-    if( $("#load").val() == null || $("#load").val() == '') {
+    if( modelName == null || modelName == '') {
         alertBoxShow("Please select a network file first.");
         return false;
     }
-    if(modelName == null) {
-	    alertBoxShow("Sorry, there is not an existed network yet.");
-	} else {
-	    if(modelName.indexOf("sharedBy") != -1){
-	        alertBoxShow("You don't have a privilege to update the file because it's a shared file.");
-	        return false;
-        }
-        var getModelStatusAjax = jsRoutes.controllers.BnApp.getModelStatus(modelName);
-        $.ajax({
-            url: getModelStatusAjax.url
-        }).done(function(data) {
-            $('#updateDiv').show();
-            var updateDivContent = '<p style="font-size:20px">' +
-                '<strong>The current status of the file:</strong></p>';
-            updateDivContent += '<p class="selectedModelFileName">' +
+
+	if(modelName.indexOf("sharedBy") != -1){
+	    alertBoxShow("You don't have a privilege to update the file because it's a shared file.");
+	    return false;
+    }
+
+    var getModelStatusAjax = jsRoutes.controllers.BnApp.getModelStatus(modelName);
+    $.ajax({
+        url: getModelStatusAjax.url
+    }).done(function(data) {
+        $('#updateDiv').show();
+        var updateDivContent = '<p style="font-size:20px">' +
+                '<strong>The current status of the model:</strong></p>';
+        updateDivContent += '<p class="selectedModelFileName">' +
                 'Model file name:&nbsp;' + $('#load').val() + '</p>';
-            updateDivContent += '<p class="uploadedBy">' +
+        updateDivContent += '<p class="uploadedBy">' +
                 'Uploaded by:&nbsp;' + data.uploadedBy + '</p>';
-            updateDivContent += '<p class="uploadTime">' +
+        updateDivContent += '<p class="uploadTime">' +
                 'Upload time:&nbsp;' + data.uploadTime +'</p>';
-            if( data.isPublic ) {
-                updateDivContent += '<p class="isPublic">' +
+        if( data.isPublic ) {
+            updateDivContent += '<p class="isPublic">' +
                     'The model file is public.</p>';
-            } else if( data.sharedWith != null && data.sharedWith != "") {
-                updateDivContent += '<p class="sharedWith">' +
+        } else if( data.sharedWith != null && data.sharedWith != "") {
+            updateDivContent += '<p class="sharedWith">' +
                     'Shared with:&nbsp;' + data.sharedWith + '</p>';
-            } else {
-                updateDivContent += '<p class="sharedWith">' +
+        } else {
+            updateDivContent += '<p class="sharedWith">' +
                     'Shared with:&nbsp;No</p>';
-            }
-            if( data.rawDataFileName != null &&  data.rawDataFileName != "") {
-                updateDivContent += '<p class="rawDataFileName">' +
+        }
+
+        if( data.rawDataFileName != null &&  data.rawDataFileName != "") {
+            updateDivContent += '<p class="rawDataFileName">' +
                     'Raw data file name:&nbsp;' + data.rawDataFileName + '</p>';
-            }
-            $('#fileStatusDiv').html(updateDivContent);
+        }
+
+        $('#fileStatusDiv').html(updateDivContent);
+            /*
+            if( data.rawDataFileName != '') {
+                var uploadRawDataFile = '<br><input id="updateDataFile" name="dataFile" type="file"/><br>';
+                $(".rawDataFile").append("<br>");
+                $(".rawDataFile").append(uploadRawDataFile);
+            }*/
             /*
             $('.selectedModelFileName').html("Model file name:&nbsp;" + $('#load').val());
             $('.uploadedBy').html("Uploaded by:&nbsp;" + data.uploadedBy);
@@ -219,9 +227,8 @@ function updateModel() {
                     "Raw data file name:&nbsp;" + data.rawDataFileName);
             }
             */
-        }).fail(function() {
-        });
-    }
+    }).fail(function() {
+    });
 }
 
 function viewLogHistory (){
@@ -363,6 +370,10 @@ function hideConfirmBox() {
     $("#confirm-box").hide();
 }
 
+function hideConfirmLearnModelBox() {
+    $("#confirmLearnModelWindow").hide();
+    $("#confirm-learn-box").hide();
+}
 function hideAlertBox() {
     $("#errorWindow").hide();
     $("#alert-box").hide();
@@ -713,47 +724,17 @@ function getModelUpload() {
                  alertBoxShow(ts.responseText);
             });
         }
-            /*
-            console.log(data);
-            networkInfoArray = JSON.parse(data);
-            networkLoadModel(networkInfoArray[0]);
-            drawCharts(networkInfoArray[1]);
-            getRawDataOptions("upload");
-            */
     }).fail(function() {
         $('.uploading').hide();
         $('i').remove();
         alertBoxShow("Upload New Network File failed. Please try again.");
     });
-	    /*
-        var uploadModelAjax = jsRoutes.controllers.Application.uploadModel();
-        $.ajax({
-            url: uploadModelAjax.url,
-            type: 'POST',
-            data: formData,
-            cache: false,
-            contentType: false,
-            processData: false
-        }).done(function(data) {
-            if( data == "success") {
-                location.href = "/network/private";
-            }
-
-            console.log(data);
-            networkInfoArray = JSON.parse(data);
-            networkLoadModel(networkInfoArray[0]);
-            drawCharts(networkInfoArray[1]);
-            getRawDataOptions("upload");
-
-        }).fail(function() {
-        });
-        */
 }
 
 function getModelUpdate() {
 	var formData = new FormData();
 	var upload = false;
-	var modelFile = $('#updateModelFile')[0].files[0];
+	var modelFile = null;
 	var dataFile = $('#updateDataFile')[0].files[0];
 
 	var updateModelFile = false;
@@ -762,7 +743,6 @@ function getModelUpdate() {
 	var isRawDataPublic = $('#isUpdateRawDataPublic').is(":checked");
 	var isSameSharedBy = $('#isUpdateSameSharedBy').is(":checked");
 	var modelSharedByArray = $('#updateModelSharedBy').val();
-    var modelFileName;
 
 	if( !isModelPublic && modelSharedByArray != null ) {
 	    modelSharedByArray = modelSharedByArray.toString();
@@ -784,96 +764,174 @@ function getModelUpdate() {
 	    rawDataSharedByArray = null;
 	}
 
-    if( !modelFile  && !dataFile  ) {
-        //including null and undefined
-        alertBoxShow("No file is chosen. Please choose a model file or raw data file.");
-    } else {
-        upload = true;
-    }
-
-	if( modelFile ) {
-	    modelFileName = modelFile.name;
-        if( modelFileName != $('#load').val()) {
-	        alertBoxShow("The model file name you chose is not the same " +
-	            "as you are updating, please change the model file name.");
-	    } else {
-            formData.append('modelFile', modelFile);
-            updateModelFile = true;
-	        //upload = true;
-	    }
-	} else {
-	    modelFileName = $('#load').val();
-	    //alertBoxShow("No model file is chosen. Please choose a model file.");
-	}
+    var modelFileName = $('#load').val();
 
 	if( dataFile ) {
 	    formData.append('dataFile', dataFile);
 	    updateDataFile = true;
-	    //var dataFileName = dataFile.name;
-	    //var dataFileNameArray = dataFileName.split(".");
-        /*if( dataFileNameArray[1] != "csv") {
+	    var dataFileName = dataFile.name;
+	    var dataFileNameArray = dataFileName.split(".");
+        if( dataFileNameArray[1] != "csv") {
 	        alertBoxShow("The data file extension is not  '.csv'. \nPlease choose a correct file. ");
-	    } else {
-	        upload = true;
-	    }*/
-	}
-
-	if( !upload ) {
-	    return false;
+	    }
 	}
 
     //start spinner
     $('.uploading').show();
     var i = $('<i class="fa fa-spinner fa-pulse"></i>');
     $('#uploadButtonDiv').append(i);
-    /*
-	var checkModelAjax = jsRoutes.controllers.BnApp.checkModel();
+
+    var uploadModelAjax = jsRoutes.controllers.BnApp.uploadModel(
+            updateModelFile, updateDataFile, isModelPublic, isRawDataPublic,
+            modelSharedByArray, rawDataSharedByArray, modelFileName );
+
     $.ajax({
-        url: checkModelAjax.url,
+        url: uploadModelAjax.url,
         type: 'POST',
         data: formData,
         cache: false,
         contentType: false,
         processData: false
     }).done(function(data) {
-        alert( "check model file return=" + data);
-    */
-        var uploadModelAjax = jsRoutes.controllers.BnApp.uploadModel(
-                updateModelFile, updateDataFile, isModelPublic, isRawDataPublic,
-                modelSharedByArray, rawDataSharedByArray, modelFileName );
-
-        $.ajax({
-            url: uploadModelAjax.url,
-            type: 'POST',
-            data: formData,
-            cache: false,
-            contentType: false,
-            processData: false
-        }).done(function(data) {
-            $('.uploading').hide();
-            $('i').remove();
-            if( data == "success") {
-                //successBoxShow("The network file has been uploaded successfully.");
-                //alert("update return here.");
-                location.href = "/bn/private";
-            } else {
-                alertBoxShow(data);
-            }
-        }).fail(function(ts){
-            $('.uploading').hide();
-            $('i').remove();
-            alertBoxShow(ts.responseText);
-        });
-        /*
-    }).fail(function() {
         $('.uploading').hide();
         $('i').remove();
-        alertBoxShow("Update Network File failed. Please try again.");
-    });*/
+        if( data == "success") {
+            location.href = "/bn/private";
+        } else {
+            alertBoxShow(data);
+        }
+    }).fail(function(ts){
+        $('.uploading').hide();
+        $('i').remove();
+        alertBoxShow(ts.responseText);
+    });
 }
 
-function clearAllEvidence(showMessage)
-{
+function saveNewModel() {
+    var combineRawData = $("#combineWithOriRawData").prop("checked");
+    var modelName = $('#load').val();
+    var saveNewModelAjax = jsRoutes.controllers.BnApp.saveNewModel(
+                modelName, combineRawData );
+
+    $.ajax({
+        url: saveNewModelAjax.url
+    }).done(function(data) {
+        hideConfirmLearnModelBox();
+        if( data.startsWith("Error:") ) {
+            var message = data.substr(6, data.length);
+            alertBoxShow(message);
+        }
+        $('#load').append($("<option></option>").attr("value", data).text(data));
+        successBoxShow("The new model has been successfully learned.");
+    }).fail(function(ts){
+        hideConfirmLearnModelBox();
+        alertBoxShow(ts.responseText);
+    });
+}
+
+function getTestRawData(){
+    var formData = new FormData();
+    var dataFile = $('#uploadTestRawDataFile')[0].files[0];
+    var modelFileName = $('#load').val();
+    if( dataFile ) {
+	    formData.append('dataFile', dataFile);
+	    updateDataFile = true;
+	    var dataFileName = dataFile.name;
+	    var dataFileNameArray = dataFileName.split(".");
+        if( dataFileNameArray[1] != "csv") {
+	        alertBoxShow("The data file extension is not  '.csv'. \nPlease choose a correct file. ");
+	    }
+	}
+
+    var algorithm = $("#algorithmSelect").val();
+
+    var uploadModelAjax = jsRoutes.controllers.BnApp.uploadTestRawData(
+                modelFileName, algorithm );
+
+    $.ajax({
+        url: uploadModelAjax.url,
+        type: 'POST',
+        data: formData,
+        cache: false,
+        contentType: false,
+        processData: false
+    }).done(function(data) {
+        if( data.startsWith("Error:")) {
+            var message = data.substr(6, data.length);
+            alertBoxShow(message);
+            return false;
+        } else {
+            $('#uploadDiv').hide();
+            $('#uploadTestRawDataForm')[0].reset();
+            $('#splitter').show();
+            networkInfoArray = JSON.parse(data);
+            networkLoadModel(networkInfoArray[0]);
+            drawCharts(networkInfoArray[1]);
+            $('#chartDiv').trigger('resize');
+            $("#confirmLearnModelWindow").show();
+            $("#confirm-learn-box").show();
+            var message = "";
+            $("#confirm-box").prepend("Confirm: " + message);
+        }
+    }).fail(function(ts){
+        $('.uploading').hide();
+        $('i').remove();
+        alertBoxShow(ts.responseText);
+    });
+}
+
+function testModel() {
+    //alert("update..");
+    var modelName = $("#load").val();
+    $('.lowerButton').removeClass('selected');
+    $('.testModelButton').addClass('selected');
+
+    $('#testModelDiv').hide();
+    $('#updateDiv').hide();
+    $('#splitter').hide();
+    $('#uploadDiv').hide();
+    $('#viewLogDiv').hide();
+
+    if( modelName == null || modelName == '') {
+        alertBoxShow("Please select a network file first.");
+        return false;
+    }
+
+    var getModelStatusAjax = jsRoutes.controllers.BnApp.getModelStatus(modelName);
+    $.ajax({
+         url: getModelStatusAjax.url
+    }).done(function(data) {
+        $('#testModelDiv').show();
+        var testModelDivContent = '<p style="font-size:20px">' +
+                '<strong>The current status of the model:</strong></p>';
+        testModelDivContent += '<p class="selectedModelFileName">' +
+                'Model file name:&nbsp;' + $('#load').val() + '</p>';
+        testModelDivContent += '<p class="uploadedBy">' +
+                'Uploaded by:&nbsp;' + data.uploadedBy + '</p>';
+        testModelDivContent += '<p class="uploadTime">' +
+                'Upload time:&nbsp;' + data.uploadTime +'</p>';
+        if( data.isPublic ) {
+            testModelDivContent += '<p class="isPublic">' +
+                    'The model file is public.</p>';
+        } else if( data.sharedWith != null && data.sharedWith != "") {
+            testModelDivContent += '<p class="sharedWith">' +
+                    'Shared with:&nbsp;' + data.sharedWith + '</p>';
+        } else {
+            testModelDivContent += '<p class="sharedWith">' +
+                    'Shared with:&nbsp;No</p>';
+        }
+
+        if( data.rawDataFileName != null &&  data.rawDataFileName != "") {
+            testModelDivContent += '<p class="rawDataFileName">' +
+                    'Raw data file name:&nbsp;' + data.rawDataFileName + '</p>';
+        }
+
+        $('#modelFileStatusDiv').html(testModelDivContent);
+    }).fail(function() {
+    });
+}
+
+function clearAllEvidence(showMessage) {
 	if( $("#load").val() == null || $("#load").val() == '') {
         alertBoxShow("Please select a network file first.");
         return false;
@@ -1134,7 +1192,6 @@ function clearAllTargets()
         */
 		//cy.$('node').css('background-color', 'lightblue');
 
-		//setNodeColor(nodeID, 'lightblue');
 		$('#chartDiv').trigger('resize');
 
 	}).fail(function() {

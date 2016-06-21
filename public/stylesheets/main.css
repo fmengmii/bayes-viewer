@@ -353,7 +353,7 @@ html, body{
     cursor: pointer;
 }
 
-#uploadSubmit{
+#uploadSubmit, #updateSubmit, #uploadTestRawDataSubmit{
     font-weight: bold;
     color: #ccc;
     background-color: #555;
@@ -361,26 +361,10 @@ html, body{
     background: linear-gradient(#888, #555);
 }
 
-#uploadSubmit:hover{
+#uploadSubmit:hover, #updateSubmit:hover, #uploadTestRawDataSubmit:hover{
     color: #1a4156; /*#21578A;*/
 }
-#uploadCancel:hover{
-    color: #4c91cd; /*#21578A;*/
-}
-
-#updateSubmit{
-    font-weight: bold;
-    color: #ccc;
-    background-color: #555;
-    background: -webkit-linear-gradient(#888, #555);
-    background: linear-gradient(#888, #555);
-}
-
-#updateSubmit:hover{
-    color: #1a4156; /*#21578A;*/
-}
-
-#updateCancel:hover{
+#uploadCancel:hover, #updateCancel:hover, #uploadTestRawDataCancel:hover{
     color: #4c91cd; /*#21578A;*/
 }
 
@@ -666,6 +650,10 @@ a:hover, a:active{
 }
 
 #confirmWindow{
+    display: none;
+}
+
+#confirmLearnModelWindow{
     display: none;
 }
 

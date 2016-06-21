@@ -26,4 +26,23 @@
             </div>
         </div>
     }
+    @if(flash.containsKey("success")){
+		<div id="flashSuccessWindow">
+			<div>title</div>
+			<div id="flash-success-box" class="alert alert-success" >
+				<p class="close" onclick="hideFlashSuccessBox()" data-dismiss="alert" aria-label="close">&times;</p>
+				<strong>Success!</strong>&nbsp;@flash.get("success")
+			</div>
+		</div>
+	}
+
+	@if(flash.containsKey("error")){
+		<div id="flashErrorWindow">
+			<div>title</div>
+			<div id="flash-error-box" class="alert alert-danger">
+				<p class="close" onclick="hideFlashErrorBox()" data-dismiss="alert" aria-label="close">&times;</p>
+				<strong>Error:</strong>&nbsp;@flash.get("error")
+			</div>
+		</div>
+	}
 }

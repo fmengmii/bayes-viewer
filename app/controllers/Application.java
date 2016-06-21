@@ -152,7 +152,7 @@ public class Application extends Controller
 	public static Result saveRegistration() {
 		Form<Register> registerForm = Form.form(Register.class).bindFromRequest();
 		if (registerForm.hasErrors()) {
-			//flash("error", "Please fully complete the form below.");
+			flash("error", "Please fully complete the form below.");
 			//return badRequest(register.render(registerForm));
 			return ok(register.render(registerForm));
 		}

@@ -111,11 +111,17 @@ function networkLoadModel(model) {
 }
 
 function drawLegend(allNodeAcc) {
-    var data = [{"y":51, "color":"Lightblue", "value":"Network Node"},
-                {"y":71, "color":"Green", "value":"Real Evidence Node"},
-                {"y":91, "color":"#8FBC8F", "value":"Virtual Evidence Node"},
-                {"y":111, "color":"DarkSalmon", "value":"Target Node"},
-                {"y":131, "color":"#dd99ff", "value":"Query Node"}];
+    var yValue = 51;
+    if( !allNodeAcc) {
+        //alert("allNodeAcc is not defined..");
+        //all node accuracy does not exist
+        yValue = 11;
+    }
+    var data = [{"y":yValue, "color":"Lightblue", "value":"Network Node"},
+                {"y":yValue+20, "color":"Green", "value":"Real Evidence Node"},
+                {"y":yValue+40, "color":"#8FBC8F", "value":"Virtual Evidence Node"},
+                {"y":yValue+60, "color":"DarkSalmon", "value":"Target Node"},
+                {"y":yValue+80, "color":"#dd99ff", "value":"Query Node"}];
 
 	var maxWidth = $("#network").width();
 
@@ -131,21 +137,23 @@ function drawLegend(allNodeAcc) {
 
     var g = svg.selectAll("g").data(data).enter().append("g");
 
-    var accText = g.append("text")
-	    .attr("x", 11)
-	    .attr("y", 10)
-	    .attr("dy", ".45em")
-	    .attr("fill", "Crimson")
-	    .attr("font-size", "14px")
-	    .text("10-fold model validation: accuracy for all nodes = " + allNodeAcc);
+    if( allNodeAcc ) {
+        var accText = g.append("text")
+            .attr("x", 11)
+            .attr("y", 10)
+            .attr("dy", ".45em")
+            .attr("fill", "Crimson")
+            .attr("font-size", "14px")
+            .text("10-fold model validation: accuracy for all nodes = " + allNodeAcc);
 
-	var commentText = g.append("text")
-	    .attr("x", 11)
-	    .attr("y", 30)
-	    .attr("dy", ".45em")
-	    .attr("fill", "Crimson")
-	    .attr("font-size", "14px")
-	    .text("Accuracy for each node listed behind the node name with ()");
+        var commentText = g.append("text")
+            .attr("x", 11)
+            .attr("y", 30)
+            .attr("dy", ".45em")
+            .attr("fill", "Crimson")
+            .attr("font-size", "14px")
+            .text("Accuracy for each node listed behind the node name with ()");
+    }
 
     var circle = g.append("circle")
         .attr("cx", x)

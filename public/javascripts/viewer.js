@@ -95,6 +95,15 @@ $(document).ready(function () {
 		    autoOpen: false
 	    });
 
+        $('#confirmLearnModelWindow').jqxWindow({
+	        width: notificationWidth,
+		    height: notificationHeight,
+		    resizable: true,
+		    position: {x:notificationX, y:notificationY},
+		    //okButton: $('#doneButton'),
+		    autoOpen: false
+	    });
+
         $('#successWindow').jqxWindow({
             width: notificationWidth,
             height: notificationHeight,
@@ -176,6 +185,7 @@ $(document).ready(function () {
 
 function flashSuccessBoxShow() {
     hideConfirmBox();
+    hideConfirmLearnModelBox();
     hideSuccessBox();
     hideAlertBox();
     hideFlashErrorBox();
@@ -208,6 +218,7 @@ function flashSuccessBoxShow() {
 
 function flashErrorBoxShow() {
     hideConfirmBox();
+    hideConfirmLearnModelBox();
     hideSuccessBox();
     hideAlertBox();
     hideFlashSuccessBox();

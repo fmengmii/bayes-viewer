@@ -28,20 +28,21 @@
 		<table class="lowerButtonsTable">
             <tr class="lowerButtonsTr">
                 <td class="lowerButtonsTd">
-                    <button type="button" class="button lowerButton showNetworkButton" onclick="loadModel()">View Network</button>
+                    <button type="button" class="button lowerButton showNetworkButton" onclick="loadModel()">View Model</button>
                     <button type="button" class="button lowerButton clearEviButton" onclick="clearAllEvidence()">Clear All Evidences</button>
                     <button type="button" class="button lowerButton clearTarButton" onclick="clearAllTargets()">Clear All Targets</button>
 					<button type="button" class="button lowerButton centerButton" onclick="centerNetwork()">Center Network</button>
+					<button type="button" class="button lowerButton centerButton" onclick="showRawData()">View Raw Data</button>
 					@if(dataType.equals("public")) {
-					    <button type="button" class="button lowerButton centerButton centerButtonLast" onclick="showRawData()">View Raw Data</button>
+					    <button type="button" class="button lowerButton testModelButton centerButtonLast" onclick="testModel()">Test Model</button>
                     } else {
-                        <button type="button" class="button lowerButton centerButton" onclick="showRawData()">View Raw Data</button>
+                        <button type="button" class="button lowerButton testModelButton" onclick="testModel()">Test Model</button>
                     }
                     @if(dataType.equals("private")) {
-                        <button type="button" class="button lowerButton updateModelButton" onclick="updateModel()">Update Network File</button>
-                        <button type="button" class="button lowerButton deleteModelButton" onclick="deleteModel()">Delete Network File</button>
-                        <button type="button" class="button lowerButton uploadButton" onclick="showUpload()">Upload New Network File</button>
-                        <button type="button" class="button lowerButton viewLogButton" onclick="viewLogHistory()">View Log History</button>
+                        <button type="button" class="button lowerButton updateModelButton" onclick="updateModel()">Update Model</button>
+                        <button type="button" class="button lowerButton deleteModelButton" onclick="deleteModel()">Delete Model</button>
+                        <button type="button" class="button lowerButton uploadButton" onclick="showUpload()">Upload New Model</button>
+                        <button type="button" class="button lowerButton viewLogButton" onclick="viewLogHistory()">View Log</button>
                     }
                 </td>
             </tr>
@@ -101,6 +102,25 @@
 			&nbsp;&nbsp;
 			<button id="btnYesConfirmYesNo" type="button" class="btn btn-primary">Yes</button>
 			<button id="btnNoConfirmYesNo"
+                	type="button" class="btn btn-default">No</button>
+		</div>
+	</div>
+
+	<div id="confirmLearnModelWindow">
+		<div>title</div>
+		<div id="confirm-learn-box" class="alert alert-info" >
+			&nbsp;&nbsp;
+			<strong>Confirm:</strong>&nbsp;
+			<span class="alertBoxMessage">
+			&nbsp;&nbsp;Do you want to learn a new model from the testing raw data?<br>
+			&nbsp;&nbsp;
+				<input id="combineWithOriRawData" name="combineWithOriRawData"
+                        value="yes" type="checkbox">&nbsp;Combine the original and testing raw data
+				&nbsp;&nbsp;&nbsp;&nbsp;
+			</span>
+			<button id="btnYesConfirmLearnModel" onclick="saveNewModel();" type="button"
+								class="btn btn-primary">Yes</button>
+			<button id="btnNoConfirmLearnModel" onclick="hideConfirmLearnModelBox();" value="No"
                 	type="button" class="btn btn-default">No</button>
 		</div>
 	</div>
@@ -228,7 +248,7 @@
 		<br><br>
 		<div id="uploadButtonDiv">
 			<input id="uploadSubmit" class="uploadCancelButton"  type="button" onClick="getModelUpload()" value="Upload" />
-			<input id="uploadCancel" class="uploadCancelButton" type="button" value="Cancel" onClick="window.location='/network/private';"  />
+			<input id="uploadCancel" class="uploadCancelButton" type="button" value="Cancel" onClick="window.location='/bn/private';"  />
 			&nbsp;&nbsp;
 			<label for="uploadSubmit" class="uploading">Uploading...&nbsp;&nbsp;</label>
 		</div>
@@ -240,7 +260,7 @@
     <div id="updateDiv">
 		<br>
         <div id="fileStatusDiv">
-            @**
+			@**
             <p style="font-size:20px"><strong>The current status of the file:</strong></p>
             <p class="selectedModelFileName"></p>
             <p class="uploadedBy"></p>
@@ -248,18 +268,20 @@
             <p class="isPublic"></p>
             <p class="sharedWith"></p>
             <p class="rawDataFileName"></p>
-            **@
+			**@
         </div>
         <br>
         <form enctype="multipart/form-data" id="updateModelForm" >
-		<p style="font-size:20px"><strong>Upload the updated file:</strong></p>
+		<p style="font-size:20px"><strong>Upload the updated information:</strong></p>
 		<ol type="1">
 			<li>
-				<p>Update model file: </p>
+				<p>Model file: </p>
+				@**
 				<div id="updateModelFileDiv" style="display:inline">
 					<input id="updateModelFile" name="updateModelFile" type="file">
 				</div>
-				<br>
+				<br>**@
+
 				Public:&nbsp;<input id="isUpdateModelPublic" name="isUpdateModelPublic" type="checkbox">
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -272,33 +294,53 @@
 			</li>
 			<br>
 			<li>
-				<p>Update raw data file: </p>
+				<p class="rawDataFile">Raw data file: </p>
 				<input id="updateDataFile" name="dataFile" type="file"  /><br>
 				Public:&nbsp;
                 <input id="isUpdateRawDataPublic" name="isUpdateRawDataPubicOrSameUp"
                        value="isRawDataPublic" type="radio">
+
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				Shared with: The same as the model file&nbsp;
 				<input id="isUpdateSameSharedBy" name="isUpdateRawDataPubicOrSameUp"
                         value="isSameSharedBy" type="radio">
+				@**
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				<lable class="sharedByLabel" for="rawDataSharedBy">Shared with:&nbsp;</lable>
 				<select id="updateRawDataSharedBy" name="updateRawDataSharedBy" onChange="checkSharedWith()" multiple="multiple">
-					@for(user <- users) {
+					@@for(user <- users) {
 						<option value="@user.userName">&nbsp;@user.firstName&nbsp;@user.lastName:&nbsp;&nbsp;@user.email</option>
 					}
 				</select>
+				**@
 			</li>
 		</ol>
 		</form>
 		<br>
-		<div id="uploadButtonDiv">
+		<div id="updateButtonDiv">
 			<input id="updateSubmit" class="uploadCancelButton"  type="button" onClick="getModelUpdate()" value="Update" />
-			<input id="updateCancel" class="uploadCancelButton" type="button" value="Cancel" onClick="window.location='/network/private';"  />
+			<input id="updateCancel" class="uploadCancelButton" type="button" value="Cancel" onClick="window.location='/bn/private';"  />
 			&nbsp;&nbsp;
 			<label for="updateSubmit" class="uploading">Updating...&nbsp;&nbsp;</label>
+		</div>
+		<br>
+    </div>
+	<div id="testModelDiv">
+		<br>
+        <div id="modelFileStatusDiv"></div>
+        <br>
+        <form enctype="multipart/form-data" id="uploadTestRawDataForm">
+		<p style="font-size:20px"><strong>Upload raw data file:</strong></p>
+			<input id="uploadTestRawDataFile" name="dataFile" type="file"  /><br>
+		</form>
+		<br>
+		<div id="testModelButtonDiv">
+			<input id="uploadTestRawDataSubmit" class="uploadCancelButton"  type="button" onClick="getTestRawData()" value="Test" />
+			<input id="uploadTestRawDataCancel" class="uploadCancelButton" type="button" value="Cancel" onClick="window.location='/bn/private';"  />
+			&nbsp;&nbsp;
+			<label for="uploadTestRawDataSubmit" class="uploading">Updating...&nbsp;&nbsp;</label>
 		</div>
 		<br>
     </div>

@@ -45,6 +45,9 @@ public class NetworkFile extends Model {
     @Constraints.Required
     public Boolean isPublic = false;
 
+    @Constraints.Required
+    public Boolean isActive = true;
+
     @OneToOne(mappedBy="networkFile", cascade=CascadeType.ALL)
     public RawDataFile rawDataFile;
 
@@ -76,6 +79,7 @@ public class NetworkFile extends Model {
             String fileName, String fileType ) {
 
         return (NetworkFile) find.where()
+                .eq("isActive", true)
                 .eq("fileName", fileName)
                 .eq("fileType", fileType)
                 .findUnique();
@@ -99,7 +103,10 @@ public class NetworkFile extends Model {
     }
 
     public static List<NetworkFile> findAllPublicNetworkFileList() {
-        return (List<NetworkFile>)find.where().eq("isPublic", true).orderBy("fileName asc").findList();
+        return (List<NetworkFile>)find.where()
+                .eq("isActive", true)
+                .eq("isPublic", true)
+                .orderBy("fileName asc").findList();
     }
     /*public String toString() {
         return fileName;
