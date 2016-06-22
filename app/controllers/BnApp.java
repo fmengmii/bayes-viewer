@@ -328,9 +328,8 @@ public class BnApp extends Controller {
 				tmpFile.delete();
 			} catch ( Exception ex ) {
 				Logger.error("loadModel:" + ex.toString());
+				return badRequest("Raw data format problem: " + ex.toString());
 			}
-		} else {
-			Logger.info("BnApp loadModel: rawDataFile is null");
 		}
 
 		String modelStr = modelReader.readModelFromFileContent(
@@ -450,7 +449,7 @@ public class BnApp extends Controller {
 			Cache.set("dataSet", dataSet);
 		} catch ( Exception ex ) {
 			Logger.error("loadModel:" + ex.toString());
-			return badRequest(ex.toString());
+			return badRequest("Raw data format problem: " + ex.toString());
 		}
 
 		if( !isRawDataMatchWithModel(dataFullFileName, dataFileContent, network) ) {
@@ -829,6 +828,20 @@ public class BnApp extends Controller {
 	public static boolean isRawDataMatchWithModel(String rawDataFileName,
 										   String rawDataFileContent,
 										   Network network) {
+
+		List<String> nodeIdList = new ArrayList<String>(
+							Arrays.asList(network.getAllNodeIds()));
+		String[] rawDataRows = rawDataFileContent.split("\n");
+		String[] rawDataColumnTitleArray = rawDataRows[0].split(",");
+		if( nodeIdList.size() != rawDataColumnTitleArray.length ) {
+			return false; //column number does not match with the number of node ids
+		}
+
+		for( int i = 0; i < rawDataColumnTitleArray.length; i++) {
+			if( !nodeIdList.contains(rawDataColumnTitleArray[i]) ) {
+				return false; // column name does not match with node id
+			}
+		}
 
 		try {
 			File tmpFile = new File("/tmp/" + rawDataFileName);
