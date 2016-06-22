@@ -784,6 +784,10 @@ public class BnApp extends Controller {
 
 		DataMatch[] matches = dataSetNew.matchNetwork(network);
 		EM em = new EM();
+		em.setRandomizeParameters(false);  //default is true, it will randomize the CPTs of the nodes before learning
+		em.setUniformizeParameters(true); //default is false
+
+		em.setEqSampleSize(dataSetNew.getRecordCount());
 		em.learn(dataSetNew, networkNew, matches);
 
 
