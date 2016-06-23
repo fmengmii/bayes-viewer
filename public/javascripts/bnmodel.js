@@ -39,7 +39,7 @@ function changeAlgorithm(){
 
 function loadModel() {
     if( $("#load").val() == null || $("#load").val() == '') {
-        alertBoxShow("Please select a network file first.");
+        alertBoxShow("Please upload a network file first.");
         return false;
     }
     var modelName = $("#load").val();
@@ -184,6 +184,11 @@ function updateModel() {
                 'Uploaded by:&nbsp;' + data.uploadedBy + '</p>';
         updateDivContent += '<p class="uploadTime">' +
                 'Upload time:&nbsp;' + data.uploadTime +'</p>';
+
+        if( data.annotation != null && data.annotation != '') {
+            updateDivContent += '<p class="uploadedBy">' +
+                'Model annotation:&nbsp;' + data.annotation + '</p>';
+        }
         if( data.isPublic ) {
             updateDivContent += '<p class="isPublic">' +
                     'The model file is public.</p>';
@@ -478,7 +483,8 @@ function confirmYesFunctionForUpload(updateModelFile,
                             isRawDataPublic,
                             formData,
                             modelSharedByArray,
-                            rawDataSharedByArray ) {
+                            rawDataSharedByArray,
+                            annotation) {
     hideConfirmBox();
     hideSuccessBox();
     hideAlertBox();
@@ -488,7 +494,7 @@ function confirmYesFunctionForUpload(updateModelFile,
     //$("#confirm-box").hide();
     var uploadModelAjax = jsRoutes.controllers.BnApp.uploadModel(
             updateModelFile, updateDataFile, isModelPublic, isRawDataPublic,
-            modelSharedByArray, rawDataSharedByArray );
+            modelSharedByArray, rawDataSharedByArray, annotation );
 
     $.ajax({
         url: uploadModelAjax.url,
@@ -536,7 +542,8 @@ function confirmBoxForUpload(message,
                         confirmYesFunctionForUpload,
                         confirmNoFunction,
                         modelSharedByArray,
-                        rawDataSharedByArray ) {
+                        rawDataSharedByArray,
+                        annotation) {
     //alert("confirmBoxForUpload...");
     hideSuccessBox();
     hideAlertBox();
@@ -554,7 +561,8 @@ function confirmBoxForUpload(message,
                             isRawDataPublic,
                             formData,
                             modelSharedByArray,
-                            rawDataSharedByArray);
+                            rawDataSharedByArray,
+                            annotation);
 
         } else if( this.id == 'btnNoConfirmYesNo' ) {
             confirmNoFunction();
@@ -572,6 +580,8 @@ function getModelUpload() {
 	var isRawDataPublic = $('#isRawDataPublic').is(":checked");
 	var isSameSharedBy = $('#isSameSharedBy').is(":checked");
 	var modelSharedByArray = $('#modelSharedBy').val();
+	var annotation = $('#annotation').val();
+
 
 	if( !isModelPublic && modelSharedByArray != null ) {
 	    modelSharedByArray = modelSharedByArray.toString();
@@ -659,7 +669,8 @@ function getModelUpload() {
                             confirmYesFunctionForUpload,
                             confirmNoFunction,
                             modelSharedByArray,
-                            rawDataSharedByArray);
+                            rawDataSharedByArray,
+                            annotation);
 
         } else if( data == "modelFileExist" ) {
             var message = "The model file already exists. " +
@@ -675,7 +686,8 @@ function getModelUpload() {
                             confirmYesFunctionForUpload,
                             confirmNoFunction,
                             modelSharedByArray,
-                            rawDataSharedByArray );
+                            rawDataSharedByArray,
+                            annotation);
 
         } else if( data == "dataFileExist" ) {
             var message = "The raw data file already exists. " +
@@ -691,11 +703,12 @@ function getModelUpload() {
                             confirmYesFunctionForUpload,
                             confirmNoFunction,
                             modelSharedByArray,
-                            rawDataSharedByArray );
+                            rawDataSharedByArray,
+                            annotation);
         } else {
             var uploadModelAjax = jsRoutes.controllers.BnApp.uploadModel(
                 updateModelFile, updateDataFile, isModelPublic, isRawDataPublic,
-                modelSharedByArray, rawDataSharedByArray, "" );
+                modelSharedByArray, rawDataSharedByArray, annotation );
 
             $.ajax({
                 url: uploadModelAjax.url,
@@ -743,6 +756,7 @@ function getModelUpdate() {
 	var isRawDataPublic = $('#isUpdateRawDataPublic').is(":checked");
 	var isSameSharedBy = $('#isUpdateSameSharedBy').is(":checked");
 	var modelSharedByArray = $('#updateModelSharedBy').val();
+    var annotation = $('#annotationUpdate').val();
 
 	if( !isModelPublic && modelSharedByArray != null ) {
 	    modelSharedByArray = modelSharedByArray.toString();
@@ -783,7 +797,7 @@ function getModelUpdate() {
 
     var uploadModelAjax = jsRoutes.controllers.BnApp.uploadModel(
             updateModelFile, updateDataFile, isModelPublic, isRawDataPublic,
-            modelSharedByArray, rawDataSharedByArray, modelFileName );
+            modelSharedByArray, rawDataSharedByArray, modelFileName, annotation );
 
     $.ajax({
         url: uploadModelAjax.url,
@@ -910,6 +924,12 @@ function testModel() {
                 'Uploaded by:&nbsp;' + data.uploadedBy + '</p>';
         testModelDivContent += '<p class="uploadTime">' +
                 'Upload time:&nbsp;' + data.uploadTime +'</p>';
+
+        if( data.annotation != null && data.annotation != '') {
+            alert("annotation is not null =" + data.annotation);
+            testModelDivContent += '<p class="uploadedBy">' +
+                'Model annotation:&nbsp;' + data.annotation + '</p>';
+        }
         if( data.isPublic ) {
             testModelDivContent += '<p class="isPublic">' +
                     'The model file is public.</p>';

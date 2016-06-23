@@ -715,3 +715,12 @@ a:hover, a:active{
     width: 100%;
     text-align:center !important;
 }
+
+#annotation, #annotationUpdate{
+    font-weight: normal;
+    vertical-align: top;
+}
+
+.annotationLabel, .sharedByLabel{
+    font-weight: normal;
+}

@@ -14,7 +14,7 @@ GET         /model/setastarget/:nodeID          controllers.BnApp.setAsTarget(no
 GET         /model/removetarget/:nodeID         controllers.BnApp.removeTarget(nodeID: String)
 GET         /model/clearalltargets              controllers.BnApp.clearAllTargets()
 GET         /model/cpt/:nodeID                  controllers.BnApp.getCPT(nodeID: String)
-POST        /model/uploadmodel                  controllers.BnApp.uploadModel(updateModelFile: Boolean, updateDataFile: Boolean, isModelPublic: Boolean, isDataPublic: Boolean, modelSharedByArray: String, rawDataSharedByArray: String, modelFileName: String )
+POST        /model/uploadmodel                  controllers.BnApp.uploadModel(updateModelFile: Boolean, updateDataFile: Boolean, isModelPublic: Boolean, isDataPublic: Boolean, modelSharedByArray: String, rawDataSharedByArray: String, modelFileName: String, annotation: String )
 POST        /model/uploadtestrawdata            controllers.BnApp.uploadTestRawData(modelFileName: String, algorithm: String)
 POST        /model/checkmodel                   controllers.BnApp.checkModel()
 POST        /model/deletemodel/:modelName       controllers.BnApp.deleteModel(modelName: String)

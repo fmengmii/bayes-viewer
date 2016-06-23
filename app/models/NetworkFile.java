@@ -43,6 +43,10 @@ public class NetworkFile extends Model {
     public String fileContent;
 
     @Constraints.Required
+    @Column(columnDefinition="TEXT")
+    public String annotation;
+
+    @Constraints.Required
     public Boolean isPublic = false;
 
     @Constraints.Required
@@ -61,12 +65,13 @@ public class NetworkFile extends Model {
     public NetworkFile() {}
 
     public NetworkFile( User user, String fileName, String fileType,
-                        String fileContent, Boolean isPublic,
+                        String fileContent, String annotation, Boolean isPublic,
                         List<User> modelSharedUsers ) {
         this.user = user;
         this.fileName = fileName;
         this.fileType = fileType;
         this.fileContent = fileContent;
+        this.annotation = annotation;
         this.isPublic = isPublic;
         this.modelSharedUsers = modelSharedUsers;
     }

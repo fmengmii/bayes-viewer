@@ -19,6 +19,7 @@ create table network_file (
   file_name                 varchar(255),
   file_type                 varchar(255),
   file_content              LONGTEXT,
+  annotation                TEXT,
   is_public                 tinyint(1) default 0,
   is_active                 tinyint(1) default 0,
   update_time               TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

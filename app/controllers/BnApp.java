@@ -166,6 +166,7 @@ public class BnApp extends Controller {
 		networkFileMap.put("fileFullName", fileFullName);
 		networkFileMap.put("uploadedBy", userName);
 		networkFileMap.put("isPublic", networkFile.isPublic);
+		networkFileMap.put("annotation", networkFile.annotation);
 		networkFileMap.put("uploadTime", networkFile.updateTime.toString());
 		//Logger.info("rawdata file is " + networkFile.rawDataFile);
 
@@ -531,8 +532,9 @@ public class BnApp extends Controller {
 			Boolean updateModelFile, Boolean updateDataFile,
 			Boolean isModelPublic, Boolean isRawDataPublic,
 			String modelSharedByArray, String rawDataSharedByArray,
-			String modelFileName) {
+			String modelFileName, String annotation) {
 
+		Logger.info("uploadModel: annotation=" + annotation);
 		ModelReader modelReader = new ModelReader();
 		Network network;
 		MultipartFormData body = request().body().asMultipartFormData();
@@ -552,6 +554,10 @@ public class BnApp extends Controller {
 			String fileName = parseFullFileName[0];
 			String fileType = parseFullFileName[1];
 			User user = User.findByUserName(session("user"));
+
+			if( user == null ) {
+				return badRequest("The user is not registered. Please sign out then sign in.");
+			}
 
 			String fileContent = null;
 			try {
@@ -580,6 +586,7 @@ public class BnApp extends Controller {
 					}
 					networkFile.modelSharedUsers = sharedUsers;
 					networkFile.fileContent = fileContent;
+					networkFile.annotation = annotation;
 					networkFile.isPublic = isModelPublic;
 					networkFile.update();
 
@@ -589,7 +596,9 @@ public class BnApp extends Controller {
 				}
 			} else {
 				List<User> sharedUsers = new ArrayList<User>();
-				if (!isModelPublic && modelSharedByArray != null) {
+				if (!isModelPublic && modelSharedByArray != null &&
+						!modelSharedByArray.equals("null")) {
+
 					List<String> modelsharedWith = new ArrayList<String>(
 							Arrays.asList(modelSharedByArray.split(",")));
 					for (String userName : modelsharedWith) {
@@ -598,7 +607,8 @@ public class BnApp extends Controller {
 					}
 				}
 				networkFile = new NetworkFile(user,
-						fileName, fileType, fileContent, isModelPublic, sharedUsers);
+						fileName, fileType, fileContent, annotation,
+						isModelPublic, sharedUsers);
 
 				networkFile.save();
 				//logging
@@ -633,6 +643,7 @@ public class BnApp extends Controller {
 				}
 				networkFile.modelSharedUsers = sharedUsers;
 				networkFile.isPublic = isModelPublic;
+				networkFile.annotation = annotation;
 				networkFile.update();
 				flash("success", "The file has been updated successfully.");
 			}
@@ -699,7 +710,9 @@ public class BnApp extends Controller {
 				flash("success", "The files have been updated successfully.");
 			} else {
 				List<User> sharedUsers = new ArrayList<User>();
-				if( !isRawDataPublic && rawDataSharedByArray != null ) {
+				if( !isRawDataPublic && rawDataSharedByArray != null &&
+						!rawDataSharedByArray.equals("null")) {
+
 					List<String> rawDatasharedWith = new ArrayList<String>(
 							Arrays.asList(rawDataSharedByArray.split(",")));
 					for (String userName : rawDatasharedWith) {
@@ -716,9 +729,13 @@ public class BnApp extends Controller {
 			}
 		} else {
 			RawDataFile rawDataFile = RawDataFile.findByNetworkFile(networkFile);
+			Logger.info("rawData is not updated. rawDataFile=" + rawDataFile);
 			if( rawDataFile != null) {
 				List<User> sharedUsers = new ArrayList<User>();
-				if( !isRawDataPublic && rawDataSharedByArray != null ) {
+
+				if( !isRawDataPublic && rawDataSharedByArray != null &&
+						!rawDataSharedByArray.equals("null")) {
+
 					List<String> rawDatasharedWith = new ArrayList<String>(
 							Arrays.asList(rawDataSharedByArray.split(",")));
 					for (String userName : rawDatasharedWith) {

@@ -215,12 +215,17 @@
 				Public:&nbsp;<input id="isModelPublic" name="isModelPublic" type="checkbox">
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<lable class="sharedByLabel" for="modelSharedBy">Shared with:&nbsp;</lable>
+				<label class="sharedByLabel" for="modelSharedBy">Shared with:&nbsp;</label>
 				<select id="modelSharedBy" name="modelSharedBy" onChange="checkSharedWith();" multiple="multiple">
 					@for(user <- users) {
 						<option value="@user.userName">&nbsp;@user.firstName&nbsp;@user.lastName:&nbsp;&nbsp;@user.email</option>
 					}
 				</select>
+				<br>
+				<br>
+				<label class="annotationLabel" for="annotation">Model annotation:&nbsp;</label>
+				<textarea id="annotation" rows="6" cols="100"></textarea>
+
 			</li>
 			<br>
 			<li>
@@ -236,7 +241,7 @@
                         value="isSameSharedBy" type="radio">
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<lable class="sharedByLabel" for="rawDataSharedBy">Shared with:&nbsp;</lable>
+				<label class="sharedByLabel" for="rawDataSharedBy">Shared with:&nbsp;</label>
 				<select id="rawDataSharedBy" name="rawDataSharedBy" onChange="checkSharedWith();" multiple="multiple">
 					@for(user <- users) {
 						<option value="@user.userName">&nbsp;@user.firstName&nbsp;@user.lastName:&nbsp;&nbsp;@user.email</option>
@@ -285,12 +290,16 @@
 				Public:&nbsp;<input id="isUpdateModelPublic" name="isUpdateModelPublic" type="checkbox">
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<lable class="sharedByLabel" for="modelSharedBy">Shared with:&nbsp;</lable>
+				<label class="sharedByLabel" for="modelSharedBy">Shared with:&nbsp;</label>
 				<select id="updateModelSharedBy" name="updateModelSharedBy" onChange="checkSharedWith()" multiple="multiple">
 					@for(user <- users) {
 						<option value="@user.userName">&nbsp;@user.firstName&nbsp;@user.lastName:&nbsp;&nbsp;@user.email</option>
 					}
 				</select>
+				<br>
+				<br>
+				<label class="annotationLabel" for="annotation">Model annotation:&nbsp;</label>
+				<textarea id="annotationUpdate" rows="3" cols="100"></textarea>
 			</li>
 			<br>
 			<li>
@@ -308,7 +317,7 @@
 				@**
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<lable class="sharedByLabel" for="rawDataSharedBy">Shared with:&nbsp;</lable>
+				<label class="sharedByLabel" for="rawDataSharedBy">Shared with:&nbsp;</label>
 				<select id="updateRawDataSharedBy" name="updateRawDataSharedBy" onChange="checkSharedWith()" multiple="multiple">
 					@@for(user <- users) {
 						<option value="@user.userName">&nbsp;@user.firstName&nbsp;@user.lastName:&nbsp;&nbsp;@user.email</option>
