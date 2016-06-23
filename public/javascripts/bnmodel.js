@@ -882,8 +882,10 @@ function getTestRawData(){
             networkLoadModel(networkInfoArray[0]);
             drawCharts(networkInfoArray[1]);
             $('#chartDiv').trigger('resize');
-            $("#confirmLearnModelWindow").show();
-            $("#confirm-learn-box").show();
+            if( $('.privateButton').hasClass("selected") ) {
+                $("#confirmLearnModelWindow").show();
+                $("#confirm-learn-box").show();
+            }
             var message = "";
             $("#confirm-box").prepend("Confirm: " + message);
         }
@@ -926,7 +928,6 @@ function testModel() {
                 'Upload time:&nbsp;' + data.uploadTime +'</p>';
 
         if( data.annotation != null && data.annotation != '') {
-            alert("annotation is not null =" + data.annotation);
             testModelDivContent += '<p class="uploadedBy">' +
                 'Model annotation:&nbsp;' + data.annotation + '</p>';
         }

@@ -445,7 +445,7 @@ public class BnApp extends Controller {
 			}
 
 			modelReader.setDataSet(dataSet);
-			DataSet returnDataSet = modelReader.getDataSet();
+			//DataSet returnDataSet = modelReader.getDataSet();
 			modelReader.setDataSetStateMap(dataSetStateMap);
 			Cache.set("dataSet", dataSet);
 		} catch ( Exception ex ) {
@@ -534,7 +534,6 @@ public class BnApp extends Controller {
 			String modelSharedByArray, String rawDataSharedByArray,
 			String modelFileName, String annotation) {
 
-		Logger.info("uploadModel: annotation=" + annotation);
 		ModelReader modelReader = new ModelReader();
 		Network network;
 		MultipartFormData body = request().body().asMultipartFormData();
@@ -729,7 +728,6 @@ public class BnApp extends Controller {
 			}
 		} else {
 			RawDataFile rawDataFile = RawDataFile.findByNetworkFile(networkFile);
-			Logger.info("rawData is not updated. rawDataFile=" + rawDataFile);
 			if( rawDataFile != null) {
 				List<User> sharedUsers = new ArrayList<User>();
 
