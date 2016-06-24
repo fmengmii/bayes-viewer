@@ -17,11 +17,11 @@ public class ModelReader
 {
 	private Network network;
 	private DataSet dataSet;
-
+	private int foldNum = 10;
 	private Map<Integer, double[]> networkLastMap = new HashMap();
 	private Map<Integer, Boolean> networkTargetMap = new HashMap();
 
-	private Map<String, int[]> dataSetStateMap = new HashMap();
+	private Map<String, Map<String, Integer>> dataSetStateMap = new HashMap();
 
 	private Gson gson;
 	private String modelPath;
@@ -46,11 +46,11 @@ public class ModelReader
 	public void setDataSet ( Object dataSet) {
 		this.dataSet = (DataSet) dataSet; }
 
-	public void setDataSetStateMap( Map<String, int[]> dataSetStateMap ) {
+	public void setDataSetStateMap( Map<String, Map<String, Integer>> dataSetStateMap ) {
 		this.dataSetStateMap = dataSetStateMap;
 	}
 
-	public Map<String, int[]> getDataSetStateMap() { return dataSetStateMap; }
+	public Map<String, Map<String, Integer>> getDataSetStateMap() { return dataSetStateMap; }
 
 	public void setModelPath(String path) {this.modelPath = path;}
 
@@ -92,9 +92,6 @@ public class ModelReader
 			int[] nodes = network.getAllNodes();
 
 			for (int i=0; i<nodes.length; i++) {
-				//int node = nodes[i];
-				//String nodeID = network.getNodeId(node);
-				//String nodeName = network.getNodeName(node);
 				double[] values = network.getNodeValue(nodes[i]);
 				networkLastMap.put(nodes[i], values);
 			}
@@ -137,54 +134,28 @@ public class ModelReader
 
 	public String getModelStr()
 	{
-		//Logger.info("before getModelStr().");
 		NumberFormat formatter = new DecimalFormat("#0.00");
 		
-		//System.out.println("read!");
 		StringBuilder strBlder = new StringBuilder("[");
-		//List<String> targetIdList = new ArrayList<String>();
-		//Logger.info("ModelReader getModelStr...");
-		//Logger.info("dataSet=" + dataSet);
-		//Logger.info("network=" + network);
 		Map<String, String> nodeAccuracyMap = new HashMap<String, String>();
 
 		if( dataSet != null ) {
 			try {
-				//DataMatch[] matches = dataSet.matchNetwork(network);
 				ArrayList<DataMatch> tempMatching = new ArrayList<DataMatch>();
-				/*Logger.info("matches size=" + matches.length);
-				Logger.info("matches0 info=" + matches[0].column + "," + matches[0].node + ", " + matches[0].slice);
-				Logger.info("dataSet info=" + dataSet.getRecordCount());
-				Logger.info("dataSet first record " + dataSet.getInt(0, 0) +
-						", " + dataSet.getInt(1,0) + ", " + dataSet.getInt(2,0) +
-						", " + dataSet.getInt(3, 0));
-				*/
 				int numDataSetColumn = dataSet.getVariableCount();
 				int numNodes = network.getNodeCount();
 				for(int col = 0; col < numDataSetColumn; col++) {
 					//get name of current column in the data set
 					String colName = dataSet.getVariableId(col);
-					//separate string in name and slice
-					//String[] nameSlice = colName.split("_");
-					//String curNodeName = nameSlice[0];
 					String curNodeName = colName;
 					int curSlice = 0;
-					/*
-					if( nameSlice.length == 2 ){
-						curSlice = Integer.parseInt(nameSlice[1]);
-					}*/
 
 					if(Arrays.asList(network.getAllNodeIds()).contains(curNodeName)) {
 						int nodeNum = network.getNode(curNodeName);
-						//Logger.info("Match -> colName " + colName + ", nodeName:" + curNodeName + ", slice: " + curSlice + ",NodeNum=" + nodeNum);
 						tempMatching.add(new DataMatch(col, nodeNum, curSlice)); //associate: column, node, slice
 					} else {
 						Logger.info("No node found for columnname: " + colName);
 					}
-
-					/*else{
-						curSlice = 0;
-					}*/
 				}
 				//Convert dataMatch array
 				DataMatch[] matches = tempMatching.toArray(new DataMatch[tempMatching.size()]);
@@ -192,9 +163,6 @@ public class ModelReader
 				em.setEqSampleSize(dataSet.getRecordCount());
 				em.setRandomizeParameters(false);
 				em.setUniformizeParameters(true);
-				//em.setSeed(2);
-				//em.learn( dataSet, network, matches);
-				//network.writeFile("/tmp/testAfterLearn.xdsl");
 
 				Validator validator = new Validator(network, dataSet, matches);
 				int[] nodes = network.getAllNodes();
@@ -203,11 +171,7 @@ public class ModelReader
 					String nodeID = network.getNodeId(node);
 					validator.addClassNode(nodeID);
 				}
-				//validator.test();
-				//validator.leaveOneOut(em);
-				validator.kFold( em, 10 );  //10 is K-foldCount
-				//Logger.info("EM getLastScore=" + em.getLastScore() );
-				//Logger.info("EM getEqSampleSize=" + em.getEqSampleSize());
+				validator.kFold( em, foldNum );  //10 is K-foldCount
 				int totalCorrectCaseNum = 0;
 				int totalRecordNum = 0;
 				for (int i=0; i<nodes.length; i++) {
@@ -215,18 +179,12 @@ public class ModelReader
 					String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
 
 					String nodeID = network.getNodeId(node);
+
 					for (int j = 0; j < outcomeIDs.length; j++) {
 						double accuracy = validator.getAccuracy(nodeID, outcomeIDs[j]);
 						if( Math.abs(accuracy - 1.0) <= 0.00001 ) {
-							int state;
-							if (outcomeIDs[j].startsWith("State") ||
-									outcomeIDs[j].startsWith("state")) {
-								state = Integer.parseInt(outcomeIDs[j].substring(5));
-							} else {
-								state = Integer.parseInt(outcomeIDs[j]);
-							}
-							int[] stateArray = dataSetStateMap.get(nodeID);
-							int stateCount = stateArray[state];
+							Map<String, Integer> stateCountMap = dataSetStateMap.get(nodeID);
+							int stateCount = stateCountMap.get(outcomeIDs[j]);
 							totalCorrectCaseNum += stateCount;
 							int totalRecord = dataSet.getRecordCount();
 							totalRecordNum += totalRecord;
@@ -246,28 +204,17 @@ public class ModelReader
 			} catch( Exception ex ) {
 				Logger.info("matches return=" + ex.toString());
 			}
-		} else {
-			//Logger.info("dataSet is null.");
 		}
 
 		try {
-			//System.out.println(System.getProperty("java.library.path"));
-			//System.out.println(network.getName());
-			//network.clearAllTargets();
-
-			//get original value before updating beliefs
-			//Network networkLast = network;
 			recordNetworkTarget();
 			network.clearAllTargets();
 			network.updateBeliefs();
 			recoverNetworkTarget();
 
-			//nodes
-			//strBlder.append("{\"nodes\":[");
 			List<int[]> edgeList = new ArrayList<int[]>();
 			if( nodeAccuracyMap.size() > 0 ) {
 				strBlder.append("{\"allNodeAcc\":\"" + nodeAccuracyMap.get("total") + "\",");
-				//Logger.info("strBlder="+ strBlder);
 				strBlder.append("\"nodes\":[");
 			} else {
 				strBlder.append("{\"nodes\":[");
@@ -339,8 +286,6 @@ public class ModelReader
 				//adding isVirtualEvidence, is RealEvidence and isTarget for each node
 				outcomeBlder.append("\"isVirtualEvidence\":\"" + network.isVirtualEvidence(nodeID) + "\", ");
 				outcomeBlder.append("\"isRealEvidence\":\"" + network.isRealEvidence(nodeID) + "\", ");
-				//outcomeBlder.append("\"isPropagatedEvidence\":\"" + network.isPropagatedEvidence(nodeID) + "\", ");
-				//outcomeBlder.append("\"isEvidence\":\"" + network.isEvidence(nodeID) + "\", ");
 				outcomeBlder.append("\"isTarget\":\"" + network.isTarget(nodeID) + "\", ");
 
 				String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
@@ -352,13 +297,9 @@ public class ModelReader
 					outcomeBlder.append("\"values\":[");
 					double[] virtualEvidenceValues = network.getVirtualEvidence(nodes[i]);
 
-					//double[] values = network.getNodeValue(nodes[i]);
-
 					for (int j = 0; j < outcomeIDs.length; j++) {
-						//System.out.println("virtualEvidence value: " + virtualEvidenceValues[j]);
 						String change = "no";
 						if( valuesLast != null ){
-							//Logger.info("nodeName:" + nodeName + " j=" + j + ", old value=" +valuesLast[j] + " and new value=" +  values[j]);
 							if(virtualEvidenceValues[j] > valuesLast[j]) {
 								change = "increase";
 							}
@@ -372,23 +313,17 @@ public class ModelReader
 							"\"change\":\"" + change + "\", " +
 							"\"value\":" + formatter.format((virtualEvidenceValues[j])) + "}");
 					}
-
-					//outcomeBlder.append("], ");
 				} else {
 					outcomeBlder.append("\"values\":[");
 					double[] values = network.getNodeValue(nodes[i]);
 					for (int j = 0; j < outcomeIDs.length; j++) {
-						//System.out.println("outcome: " + outcomeIDs[j] + ", value: " + values[j]);
 						String change = "no";
 						if (valuesLast != null) {
-							//Logger.info("nodeName:" + nodeName + " j=" + j + ", old value=" +valuesLast[j] + " and new value=" +  values[j]);
-							//if (values[j] > valuesLast[j]) {
 							if( Double.valueOf(formatter.format(values[j])) >
 									Double.valueOf(formatter.format(valuesLast[j])) ) {
 								change = "increase";
 							} else if ( Double.valueOf(formatter.format(values[j])) <
 									Double.valueOf(formatter.format(valuesLast[j])) ) {
-							//if (values[j] < valuesLast[j]) {
 								change = "decrease";
 							}
 						}
@@ -401,7 +336,6 @@ public class ModelReader
 				}
 				outcomeBlder.append("]}");
 				outcomeMap.put(nodeName, outcomeBlder.toString());
-				//Logger.info(nodeName + ": values " + outcomeBlder.toString());
 			}
 
 			count = 0;
@@ -413,52 +347,6 @@ public class ModelReader
 			}
 
 			strBlder.append("]");
-			/*
-			//model name
-			String modelPath = network.getName();
-			String[]tokens = modelPath.split("/|\\\\");
-			String modelName = tokens[tokens.length-1];
-			modelName = modelName.substring(0,modelName.length()-5);
-			strBlder.append(", [{\"modelname\":\"" + modelName +"\"}]");
-
-
-			//raw data column names
-			String csvFile = "public/raw-data/" + modelName + ".csv";
-
-			BufferedReader br = null;
-			String line = "";
-			try {
-				File csvFilePath = new File(csvFile);
-				if( csvFilePath.exists() ) {
-					br = new BufferedReader(new FileReader(csvFile));
-					line = br.readLine();
-
-					String[] columnNames = line.split(",");
-					strBlder.append(", [{\"columnnames\":[");
-					for (int i = 0; i < columnNames.length; i++) {
-						if (i > 0) {
-							strBlder.append(",");
-						}
-						strBlder.append("\"" + columnNames[i] + "\"");
-					}
-					strBlder.append("]}]");
-				}
-			}
-			catch (FileNotFoundException e) {
-				//e.printStackTrace();
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-				if (br != null) {
-					try {
-						br.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-			*/
 		}
 		catch(Exception e) {
 			recoverNetworkTarget();
@@ -467,7 +355,6 @@ public class ModelReader
 				String[] infoArray = message.split("Logged information:");
 				message = infoArray[1];
 			}
-			//e.printStackTrace();
 			return "Error:" + message + " Please try to change another inference algorithm."; // value is not valid.
 		}
 		strBlder.append("]");
@@ -566,9 +453,7 @@ public class ModelReader
 	
 	public String getCPT(String modelName, String nodeID)
 	{
-		//loadModel(modelName);
-		
-		StringBuilder strBlder = new StringBuilder("{\"parents\":[");				
+		StringBuilder strBlder = new StringBuilder("{\"parents\":[");
 		String[] parentIDs = network.getParentIds(nodeID);
 		for (int i=0; i<parentIDs.length; i++) {
 			String parentName = network.getNodeName(parentIDs[i]);
@@ -649,5 +534,4 @@ public class ModelReader
 			network.setNodeName(nodeID, nodeName);
 		}
 	}
-
 }

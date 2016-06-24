@@ -264,7 +264,6 @@ public class BnApp extends Controller {
 		}
 	}
 
-    //public static Result loadModel(String modelPath) {
 	public static Result loadModel(String modelName, String algorithm) {
     	ModelReader modelReader = new ModelReader();
 
@@ -295,38 +294,33 @@ public class BnApp extends Controller {
 				DataSet dataSet = new DataSet();
 				dataSet.readFile(tmpFile.getAbsolutePath());
 
-				//get dataSetStateMap
-
-				Map<String, int[]> dataSetStateMap = new HashMap<String, int[]>();
+				Map<String, Map<String, Integer>> dataSetStateMap = new HashMap<String, Map<String, Integer>>();
 				for( int i=0; i < dataSet.getVariableCount(); i++ ) {
 					String nodeId = dataSet.getVariableId(i);
 					//Logger.info("stateCountMap: nodeId=" + nodeId);
-					Map<Integer, Integer> stateCountMap = new HashMap<Integer, Integer>();
+					String[] stateNameArray = dataSet.getStateNames(i);
+
+					Map<String, Integer> stateCountMap = new HashMap<String, Integer>();
 					for( int j=0; j < dataSet.getRecordCount() ; j++ ) {
-						int state = dataSet.getInt(i, j);
-						if( stateCountMap.containsKey(state) ) {
-							int count = stateCountMap.get(state);
-							stateCountMap.put( state, ++count);
+						int stateSeqNum = dataSet.getInt(i, j);
+						String stateLabel = stateNameArray[stateSeqNum];
+						if (stateCountMap.containsKey(stateLabel)) {
+							int count = stateCountMap.get(stateLabel);
+							stateCountMap.put(stateLabel, ++count);
 						} else {
-							stateCountMap.put( state, 1);
+							stateCountMap.put(stateLabel, 1);
 						}
 					}
-					//Logger.info("stateCountMap size=" + stateCountMap.size());
-					int[] stateArray = new int[stateCountMap.size()];
-					for( int state = 0; state < stateArray.length; state++ ) {
-						//Logger.info("state=" + state + " count value=" + stateCountMap.get(state));
-						stateArray[state] = stateCountMap.get(state);
-					}
-					dataSetStateMap.put(nodeId, stateArray);
+					dataSetStateMap.put(nodeId, stateCountMap);
 				}
 
 				modelReader.setDataSet(dataSet);
 
-				//DataSet returnDataSet = modelReader.getDataSet();
 				modelReader.setDataSetStateMap(dataSetStateMap);
 				Cache.set("dataSet", dataSet);
 
 				tmpFile.delete();
+
 			} catch ( Exception ex ) {
 				Logger.error("loadModel:" + ex.toString());
 				return badRequest("Raw data format problem: " + ex.toString());
@@ -336,12 +330,11 @@ public class BnApp extends Controller {
 		String modelStr = modelReader.readModelFromFileContent(
 				modelName, modelContent, algorithm);
 
-    	Object network = modelReader.getNetwork();
+    	Network network = modelReader.getNetwork();
 
     	Cache.set("network", network);
 		session("modelName", modelName);
 		logAdvice(networkFile, "view");
-
 		return ok(modelStr);
     }
 
@@ -421,31 +414,26 @@ public class BnApp extends Controller {
 			tmpFile.delete();
 			//get dataSetStateMap
 
-			Map<String, int[]> dataSetStateMap = new HashMap<String, int[]>();
+			Map<String, Map<String, Integer>> dataSetStateMap = new HashMap<String, Map<String, Integer>>();
 			for( int i=0; i < dataSet.getVariableCount(); i++ ) {
 				String nodeId = dataSet.getVariableId(i);
+				String[] stateNameArray = dataSet.getStateNames(i);
 				//Logger.info("stateCountMap: nodeId=" + nodeId);
-				Map<Integer, Integer> stateCountMap = new HashMap<Integer, Integer>();
+				Map<String, Integer> stateCountMap = new HashMap<String, Integer>();
 				for( int j=0; j < dataSet.getRecordCount() ; j++ ) {
-					int state = dataSet.getInt(i, j);
-					if( stateCountMap.containsKey(state) ) {
-						int count = stateCountMap.get(state);
-						stateCountMap.put( state, ++count);
+					int stateSeqNum = dataSet.getInt(i, j);
+					String stateLabel = stateNameArray[stateSeqNum];
+					if( stateCountMap.containsKey(stateLabel) ) {
+						int count = stateCountMap.get(stateLabel);
+						stateCountMap.put( stateLabel, ++count);
 					} else {
-						stateCountMap.put( state, 1);
+						stateCountMap.put( stateLabel, 1);
 					}
 				}
-				//Logger.info("stateCountMap size=" + stateCountMap.size());
-				int[] stateArray = new int[stateCountMap.size()];
-				for( int state = 0; state < stateArray.length; state++ ) {
-					//Logger.info("state=" + state + " count value=" + stateCountMap.get(state));
-					stateArray[state] = stateCountMap.get(state);
-				}
-				dataSetStateMap.put(nodeId, stateArray);
+				dataSetStateMap.put(nodeId, stateCountMap);
 			}
 
 			modelReader.setDataSet(dataSet);
-			//DataSet returnDataSet = modelReader.getDataSet();
 			modelReader.setDataSetStateMap(dataSetStateMap);
 			Cache.set("dataSet", dataSet);
 		} catch ( Exception ex ) {
@@ -879,6 +867,18 @@ public class BnApp extends Controller {
 
 			DataMatch[] matches = dataSet.matchNetwork(network);
 
+			//check if state match between dataSet and network
+			for( int i=0; i < dataSet.getVariableCount(); i++ ) {
+				String nodeId = dataSet.getVariableId(i);
+				String[] stateNameArray = dataSet.getStateNames(i);
+				String[] outcomeIDs = network.getOutcomeIds(nodeId);
+				List<String> outcomeIDsList = new ArrayList<String>(Arrays.asList(outcomeIDs));
+				for( int j=0; j<stateNameArray.length; j++ ) {
+					if( !outcomeIDsList.contains(stateNameArray[j]) ) {
+						return false;
+					}
+				}
+			}
 		} catch( Exception ex ) {
 			Logger.info("check rawData if match with model: matches return=" + ex.toString());
 			return false;
