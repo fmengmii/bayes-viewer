@@ -17,12 +17,18 @@ public class ModelReader
 {
 	private Network network;
 	private DataSet dataSet;
+	private DataSet dataSetExternal;
+	//private DataSet dataSetInternal;
 	private int foldNum = 10;
 	private Map<Integer, double[]> networkLastMap = new HashMap();
 	private Map<Integer, Boolean> networkTargetMap = new HashMap();
 
 	private Map<String, Map<String, Integer>> dataSetStateMap = new HashMap();
+	private Map<String, Map<String, Integer>> dataSetExternalStateMap = new HashMap();
 
+	private Map<String, String> nodeAccuracyMap = new HashMap<String, String>();
+	private Map<String, String> internalValidationNodeAccuracyMap = new HashMap<String, String>();
+	private Map<String, String> externalValidationNodeAccuracyMap = new HashMap<String, String>();
 	private Gson gson;
 	private String modelPath;
 
@@ -37,20 +43,34 @@ public class ModelReader
 	}
 
 	public DataSet getDataSet() { return dataSet; }
+	public DataSet getDataSetExternal() { return dataSetExternal;}
 
 	public void setNetwork(Object network)
 	{
 		this.network = (Network) network;
 	}
 
-	public void setDataSet ( Object dataSet) {
-		this.dataSet = (DataSet) dataSet; }
+	public void setDataSet ( DataSet dataSet ) {
+		this.dataSet = dataSet;
+	}
+
+	public void setDataSetExternal ( DataSet dataSetExternal) {
+		this.dataSetExternal = dataSetExternal;
+	}
 
 	public void setDataSetStateMap( Map<String, Map<String, Integer>> dataSetStateMap ) {
 		this.dataSetStateMap = dataSetStateMap;
 	}
 
+	public void setDataSetExternalStateMap( Map<String, Map<String, Integer>> dataSetStateMap ) {
+		this.dataSetExternalStateMap = dataSetStateMap;
+	}
+
 	public Map<String, Map<String, Integer>> getDataSetStateMap() { return dataSetStateMap; }
+
+	public Map<String, Map<String, Integer>> getDataSetExternalStateMap() {
+		return dataSetExternalStateMap;
+	}
 
 	public void setModelPath(String path) {this.modelPath = path;}
 
@@ -135,74 +155,68 @@ public class ModelReader
 	public String getModelStr()
 	{
 		NumberFormat formatter = new DecimalFormat("#0.00");
-		
 		StringBuilder strBlder = new StringBuilder("[");
-		Map<String, String> nodeAccuracyMap = new HashMap<String, String>();
 
 		if( dataSet != null ) {
-			try {
-				ArrayList<DataMatch> tempMatching = new ArrayList<DataMatch>();
-				int numDataSetColumn = dataSet.getVariableCount();
+			nodeAccuracyMap = getCrossValidationMap( dataSet, dataSetStateMap);
+		}
+
+		if( dataSetExternal != null) {
+			internalValidationNodeAccuracyMap = getCrossValidationMap(
+					dataSetExternal, dataSetExternalStateMap );
+
+			//external validation
+			try{
+				int numDataSetColumn = dataSetExternal.getVariableCount();
+				double allNodeAccuracy = 0;
 				int numNodes = network.getNodeCount();
 				for(int col = 0; col < numDataSetColumn; col++) {
 					//get name of current column in the data set
-					String colName = dataSet.getVariableId(col);
-					String curNodeName = colName;
-					int curSlice = 0;
+					String curNodeId = dataSetExternal.getVariableId(col);
+					String[] curNodeStateNameArray = dataSetExternal.getStateNames(col);
+					double totalCalStateProbValue = 0;
 
-					if(Arrays.asList(network.getAllNodeIds()).contains(curNodeName)) {
-						int nodeNum = network.getNode(curNodeName);
-						tempMatching.add(new DataMatch(col, nodeNum, curSlice)); //associate: column, node, slice
-					} else {
-						Logger.info("No node found for columnname: " + colName);
-					}
-				}
-				//Convert dataMatch array
-				DataMatch[] matches = tempMatching.toArray(new DataMatch[tempMatching.size()]);
-				EM em = new EM();
-				em.setEqSampleSize(dataSet.getRecordCount());
-				em.setRandomizeParameters(false);
-				em.setUniformizeParameters(true);
+					for( int row=0; row < dataSetExternal.getRecordCount() ; row++ ) {
+						network.clearAllEvidence();
+						int realStateSeqNum = dataSetExternal.getInt(col, row);
+						String curStateValue = curNodeStateNameArray[realStateSeqNum];
+						for (int i = 0; i < dataSetExternal.getVariableCount(); i++) {
+							if( i != col ) {
+								int stateSeqNum = dataSetExternal.getInt( i, row);
+								String[] stateNameArray = dataSetExternal.getStateNames(i);
+								network.setEvidence(dataSetExternal.getVariableId(i),
+										stateNameArray[stateSeqNum]);
+							}
+						}
+						recordNetworkTarget();
+						network.updateBeliefs();
+						recoverNetworkTarget();
+						int[] nodes = network.getAllNodes();
+						for (int i=0; i<nodes.length; i++) {
+							int node = nodes[i];
+							String nodeID = network.getNodeId(node);
+							String nodeName = network.getNodeName(node);
+							if( nodeID.equals(curNodeId) ) {
+								String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
+								double[] values = network.getNodeValue(nodes[i]);
 
-				Validator validator = new Validator(network, dataSet, matches);
-				int[] nodes = network.getAllNodes();
-				for (int i=0; i<nodes.length; i++) {
-					int node = nodes[i];
-					String nodeID = network.getNodeId(node);
-					validator.addClassNode(nodeID);
-				}
-				validator.kFold( em, foldNum );  //10 is K-foldCount
-				int totalCorrectCaseNum = 0;
-				int totalRecordNum = 0;
-				for (int i=0; i<nodes.length; i++) {
-					int node = nodes[i];
-					String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
-
-					String nodeID = network.getNodeId(node);
-
-					for (int j = 0; j < outcomeIDs.length; j++) {
-						double accuracy = validator.getAccuracy(nodeID, outcomeIDs[j]);
-						if( Math.abs(accuracy - 1.0) <= 0.00001 ) {
-							Map<String, Integer> stateCountMap = dataSetStateMap.get(nodeID);
-							int stateCount = stateCountMap.get(outcomeIDs[j]);
-							totalCorrectCaseNum += stateCount;
-							int totalRecord = dataSet.getRecordCount();
-							totalRecordNum += totalRecord;
-							double nodeAccuracy = (double)stateCount / (double)totalRecord;
-							DecimalFormat numberFormat = new DecimalFormat("0.00");
-							String nodeAccuracyFormat = numberFormat.format(nodeAccuracy).toString();
-							nodeAccuracyMap.put(nodeID, nodeAccuracyFormat);
+								double calStateProb = values[realStateSeqNum];
+								//Logger.info("calStateProb=" + calStateProb);
+								totalCalStateProbValue += calStateProb;
+							}
 						}
 					}
+					double averageProb = totalCalStateProbValue / dataSetExternal.getRecordCount();
+					allNodeAccuracy += averageProb;
+					String externalValidationProb = formatter.format(averageProb);
+					externalValidationNodeAccuracyMap.put(curNodeId, externalValidationProb);
 				}
-				if( totalRecordNum != 0 ) {
-					double allNodeAccuracy = (double) totalCorrectCaseNum / (double) totalRecordNum;
-					DecimalFormat numberFormat = new DecimalFormat("0.00");
-					String allNodeAccuracyFormat = numberFormat.format(allNodeAccuracy).toString();
-					nodeAccuracyMap.put("total", allNodeAccuracyFormat);
-				}
-			} catch( Exception ex ) {
-				Logger.info("matches return=" + ex.toString());
+				double totalExternalValidation = allNodeAccuracy / numNodes;
+				String totalExternalValidationProb =  formatter.format(totalExternalValidation);
+				externalValidationNodeAccuracyMap.put("total", totalExternalValidationProb);
+				network.clearAllEvidence();
+			} catch(Exception ex ){
+				Logger.error("external validation exception=" + ex.toString());
 			}
 		}
 
@@ -213,12 +227,36 @@ public class ModelReader
 			recoverNetworkTarget();
 
 			List<int[]> edgeList = new ArrayList<int[]>();
+			boolean accuracyExist = false;
+
 			if( nodeAccuracyMap.size() > 0 ) {
-				strBlder.append("{\"allNodeAcc\":\"" + nodeAccuracyMap.get("total") + "\",");
-				strBlder.append("\"nodes\":[");
+				strBlder.append("{\"allNodeAcc\":\"" + nodeAccuracyMap.get("total") + "\"");
+				accuracyExist = true;
+			}
+			if( internalValidationNodeAccuracyMap.size() > 0 ) {
+				if( nodeAccuracyMap.size() > 0 ) {
+					strBlder.append(",");
+				} else {
+					strBlder.append("{");
+				}
+				strBlder.append("\"allNodeAccInternal\":\"" + externalValidationNodeAccuracyMap.get("total") + "\"");
+				accuracyExist = true;
+			}
+			if( externalValidationNodeAccuracyMap.size() > 0 ) {
+				if( nodeAccuracyMap.size() > 0  || internalValidationNodeAccuracyMap.size() > 0 ) {
+					strBlder.append(",");
+				} else {
+					strBlder.append("{");
+				}
+				strBlder.append("\"allNodeAccExternal\":\"" + externalValidationNodeAccuracyMap.get("total") + "\"");
+				accuracyExist = true;
+			}
+			if(accuracyExist) {
+				strBlder.append(",\"nodes\":[");
 			} else {
 				strBlder.append("{\"nodes\":[");
 			}
+
 			int[] nodes = network.getAllNodes();
 
 			for (int i=0; i<nodes.length; i++) {
@@ -239,10 +277,43 @@ public class ModelReader
 					strBlder.append(",");
 
 				strBlder.append("{\"data\":{\"id\":\"" + nodeID + "\"," +
-						"\"acc\":\"" + nodeAccuracyMap.get(nodeID) + "\"," +
+						"\"name\":\"" + nodeName + "\"," );
+
+				strBlder.append("\"nameLabel\":\"" + nodeName );
+				if( nodeAccuracyMap.size() > 0 ||
+						internalValidationNodeAccuracyMap.size() > 0 ||
+						externalValidationNodeAccuracyMap.size() > 0 ) {
+
+					strBlder.append("(");
+					if( nodeAccuracyMap.size() > 0 ) {
+						strBlder.append("O:" + nodeAccuracyMap.get(nodeID));
+						//Logger.info("O append...");
+					}
+
+					if( internalValidationNodeAccuracyMap.size() > 0 ) {
+						if( nodeAccuracyMap.size() > 0 ) {
+							strBlder.append(", ");
+						}
+						strBlder.append("I:" + internalValidationNodeAccuracyMap.get(nodeID));
+					}
+
+					if( externalValidationNodeAccuracyMap.size() > 0 ) {
+						if( nodeAccuracyMap.size() > 0 || internalValidationNodeAccuracyMap.size() > 0 ) {
+							strBlder.append(", ");
+						}
+						strBlder.append("E:" + externalValidationNodeAccuracyMap.get(nodeID));
+					}
+					strBlder.append(")");
+				}
+				strBlder.append("\"}, \"position\":{\"x\":" + rect.x + ", \"y\":" + rect.y + "}}");
+				/*
+				strBlder.append("{\"data\":{\"id\":\"" + nodeID + "\"," +
+						"\"accInternal\":\"" + nodeAccuracyMap.get(nodeID) + "\"," +
+						"\"accExternal\":\"" + externalValidationNodeAccuracyMap.get(nodeID) + "\"," +
 						"\"name\":\"" + nodeName + "\"," +
 						"\"nameLabel\":\"" + nodeName + "(" + nodeAccuracyMap.get(nodeID) + ")" + "\"}, \"position\":{\"x\":" +
 						rect.x + ", \"y\":" + rect.y + "}}");
+				*/
 
 				//edges
 				int[] childrenIDs = network.getChildren(node);
@@ -254,7 +325,6 @@ public class ModelReader
 				}
 			}
 			strBlder.append("], \"edges\":[");
-
 			//edges
 			int count = 0;
 			for (int[] arcIDs : edgeList) {
@@ -361,6 +431,80 @@ public class ModelReader
 		return strBlder.toString();
 	}
 
+	private Map<String, String> getCrossValidationMap (DataSet dataSet,
+													   Map<String, Map<String, Integer>> dataSetStateMap) {
+
+		Map<String, String> crossValidationNodeAccuracyMap = new HashMap<String, String>();
+		try {
+			recordNetworkTarget();
+			ArrayList<DataMatch> tempMatching = new ArrayList<DataMatch>();
+			int numDataSetColumn = dataSet.getVariableCount();
+			int numNodes = network.getNodeCount();
+			for (int col = 0; col < numDataSetColumn; col++) {
+				//get name of current column in the data set
+				String colName = dataSet.getVariableId(col);
+				String curNodeName = colName;
+				int curSlice = 0;
+
+				if (Arrays.asList(network.getAllNodeIds()).contains(curNodeName)) {
+					int nodeNum = network.getNode(curNodeName);
+					tempMatching.add(new DataMatch(col, nodeNum, curSlice)); //associate: column, node, slice
+				} else {
+					Logger.info("No node found for columnname: " + colName);
+				}
+			}
+			//Convert dataMatch array
+			DataMatch[] matches = tempMatching.toArray(new DataMatch[tempMatching.size()]);
+			EM em = new EM();
+			em.setEqSampleSize(dataSet.getRecordCount());
+			em.setRandomizeParameters(false);
+			em.setUniformizeParameters(true);
+
+			Validator validator = new Validator(network, dataSet, matches);
+			int[] nodes = network.getAllNodes();
+			for (int i = 0; i < nodes.length; i++) {
+				int node = nodes[i];
+				String nodeID = network.getNodeId(node);
+				validator.addClassNode(nodeID);
+			}
+			validator.kFold(em, foldNum);  //10 is K-foldCount
+			int totalCorrectCaseNum = 0;
+			int totalRecordNum = 0;
+			for (int i = 0; i < nodes.length; i++) {
+				int node = nodes[i];
+				String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
+
+				String nodeID = network.getNodeId(node);
+
+				for (int j = 0; j < outcomeIDs.length; j++) {
+					double accuracy = validator.getAccuracy(nodeID, outcomeIDs[j]);
+					if (Math.abs(accuracy - 1.0) <= 0.00001) {
+						Map<String, Integer> stateCountMap = dataSetStateMap.get(nodeID);
+						int stateCount = stateCountMap.get(outcomeIDs[j]);
+						totalCorrectCaseNum += stateCount;
+						int totalRecord = dataSet.getRecordCount();
+						totalRecordNum += totalRecord;
+						double nodeAccuracy = (double) stateCount / (double) totalRecord;
+						DecimalFormat numberFormat = new DecimalFormat("0.00");
+						String nodeAccuracyFormat = numberFormat.format(nodeAccuracy).toString();
+						crossValidationNodeAccuracyMap.put(nodeID, nodeAccuracyFormat);
+					}
+				}
+			}
+
+			if (totalRecordNum != 0) {
+				double allNodeAccuracy = (double) totalCorrectCaseNum / (double) totalRecordNum;
+				DecimalFormat numberFormat = new DecimalFormat("0.00");
+				String allNodeAccuracyFormat = numberFormat.format(allNodeAccuracy).toString();
+				crossValidationNodeAccuracyMap.put("total", allNodeAccuracyFormat);
+			}
+
+		} catch (Exception ex) {
+			Logger.info("cross validation matches exception is " + ex.toString());
+		}
+		return crossValidationNodeAccuracyMap;
+	}
+
 	public boolean isAllUpperCase( String nodeName) {
 		for(int i=0; i<nodeName.length(); i++) {
 			if(Character.isLowerCase(nodeName.charAt(i))) {
@@ -369,7 +513,7 @@ public class ModelReader
 		}
 		return true;
 	}
-	public String setEvidence(String modelName, String nodeID, String outcomeID)
+	public String setEvidence(String nodeID, String outcomeID)
 	{
 		//loadModel(modelName);
 		modifyNetworkLast();

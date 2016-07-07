@@ -858,7 +858,6 @@ function getTestRawData(){
 	}
 
     var algorithm = $("#algorithmSelect").val();
-
     var uploadModelAjax = jsRoutes.controllers.BnApp.uploadTestRawData(
                 modelFileName, algorithm );
 

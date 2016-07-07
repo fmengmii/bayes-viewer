@@ -34,9 +34,9 @@ import models.*;
 import controllers.Application.*;
 
 public class BnApp extends Controller {
-       private Gson gson;
-	public BnApp()
-	{
+	private Gson gson;
+
+	public BnApp() {
 		gson = new Gson();
 	}
 
@@ -51,7 +51,7 @@ public class BnApp extends Controller {
 			"HTTP_FORWARDED_FOR",
 			"HTTP_FORWARDED",
 			"HTTP_VIA",
-			"REMOTE_ADDR" };
+			"REMOTE_ADDR"};
 
 	public static String getClientIpAddress(Http.Request request) {
 		for (String header : HEADERS_TO_TRY) {
@@ -65,12 +65,12 @@ public class BnApp extends Controller {
 
 	private static void logAdvice(NetworkFile networkFile, String operation) {
 		User user = User.findByUserName(session("user"));
-		if( user != null ) {
-			Log log = new Log(networkFile, user, "",  operation);
+		if (user != null) {
+			Log log = new Log(networkFile, user, "", operation);
 			log.save();
 		} else {
 			String ip = getClientIpAddress(request());
-			Log log = new Log(networkFile, user, ip,  operation);
+			Log log = new Log(networkFile, user, ip, operation);
 			log.save();
 		}
 	}
@@ -94,24 +94,24 @@ public class BnApp extends Controller {
 		bnAlgorithmNameMap.put("AisSampling", "AIS Sampling");
 		bnAlgorithmNameMap.put("EpisSampling", "EPIS Sampling");
 
-		if( dataType.equals("private") && ! session().containsKey("user") ) {
+		if (dataType.equals("private") && !session().containsKey("user")) {
 			//return ok(login.render(Form.form(Login.class)));
 			return redirect("/login");
 		}
 
 		List<User> users = new ArrayList<User>();
-		if( dataType.equals("private")){
+		if (dataType.equals("private")) {
 			User user = User.findByUserName(session("user"));
 			modelFileList = getModelFileList(user);
 			users = User.findAllApprovedList();
 			users.remove(user);
 			return ok(views.html.bn.network.render(modelFileList, dataType,
 					users, bnAlgorithmNameMap));
-		} else if( dataType.equals("public") ){
+		} else if (dataType.equals("public")) {
 			List<NetworkFile> networkFileList = NetworkFile.findAllPublicNetworkFileList();
-			for( int i=0; i<networkFileList.size(); i++ ){
-				modelFileList.add( networkFileList.get(i).fileName + "." +
-					networkFileList.get(i).fileType);
+			for (int i = 0; i < networkFileList.size(); i++) {
+				modelFileList.add(networkFileList.get(i).fileName + "." +
+						networkFileList.get(i).fileType);
 			}
 
 			return ok(views.html.bn.network.render(modelFileList, dataType,
@@ -120,25 +120,25 @@ public class BnApp extends Controller {
 			flash("error", "The dataType has to be private or public.");
 			return redirect("/network/" + dataType);
 		}
-    }
+	}
 
-	private static List<String> getModelFileList ( User user ) {
-		if( user == null ) {
+	private static List<String> getModelFileList(User user) {
+		if (user == null) {
 			return null;
 		}
 		List<NetworkFile> networkFileList = user.networkFiles;
 		List<String> fileList = new ArrayList<String>();
-		for( int i=0; i<networkFileList.size(); i++ ){
+		for (int i = 0; i < networkFileList.size(); i++) {
 			NetworkFile modelFile = networkFileList.get(i);
-			if( modelFile.isActive ) {
+			if (modelFile.isActive) {
 				fileList.add(modelFile.fileName + "." +
 						modelFile.fileType);
 			}
 		}
 		List<NetworkFile> sharedNetworkFileList = user.sharedNetworkFiles;
-		for( int i=0; i<sharedNetworkFileList.size(); i++ ){
+		for (int i = 0; i < sharedNetworkFileList.size(); i++) {
 			NetworkFile modelFile = sharedNetworkFileList.get(i);
-			if( modelFile.isActive ) {
+			if (modelFile.isActive) {
 				fileList.add(modelFile.fileName + "." +
 						modelFile.fileType + " sharedBy " +
 						modelFile.user.firstName + " " +
@@ -148,14 +148,14 @@ public class BnApp extends Controller {
 		return fileList;
 	}
 
-	public static Result getModelStatus ( String modelName ) {
+	public static Result getModelStatus(String modelName) {
 		String[] parseFullFileName = modelName.split("\\.");
 
 		String fileName = parseFullFileName[0];
 		String fileType = parseFullFileName[1];
 		User user = User.findByUserName(session("user"));
 		NetworkFile networkFile = NetworkFile.findByFileNameAndType(
-					fileName, fileType);
+				fileName, fileType);
 
 		String userName = networkFile.user.firstName + " " +
 				networkFile.user.lastName;
@@ -170,7 +170,7 @@ public class BnApp extends Controller {
 		networkFileMap.put("uploadTime", networkFile.updateTime.toString());
 		//Logger.info("rawdata file is " + networkFile.rawDataFile);
 
-		if( networkFile.rawDataFile != null ) {
+		if (networkFile.rawDataFile != null) {
 			String rawDataFileName = networkFile.rawDataFile.fileName + "." +
 					networkFile.rawDataFile.fileType;
 			networkFileMap.put("rawDataFileName", rawDataFileName);
@@ -178,10 +178,10 @@ public class BnApp extends Controller {
 			networkFileMap.put("rawDataFileName", "");
 		}
 		String sharedWith = "";
-		if( networkFile.modelSharedUsers != null &&
-				networkFile.modelSharedUsers.size() > 0 ) {
-			for(User sharedUser : networkFile.modelSharedUsers ) {
-				if( sharedWith.equals("")) {
+		if (networkFile.modelSharedUsers != null &&
+				networkFile.modelSharedUsers.size() > 0) {
+			for (User sharedUser : networkFile.modelSharedUsers) {
+				if (sharedWith.equals("")) {
 					sharedWith += sharedUser.firstName + " " + sharedUser.lastName;
 				} else {
 					sharedWith += ", " + sharedUser.firstName + " " + sharedUser.lastName;
@@ -192,7 +192,7 @@ public class BnApp extends Controller {
 		return ok(Json.toJson(networkFileMap));
 	}
 
-	public static Result getRawData ( String modelName ) {
+	public static Result getRawData(String modelName) {
 		String[] parseFullFileName = modelName.split("\\.");
 
 		String fileName = parseFullFileName[0];
@@ -200,10 +200,10 @@ public class BnApp extends Controller {
 		NetworkFile networkFile = NetworkFile.findByFileNameAndType(
 				fileName, fileType);
 
-		if( networkFile != null ) {
+		if (networkFile != null) {
 			RawDataFile rawDataFile = networkFile.rawDataFile;
 
-			if( rawDataFile != null ) {
+			if (rawDataFile != null) {
 				String content = rawDataFile.fileContent;
 				return ok(content);
 			} else {
@@ -214,43 +214,41 @@ public class BnApp extends Controller {
 		}
 	}
 
-	public static Result getModelHistory ( String modelName ) {
+	public static Result getModelHistory(String modelName) {
 		String[] parseFullFileName = modelName.split("\\.");
 
 		String fileName = parseFullFileName[0];
 		String fileType = parseFullFileName[1];
 		NetworkFile networkFile = NetworkFile.findByFileNameAndType(
-					fileName, fileType);
+				fileName, fileType);
 		//Logger.info("before query log...");
 		List<Log> logList = Log.findByNetworkFile(networkFile);
 		Map logMap = new HashMap();
 		logMap.put("logList", logList);
-		//List<Log> simpleLogList = new ArrayList<Log>();
 
-		//Logger.info("after query logList=" + logList);
 		return ok(Json.toJson(logMap));
 	}
 
 	public static Result changeAlgorithm(String modelName, String algorithm) {
 		ModelReader modelReader = new ModelReader();
-    	modelReader.setNetwork(Cache.get("network"));
+		modelReader.setNetwork(Cache.get("network"));
 		Network network = modelReader.getNetwork();
 
 		int algorithmType = -1;
 		try {
 			Field field = Network.BayesianAlgorithmType.class.getDeclaredField(algorithm);
 			Object object = field.get(Network.BayesianAlgorithmType.class);
-			algorithmType = field.getInt( object);
-		} catch( IllegalAccessException ex ) {
-			Logger.info( ex.toString());
-		} catch( Exception ex ) {
-			Logger.info( ex.toString());
+			algorithmType = field.getInt(object);
+		} catch (IllegalAccessException ex) {
+			Logger.info(ex.toString());
+		} catch (Exception ex) {
+			Logger.info(ex.toString());
 		}
 
-		if( network == null ){
+		if (network == null) {
 			Logger.info("changeAlgorithm network is null.");
 			return ok("Error");
-		} else if( algorithmType == -1 ) {
+		} else if (algorithmType == -1) {
 			Logger.info("changeAlgorithm algorithmtype is -1.");
 			return ok("Error");
 		} else {
@@ -259,13 +257,12 @@ public class BnApp extends Controller {
 			//Logger.info("change algorithm return success.");
 			modelReader.modifyNetworkLast();
 			String modelString = modelReader.getModelStr();
-			//Logger.info("changeAlgorithm return modelString=" + modelString);
 			return ok(modelString);
 		}
 	}
 
 	public static Result loadModel(String modelName, String algorithm) {
-    	ModelReader modelReader = new ModelReader();
+		ModelReader modelReader = new ModelReader();
 
 		String[] modelFullName = modelName.split("\\.");
 		NetworkFile networkFile = NetworkFile.findByFileNameAndType(
@@ -274,6 +271,201 @@ public class BnApp extends Controller {
 		String modelContent = networkFile.fileContent;
 
 		//handle raw data
+		RawDataFile rawDataFile = RawDataFile.findByNetworkFile(networkFile);
+
+		if (rawDataFile != null) {
+			modelReader =  getDataSetAndStateMap( modelReader, rawDataFile, false);
+		}
+
+		String modelStr = modelReader.readModelFromFileContent(
+				modelName, modelContent, algorithm);
+
+		Network network = modelReader.getNetwork();
+
+		Cache.set("network", network);
+		session("modelName", modelName);
+		logAdvice(networkFile, "view");
+		return ok(modelStr);
+	}
+
+	private static ModelReader getDataSetAndStateMap( ModelReader modelReader,
+													  RawDataFile rawDataFile,
+													  boolean isExternalDataSet ) {
+		try {
+			File tmpFile = new File("/tmp/" +
+					rawDataFile.fileName + "." + rawDataFile.fileType);
+			if (tmpFile.exists()) {
+				Logger.info("tmpFile exist.");
+				tmpFile.delete();
+			}
+			tmpFile.createNewFile();
+
+
+			PrintWriter writer = new PrintWriter(tmpFile);
+			writer.print(rawDataFile.fileContent);
+			writer.close();
+
+			DataSet dataSet = new DataSet();
+			dataSet.readFile(tmpFile.getAbsolutePath());
+
+			Map<String, Map<String, Integer>> dataSetStateMap = new HashMap<String, Map<String, Integer>>();
+			for (int i = 0; i < dataSet.getVariableCount(); i++) {
+				String nodeId = dataSet.getVariableId(i);
+				//Logger.info("stateCountMap: nodeId=" + nodeId);
+				String[] stateNameArray = dataSet.getStateNames(i);
+
+				Map<String, Integer> stateCountMap = new HashMap<String, Integer>();
+				for (int j = 0; j < dataSet.getRecordCount(); j++) {
+					int stateSeqNum = dataSet.getInt(i, j);
+					String stateLabel = stateNameArray[stateSeqNum];
+					if (stateCountMap.containsKey(stateLabel)) {
+						int count = stateCountMap.get(stateLabel);
+						stateCountMap.put(stateLabel, ++count);
+					} else {
+						stateCountMap.put(stateLabel, 1);
+					}
+				}
+				dataSetStateMap.put(nodeId, stateCountMap);
+			}
+
+			if( isExternalDataSet ) {
+				modelReader.setDataSetExternal(dataSet);
+				modelReader.setDataSetExternalStateMap(dataSetStateMap);
+				Cache.set("dataSetExternal", dataSet);
+			} else {
+				modelReader.setDataSet(dataSet);
+				modelReader.setDataSetStateMap(dataSetStateMap);
+				Cache.set("dataSet", dataSet);
+			}
+			tmpFile.delete();
+		} catch (Exception ex) {
+			Logger.error("loadModel:" + ex.toString());
+		}
+
+		return modelReader;
+	}
+
+	public static Result uploadTestRawData(String modelFileName,
+										   String algorithm ){
+		ModelReader modelReader = new ModelReader();
+		Network network;
+		MultipartFormData body = request().body().asMultipartFormData();
+
+		List<FilePart> filePartList = body.getFiles();
+		if( filePartList.size() == 0 ) {
+			return badRequest("The raw data file is not chosen.");
+		}
+
+		NetworkFile networkFile;
+
+		String[] parseFullFileName = modelFileName.split("\\.");
+		String fileName = parseFullFileName[0];
+		String fileType = parseFullFileName[1];
+		networkFile = NetworkFile.findByFileNameAndType(
+				fileName, fileType);
+
+		if( networkFile != null ) {
+			modelReader.readModelFromFileContent(modelFileName,
+				networkFile.fileContent, algorithm);
+			network = modelReader.getNetwork();
+			Cache.set("network", network);
+			//handle raw data
+			RawDataFile oriRawDataFile = RawDataFile.findByNetworkFile(networkFile);
+
+			if (oriRawDataFile != null) {
+				modelReader = getDataSetAndStateMap( modelReader, oriRawDataFile, false);
+			}
+		} else {
+			return badRequest("The model file can't be found.");
+		}
+
+		FilePart dataUpload = filePartList.get(0);
+
+		if( dataUpload == null ) {
+			return badRequest("The raw data file is not chosen.");
+		}
+
+		File dataFile = dataUpload.getFile();
+		String dataFullFileName = dataUpload.getFilename();
+		String[] parseDataFullFileName = dataFullFileName.split("\\.");
+
+		String dataFileName = parseDataFullFileName[0];
+		String dataFileType = parseDataFullFileName[1];
+
+		String dataFileContent = null;
+
+		try{
+			dataFileContent = new Scanner(dataFile).useDelimiter("\\Z").next();
+		} catch ( FileNotFoundException ex ) {
+			return badRequest("The file is not found.");
+		}
+
+		if( !isRawDataMatchWithModel(dataFullFileName, dataFileContent, network) ) {
+			return badRequest("The raw data does not match with the model.");
+		}
+
+		RawDataFile rawDataFileTest = new RawDataFile();
+		rawDataFileTest.fileName = dataFileName;
+		rawDataFileTest.fileType = dataFileType;
+		rawDataFileTest.fileContent = dataFileContent;
+		rawDataFileTest.isPublic = false;
+
+		//Cache.set("testRawDataFileObj", rawDataFileTest);
+
+		modelReader = getDataSetAndStateMap( modelReader, rawDataFileTest, true);
+		/*
+		DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss"); //year month day hour minute second
+		Date date = new Date();
+		try {
+			File tmpFile = new File("/tmp/" +
+					dataFileName + "_" + dateFormat.format(date) + "_" + session("user") + "." + dataFileType);
+			if( tmpFile.exists() ) {
+				tmpFile.delete();
+			}
+			tmpFile.createNewFile();
+
+			PrintWriter writer = new PrintWriter(tmpFile);
+			writer.print(dataFileContent);
+			writer.close();
+
+			DataSet dataSetExternal = new DataSet();
+			dataSetExternal.readFile(tmpFile.getAbsolutePath());
+			tmpFile.delete();
+
+
+			//get dataSetStateMap
+			Map<String, Map<String, Integer>> dataSetStateMap = new HashMap<String, Map<String, Integer>>();
+			for( int i=0; i < dataSet.getVariableCount(); i++ ) {
+				String nodeId = dataSet.getVariableId(i);
+				String[] stateNameArray = dataSet.getStateNames(i);
+				//Logger.info("stateCountMap: nodeId=" + nodeId);
+				Map<String, Integer> stateCountMap = new HashMap<String, Integer>();
+				for( int j=0; j < dataSet.getRecordCount() ; j++ ) {
+					int stateSeqNum = dataSet.getInt(i, j);
+					String stateLabel = stateNameArray[stateSeqNum];
+					if( stateCountMap.containsKey(stateLabel) ) {
+						int count = stateCountMap.get(stateLabel);
+						stateCountMap.put( stateLabel, ++count);
+					} else {
+						stateCountMap.put( stateLabel, 1);
+					}
+				}
+				dataSetStateMap.put(nodeId, stateCountMap);
+			}
+
+			modelReader.setDataSetExternal(dataSetExternal);
+			Logger.info("uploadTestRawData: setDataSetExternal.");
+			//modelReader.setDataSetStateMap(dataSetStateMap);
+			Cache.set("dataSetExternal", dataSetExternal);
+		} catch ( Exception ex ) {
+			Logger.error("loadModel:" + ex.toString());
+			return badRequest("Raw data format problem: " + ex.toString());
+		}
+		*/
+
+
+		/*
+		//handle original raw data
 		RawDataFile rawDataFile = RawDataFile.findByNetworkFile(networkFile);
 
 		if( rawDataFile != null ) {
@@ -326,127 +518,9 @@ public class BnApp extends Controller {
 				return badRequest("Raw data format problem: " + ex.toString());
 			}
 		}
-
+		*/
 		String modelStr = modelReader.readModelFromFileContent(
-				modelName, modelContent, algorithm);
-
-    	Network network = modelReader.getNetwork();
-
-    	Cache.set("network", network);
-		session("modelName", modelName);
-		logAdvice(networkFile, "view");
-		return ok(modelStr);
-    }
-
-	public static Result uploadTestRawData(String modelFileName, String algorithm){
-		ModelReader modelReader = new ModelReader();
-		Network network;
-		MultipartFormData body = request().body().asMultipartFormData();
-
-		List<FilePart> filePartList = body.getFiles();
-		if( filePartList.size() == 0 ) {
-			return badRequest("The raw data file is not chosen.");
-		}
-
-		NetworkFile networkFile;
-
-		String[] parseFullFileName = modelFileName.split("\\.");
-		String fileName = parseFullFileName[0];
-		String fileType = parseFullFileName[1];
-		networkFile = NetworkFile.findByFileNameAndType(
-				fileName, fileType);
-
-
-		if( networkFile != null ) {
-			modelReader.readModelFromFileContent(modelFileName,
-				networkFile.fileContent, algorithm);
-			network = modelReader.getNetwork();
-			Cache.set("network", network);
-		} else {
-			return badRequest("The model file can't be found.");
-		}
-
-		FilePart dataUpload = filePartList.get(0);
-
-		if( dataUpload == null ) {
-			return badRequest("The raw data file is not chosen.");
-		}
-
-		File dataFile = dataUpload.getFile();
-		String dataFullFileName = dataUpload.getFilename();
-		String[] parseDataFullFileName = dataFullFileName.split("\\.");
-
-		String dataFileName = parseDataFullFileName[0];
-		String dataFileType = parseDataFullFileName[1];
-
-		String dataFileContent = null;
-
-		try{
-			dataFileContent = new Scanner(dataFile).useDelimiter("\\Z").next();
-		} catch ( FileNotFoundException ex ) {
-			return badRequest("The file is not found.");
-		}
-
-		RawDataFile rawDataFile = new RawDataFile();
-		rawDataFile.fileName = dataFileName;
-		rawDataFile.fileType = dataFileType;
-		rawDataFile.fileContent = dataFileContent;
-		rawDataFile.isPublic = false;
-
-		Cache.set("testRawDataFileObj", rawDataFile);
-
-		DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss"); //year month day hour minute second
-		Date date = new Date();
-		try {
-			File tmpFile = new File("/tmp/" +
-					dataFileName + "_" + dateFormat.format(date) + "_" + session("user") + "." + dataFileType);
-			if( tmpFile.exists() ) {
-				tmpFile.delete();
-			}
-			tmpFile.createNewFile();
-
-			PrintWriter writer = new PrintWriter(tmpFile);
-			writer.print(dataFileContent);
-			writer.close();
-
-			DataSet dataSet = new DataSet();
-			dataSet.readFile(tmpFile.getAbsolutePath());
-			tmpFile.delete();
-			//get dataSetStateMap
-
-			Map<String, Map<String, Integer>> dataSetStateMap = new HashMap<String, Map<String, Integer>>();
-			for( int i=0; i < dataSet.getVariableCount(); i++ ) {
-				String nodeId = dataSet.getVariableId(i);
-				String[] stateNameArray = dataSet.getStateNames(i);
-				//Logger.info("stateCountMap: nodeId=" + nodeId);
-				Map<String, Integer> stateCountMap = new HashMap<String, Integer>();
-				for( int j=0; j < dataSet.getRecordCount() ; j++ ) {
-					int stateSeqNum = dataSet.getInt(i, j);
-					String stateLabel = stateNameArray[stateSeqNum];
-					if( stateCountMap.containsKey(stateLabel) ) {
-						int count = stateCountMap.get(stateLabel);
-						stateCountMap.put( stateLabel, ++count);
-					} else {
-						stateCountMap.put( stateLabel, 1);
-					}
-				}
-				dataSetStateMap.put(nodeId, stateCountMap);
-			}
-
-			modelReader.setDataSet(dataSet);
-			modelReader.setDataSetStateMap(dataSetStateMap);
-			Cache.set("dataSet", dataSet);
-		} catch ( Exception ex ) {
-			Logger.error("loadModel:" + ex.toString());
-			return badRequest("Raw data format problem: " + ex.toString());
-		}
-
-		if( !isRawDataMatchWithModel(dataFullFileName, dataFileContent, network) ) {
-			return badRequest("The raw data does not match with the model.");
-		}
-
-		String modelStr = modelReader.readModelFromFileContent(
-				modelFileName, networkFile.fileContent, algorithm);
+				modelFileName, networkFile.fileContent, algorithm );
 
 		session("modelName", modelFileName);
 		logAdvice(networkFile, "test");
@@ -744,7 +818,7 @@ public class BnApp extends Controller {
 		Network network = (Network)Cache.get("network");
 		RawDataFile uploadRawDataFileObj = (RawDataFile)Cache.get("testRawDataFileObj");
 		Network networkNew = network;
-		DataSet dataSet = (DataSet)Cache.get("dataSet");
+		DataSet dataSet = (DataSet)Cache.get("dataSetExternal");
 		DataSet dataSetNew = new DataSet();
     	modelReader.setNetwork(network);
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss"); //year month day hour minute second
@@ -916,7 +990,7 @@ public class BnApp extends Controller {
     	modelReader.setNetwork(Cache.get("network"));
     	String modelName = session("modelName");
 
-    	String modelStr = modelReader.setEvidence(modelName, nodeID, outcomeID);
+    	String modelStr = modelReader.setEvidence(nodeID, outcomeID);
 
     	return ok(modelStr);
     }

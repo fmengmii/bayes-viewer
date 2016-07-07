@@ -333,12 +333,13 @@ function createCPTGrid(cpt)
 		var count = 0;
 		for (var i = 0; i<titles.length; i++) {
 			for (j = 0; j<parents[0].outcomeIDs.length; j++) {
-				var title =  titles[i] + '<br>' + parents[0].parentName + ': ' + truncateOutcome(parents[0].outcomeIDs[j]);
+				var title =  titles[i] + '<br>' + parents[0].parentName + ': ' +
+				    truncateOutcome(parents[0].outcomeIDs[j]);
 				//if (parents.length == 1) {
 				//	title = (count+1).toString().concat(". <br>").concat(title);
 				//}
 				columnTitles[count] = title;
-				count ++;
+				count++;
 			}
 		}
 		return (getMoreTitles(parents, columnTitles));
