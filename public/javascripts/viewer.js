@@ -129,7 +129,7 @@ $(document).ready(function () {
 
     var maxSplitterHeight = $("#contentDiv").height() - $("#topButtonsDiv").height() -
         $("#lowerButtonsDiv").height() ;
-    var maxSplitterWidth = 1400;
+    var maxSplitterWidth = 1438;
     var splitterWidth;
     if( $("#contentDiv").width() > maxSplitterWidth ) {
         splitterWidth = maxSplitterWidth;

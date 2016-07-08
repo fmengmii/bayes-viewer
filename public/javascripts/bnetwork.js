@@ -28,11 +28,10 @@ $(function() { // on dom ready
 	         //'#ddd'
 	      }),
 	      
-	        layout: {
-	        	name: 'preset'
-	        }
-	  ,
-	  boxSelectionEnabled:false
+	      layout: {
+	        name: 'preset'
+	      },
+	      boxSelectionEnabled:false
 	});
   
 	cy.on('tap', 'node', function(evt) {
@@ -106,22 +105,41 @@ function networkLoadModel(model) {
     }
     //alert("acc=" + model.allNodeAcc);
     if( !$("#network svg").length ) {
-        drawLegend(model.allNodeAcc);
+        drawLegend(model.allNodeAcc, model.allNodeAccInternal,
+            model.allNodeAccExternal);
     }
 }
 
-function drawLegend(allNodeAcc) {
-    var yValue = 51;
-    if( !allNodeAcc) {
-        //alert("allNodeAcc is not defined..");
-        //all node accuracy does not exist
-        yValue = 11;
+function drawLegend(allNodeAcc, allNodeAccInternal, allNodeAccExternal) {
+    var yValue = 11; //51;
+    var data = [{"x":40, "y":yValue, "color":"Lightblue", "value":"Network Node"},
+                {"x":40, "y":yValue+20, "color":"Green", "value":"Real Evidence Node"},
+                {"x":40, "y":yValue+40, "color":"#8FBC8F", "value":"Virtual Evidence Node"},
+                {"x":40, "y":yValue+60, "color":"DarkSalmon", "value":"Target Node"},
+                {"x":40, "y":yValue+80, "color":"#dd99ff", "value":"Query Node"}];
+
+                //{"x":15,"y":yValue+100, "color":"white", "value":"O:\u00A0\u00A0\u00A0Total Value="+allNodeAcc}
+
+    var iniY = yValue + 100;
+    if( allNodeAcc ) {
+        data.push({"x":40,"y":iniY, "color":"white",
+                "value":"10-fold Cross Validation Accuracy for the Raw Data, the Total="+allNodeAcc});
+        data.push({"x":15, "y":iniY, "color":"white", "value":"O:"});
+        iniY += 20;
     }
-    var data = [{"y":yValue, "color":"Lightblue", "value":"Network Node"},
-                {"y":yValue+20, "color":"Green", "value":"Real Evidence Node"},
-                {"y":yValue+40, "color":"#8FBC8F", "value":"Virtual Evidence Node"},
-                {"y":yValue+60, "color":"DarkSalmon", "value":"Target Node"},
-                {"y":yValue+80, "color":"#dd99ff", "value":"Query Node"}];
+    if( allNodeAccInternal ) {
+        //alert("internal here iniY=" + iniY);
+        data.push({"x":40,"y":iniY, "color":"white",
+                "value":"10-fold Cross Validation Accuracy for the Test Data, the Total="+allNodeAccInternal});
+        data.push({"x":18, "y":iniY, "color":"white", "value":"I:"});
+        iniY += 20;
+    }
+    if( allNodeAccExternal ) {
+        data.push({"x":40,"y":iniY, "color":"white",
+                "value":"External Validation Accuracy for the Test Data, the Total="+allNodeAccExternal});
+        data.push({"x":15, "y":iniY, "color":"white", "value":"E:"});
+        iniY += 20;
+    }
 
 	var maxWidth = $("#network").width();
 
@@ -137,23 +155,30 @@ function drawLegend(allNodeAcc) {
 
     var g = svg.selectAll("g").data(data).enter().append("g");
 
-    if( allNodeAcc ) {
+    //var yValue = 10;
+
+    /*
+    if( allNodeAccInternal ) {
         var accText = g.append("text")
             .attr("x", 11)
-            .attr("y", 10)
+            .attr("y", iniY)   //10
             .attr("dy", ".45em")
-            .attr("fill", "Crimson")
+            .attr("fill", "black") //"Crimson")
             .attr("font-size", "14px")
-            .text("10-fold model validation: accuracy for all nodes = " + allNodeAcc);
-
-        var commentText = g.append("text")
-            .attr("x", 11)
-            .attr("y", 30)
-            .attr("dy", ".45em")
-            .attr("fill", "Crimson")
-            .attr("font-size", "14px")
-            .text("Accuracy for each node listed behind the node name with ()");
+            .text("I: 10-fold cross validation for the test data, the total=" + allNodeAccInternal);
+        iniY += 20;
     }
+
+    if( allNodeAccExternal ) {
+        var accText = g.append("text")
+            .attr("x", 11)
+            .attr("y", iniY)   //10
+            .attr("dy", ".45em")
+            .attr("fill", "black") //"Crimson")
+            .attr("font-size", "14px")
+            .text("E: External validation for the test data, the total=" + allNodeAccExternal);
+        iniY += 20;
+    }*/
 
     var circle = g.append("circle")
         .attr("cx", x)
@@ -161,13 +186,15 @@ function drawLegend(allNodeAcc) {
         .attr("r", r)
         .style("fill", function(d){ return d.color;});
 
-
     var text = g.append("text")
-	    .attr("x", x + 20)
+	    //.attr("x", x + 20)
+	    .attr("x", function(d){ return d.x;})
 	    .attr("y", function(d){ return d.y;})
 	    .attr("dy", ".45em")
 	    .attr("fill", "black")
 	    .text(function(d){ return d.value;});
+
+
 }
 
 function addQueryNodeNameSelect( model ) {
@@ -176,7 +203,7 @@ function addQueryNodeNameSelect( model ) {
     var selectString = "<select size='5' id='queryNodeNameSelect' " +
         "name='queryNodeNameSelect' multiple='multiple'>";
 
-    for( var i=0; i<nodes.length; i++){
+    for( var i=0; i<nodes.length; i++ ){
 	    selectString += "<option value='" + nodes[i].data.id + "'>" +
 	        nodes[i].data.name + "</option>";
 	}
@@ -188,7 +215,6 @@ function addQueryNodeNameSelect( model ) {
 	$("#queryNodeNameDiv").append(selectString);
 	$("#queryNodeNameSelect").multiselect().multiselectfilter();
 	$('#queryNodeNameDiv').show();
-
 }
 
 function queryNodeName(){
