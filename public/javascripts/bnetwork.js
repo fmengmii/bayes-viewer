@@ -103,44 +103,17 @@ function networkLoadModel(model) {
     if( $('#showAlgorithmChangeDiv').css('display') == "none" ) {
         $('#showAlgorithmChangeDiv').show();
     }
-    //alert("acc=" + model.allNodeAcc);
-    if( !$("#network svg").length ) {
-        drawLegend(model.allNodeAcc, model.allNodeAccInternal,
+
+    drawLegend(model.allNodeAcc, model.allNodeAccInternal,
             model.allNodeAccExternal);
-    }
 }
 
 function drawLegend(allNodeAcc, allNodeAccInternal, allNodeAccExternal) {
-    var yValue = 11; //51;
-    var data = [{"x":40, "y":yValue, "color":"Lightblue", "value":"Network Node"},
-                {"x":40, "y":yValue+20, "color":"Green", "value":"Real Evidence Node"},
-                {"x":40, "y":yValue+40, "color":"#8FBC8F", "value":"Virtual Evidence Node"},
-                {"x":40, "y":yValue+60, "color":"DarkSalmon", "value":"Target Node"},
-                {"x":40, "y":yValue+80, "color":"#dd99ff", "value":"Query Node"}];
-
-                //{"x":15,"y":yValue+100, "color":"white", "value":"O:\u00A0\u00A0\u00A0Total Value="+allNodeAcc}
-
+    if( $("#network svg").length ) {
+        d3.select("svg").remove();
+    }
+    var yValue = 11;
     var iniY = yValue + 100;
-    if( allNodeAcc ) {
-        data.push({"x":40,"y":iniY, "color":"white",
-                "value":"10-fold Cross Validation Accuracy for the Raw Data, the Total="+allNodeAcc});
-        data.push({"x":15, "y":iniY, "color":"white", "value":"O:"});
-        iniY += 20;
-    }
-    if( allNodeAccInternal ) {
-        //alert("internal here iniY=" + iniY);
-        data.push({"x":40,"y":iniY, "color":"white",
-                "value":"10-fold Cross Validation Accuracy for the Test Data, the Total="+allNodeAccInternal});
-        data.push({"x":18, "y":iniY, "color":"white", "value":"I:"});
-        iniY += 20;
-    }
-    if( allNodeAccExternal ) {
-        data.push({"x":40,"y":iniY, "color":"white",
-                "value":"External Validation Accuracy for the Test Data, the Total="+allNodeAccExternal});
-        data.push({"x":15, "y":iniY, "color":"white", "value":"E:"});
-        iniY += 20;
-    }
-
 	var maxWidth = $("#network").width();
 
     var left = 11; //maxWidth - 180;
@@ -153,48 +126,58 @@ function drawLegend(allNodeAcc, allNodeAccInternal, allNodeAccExternal) {
 	    .append("g")
 	    .attr('transform', 'translate(' + left + ', 20)');
 
-    var g = svg.selectAll("g").data(data).enter().append("g");
+    var g = null;
 
-    //var yValue = 10;
+    if(allNodeAcc && allNodeAccInternal && allNodeAccExternal) {
+        var data = [{"x":40, "y":yValue, "color":"Lightblue", "value":"Network Node"},
+                {"x":40, "y":yValue+20, "color":"Green", "value":"Real Evidence Node"},
+                {"x":40, "y":yValue+40, "color":"#8FBC8F", "value":"Virtual Evidence Node"},
+                {"x":40, "y":yValue+60, "color":"DarkSalmon", "value":"Target Node"},
+                {"x":40, "y":yValue+80, "color":"#dd99ff", "value":"Query Node"},
+                {"x":40,"y":iniY, "color":"white",
+                    "value":"10-fold Cross Validation Accuracy for the Raw Data, the Total="+allNodeAcc},
+                {"x":15, "y":iniY, "color":"white", "value":"O:"},
+                {"x":40,"y":iniY+20, "color":"white",
+                    "value":"10-fold Cross Validation Accuracy for the Test Data, the Total="+allNodeAccInternal},
+                {"x":18, "y":iniY+20, "color":"white", "value":"I:"},
+                {"x":40,"y":iniY+40, "color":"white",
+                    "value":"External Validation Accuracy for the Test Data, the Total="+allNodeAccExternal},
+                {"x":15, "y":iniY+40, "color":"white", "value":"E:"}];
+        g = svg.selectAll("g").data(data).enter().append("g");
+    } else if(allNodeAcc) {
+        var data = [{"x":40, "y":yValue, "color":"Lightblue", "value":"Network Node"},
+                {"x":40, "y":yValue+20, "color":"Green", "value":"Real Evidence Node"},
+                {"x":40, "y":yValue+40, "color":"#8FBC8F", "value":"Virtual Evidence Node"},
+                {"x":40, "y":yValue+60, "color":"DarkSalmon", "value":"Target Node"},
+                {"x":40, "y":yValue+80, "color":"#dd99ff", "value":"Query Node"},
+                {"x":40,"y":iniY, "color":"white",
+                    "value":"10-fold Cross Validation Accuracy for the Raw Data, the Total="+allNodeAcc},
+                {"x":15, "y":iniY, "color":"white", "value":"O:"}];
 
-    /*
-    if( allNodeAccInternal ) {
-        var accText = g.append("text")
-            .attr("x", 11)
-            .attr("y", iniY)   //10
-            .attr("dy", ".45em")
-            .attr("fill", "black") //"Crimson")
-            .attr("font-size", "14px")
-            .text("I: 10-fold cross validation for the test data, the total=" + allNodeAccInternal);
-        iniY += 20;
+        g = svg.selectAll("g").data(data).enter().append("g");
+    }else {
+        var data = [{"x":40, "y":yValue, "color":"Lightblue", "value":"Network Node"},
+                {"x":40, "y":yValue+20, "color":"Green", "value":"Real Evidence Node"},
+                {"x":40, "y":yValue+40, "color":"#8FBC8F", "value":"Virtual Evidence Node"},
+                {"x":40, "y":yValue+60, "color":"DarkSalmon", "value":"Target Node"},
+                {"x":40, "y":yValue+80, "color":"#dd99ff", "value":"Query Node"}];
+        g = svg.selectAll("g").data(data).enter().append("g");
     }
 
-    if( allNodeAccExternal ) {
-        var accText = g.append("text")
-            .attr("x", 11)
-            .attr("y", iniY)   //10
-            .attr("dy", ".45em")
-            .attr("fill", "black") //"Crimson")
-            .attr("font-size", "14px")
-            .text("E: External validation for the test data, the total=" + allNodeAccExternal);
-        iniY += 20;
-    }*/
-
-    var circle = g.append("circle")
+    if( g != null ) {
+        var circle = g.append("circle")
         .attr("cx", x)
         .attr("cy", function(d){ return d.y; })
         .attr("r", r)
         .style("fill", function(d){ return d.color;});
 
-    var text = g.append("text")
-	    //.attr("x", x + 20)
+        var text = g.append("text")
 	    .attr("x", function(d){ return d.x;})
 	    .attr("y", function(d){ return d.y;})
 	    .attr("dy", ".45em")
 	    .attr("fill", "black")
 	    .text(function(d){ return d.value;});
-
-
+    }
 }
 
 function addQueryNodeNameSelect( model ) {
@@ -227,40 +210,3 @@ function queryNodeName(){
         }
     }
 }
-
-/*function showUpload()
-{
-	$('#modelForm').trigger("reset");
-	$('#dataForm').trigger("reset");
-
-	$('#uploadDiv').jqxWindow({
-		width: 400, height: 200, resizable: true,
-		okButton: $("#uploadDone"),
-		autoOpen: true
-	});
-	$('#uploadDiv').jqxWindow("setTitle", "Upload a model");
-
-	$('#uploadDiv').jqxWindow('open');
-
-	var fileName;
-
-	$('#modelFile').change(function() {
-		var file = this.files[0];
-		fileName = file.name;
-		if (fileName.substring(fileName.length-5,fileName.length) !== ".xdsl") {
-			alertBoxShow("only .xdsl file extensions will be accepted");
-			$('#modelForm').trigger("reset");
-		}
-	});
-
-	$('#dataFile').change(function() {
-		var dataFile = this.files[0];
-		var dataFileName = dataFile.name;
-		if (dataFileName.substring(dataFileName.length-4, dataFileName.length) !== ".csv") {
-			alertBoxShow("only .csv file extensions will be accepted");
-			$("#rawDataButton").remove();
-			$('#dataForm').trigger('reset');
-		}
-	});
-}
-*/

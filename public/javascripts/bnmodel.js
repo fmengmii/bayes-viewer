@@ -111,6 +111,8 @@ function showUpload() {
     $('#splitter').hide();
     $('#viewLogDiv').hide();
     $('#updateDiv').hide();
+    $('#testModelDiv').hide();
+
     $('#uploadDiv').show();
     $("#load").val('');
 }
@@ -161,7 +163,7 @@ function updateModel() {
     $('#uploadDiv').hide();
     $('#viewLogDiv').hide();
 
-    if( modelName == null || modelName == '') {
+    if( modelName == null || modelName == '' ) {
         alertBoxShow("Please select a network file first.");
         return false;
     }

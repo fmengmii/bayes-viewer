@@ -162,6 +162,7 @@ public class ModelReader
 		}
 
 		if( dataSetExternal != null) {
+			//Logger.info("dataSetExternal is not null...");
 			internalValidationNodeAccuracyMap = getCrossValidationMap(
 					dataSetExternal, dataSetExternalStateMap );
 
@@ -306,14 +307,6 @@ public class ModelReader
 					strBlder.append(")");
 				}
 				strBlder.append("\"}, \"position\":{\"x\":" + rect.x + ", \"y\":" + rect.y + "}}");
-				/*
-				strBlder.append("{\"data\":{\"id\":\"" + nodeID + "\"," +
-						"\"accInternal\":\"" + nodeAccuracyMap.get(nodeID) + "\"," +
-						"\"accExternal\":\"" + externalValidationNodeAccuracyMap.get(nodeID) + "\"," +
-						"\"name\":\"" + nodeName + "\"," +
-						"\"nameLabel\":\"" + nodeName + "(" + nodeAccuracyMap.get(nodeID) + ")" + "\"}, \"position\":{\"x\":" +
-						rect.x + ", \"y\":" + rect.y + "}}");
-				*/
 
 				//edges
 				int[] childrenIDs = network.getChildren(node);
@@ -360,7 +353,6 @@ public class ModelReader
 
 				String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
 				double[] valuesLast = networkLastMap.get(nodes[i]);
-
 
 				//adding virtualEvidenceValue
 				if( network.isVirtualEvidence(nodeID) ) {

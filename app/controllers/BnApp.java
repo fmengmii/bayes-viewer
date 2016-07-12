@@ -410,7 +410,7 @@ public class BnApp extends Controller {
 		rawDataFileTest.fileContent = dataFileContent;
 		rawDataFileTest.isPublic = false;
 
-		//Cache.set("testRawDataFileObj", rawDataFileTest);
+		Cache.set("testRawDataFileObj", rawDataFileTest);
 
 		modelReader = getDataSetAndStateMap( modelReader, rawDataFileTest, true);
 		/*
