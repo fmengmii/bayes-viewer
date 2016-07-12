@@ -136,7 +136,7 @@ public class Application extends Controller
 			flash("success", "login successful.");
 			session().clear();
 			session("user", userName);
-			return redirect("/");
+			return redirect("/bn/private"); // or redirect("/");
 		}
 	}
 

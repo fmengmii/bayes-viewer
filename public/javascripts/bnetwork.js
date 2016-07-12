@@ -126,56 +126,46 @@ function drawLegend(allNodeAcc, allNodeAccInternal, allNodeAccExternal) {
 	    .append("g")
 	    .attr('transform', 'translate(' + left + ', 20)');
 
-    var g = null;
+    var data = [{"x":40, "y":yValue, "color":"Lightblue", "value":"Network Node",
+                    "fontSize":"12px", "fontWeight":""},
+                {"x":40, "y":yValue+20, "color":"Green", "value":"Real Evidence Node",
+                    "fontSize":"12px", "fontWeight":""},
+                {"x":40, "y":yValue+40, "color":"#8FBC8F", "value":"Virtual Evidence Node",
+                    "fontSize":"12px", "fontWeight":""},
+                {"x":40, "y":yValue+60, "color":"DarkSalmon", "value":"Target Node",
+                    "fontSize":"12px", "fontWeight":""},
+                {"x":40, "y":yValue+80, "color":"#dd99ff", "value":"Query Node",
+                    "fontSize":"12px", "fontWeight":""}];
 
     if(allNodeAcc && allNodeAccInternal && allNodeAccExternal) {
-        var data = [{"x":40, "y":yValue, "color":"Lightblue", "value":"Network Node", "fontSize":"12px", "fontWeight":""},
-                {"x":40, "y":yValue+20, "color":"Green", "value":"Real Evidence Node", "fontSize":"12px", "fontWeight":""},
-                {"x":40, "y":yValue+40, "color":"#8FBC8F", "value":"Virtual Evidence Node", "fontSize":"12px", "fontWeight":""},
-                {"x":40, "y":yValue+60, "color":"DarkSalmon", "value":"Target Node", "fontSize":"12px", "fontWeight":""},
-                {"x":40, "y":yValue+80, "color":"#dd99ff", "value":"Query Node", "fontSize":"12px", "fontWeight":""},
-                {"x":40,"y":iniY, "color":"white",
-                    "value":"10-fold Cross Validation Accuracy for the Raw Data, the Total="+allNodeAcc,
-                    "fontSize":"12px", "fontWeight":""},
-                {"x":14, "y":iniY, "color":"white", "value":"O:", "fontSize":"14px", "fontWeight":"bold"},
-                {"x":40,"y":iniY+20, "color":"white",
-                    "value":"10-fold Cross Validation Accuracy for the Test Data, the Total="+allNodeAccInternal,
-                    "fontSize":"12px", "fontWeight":""},
-                {"x":17, "y":iniY+20, "color":"white", "value":"I:", "fontSize":"14px", "fontWeight":"bold"},
-                {"x":40,"y":iniY+40, "color":"white",
-                    "value":"External Validation Accuracy for the Test Data, the Total="+allNodeAccExternal,
-                    "fontSize":"12px", "fontWeight":""},
-                {"x":14, "y":iniY+40, "color":"white", "value":"E:", "fontSize":"14px", "fontWeight":"bold"}];
-        g = svg.selectAll("g").data(data).enter().append("g");
+        data.push({"x":40,"y":iniY, "color":"white",
+                        "value":"10-fold Cross Validation Accuracy for the Raw Data, the Total="+allNodeAcc,
+                        "fontSize":"12px", "fontWeight":""},
+                  {"x":14, "y":iniY, "color":"white", "value":"O:", "fontSize":"14px", "fontWeight":"bold"},
+                  {"x":40,"y":iniY+20, "color":"white",
+                        "value":"10-fold Cross Validation Accuracy for the Test Data, the Total="+allNodeAccInternal,
+                        "fontSize":"12px", "fontWeight":""},
+                  {"x":17, "y":iniY+20, "color":"white", "value":"I:", "fontSize":"14px", "fontWeight":"bold"},
+                  {"x":40,"y":iniY+40, "color":"white",
+                        "value":"External Validation Accuracy for the Test Data, the Total="+allNodeAccExternal,
+                        "fontSize":"12px", "fontWeight":""},
+                  {"x":14, "y":iniY+40, "color":"white", "value":"E:", "fontSize":"14px", "fontWeight":"bold"});
     } else if(allNodeAcc) {
-        var data = [{"x":40, "y":yValue, "color":"Lightblue", "value":"Network Node",  "fontSize":"12px", "fontWeight":""},
-                {"x":40, "y":yValue+20, "color":"Green", "value":"Real Evidence Node", "fontSize":"12px", "fontWeight":""},
-                {"x":40, "y":yValue+40, "color":"#8FBC8F", "value":"Virtual Evidence Node", "fontSize":"12px", "fontWeight":""},
-                {"x":40, "y":yValue+60, "color":"DarkSalmon", "value":"Target Node", "fontSize":"12px", "fontWeight":""},
-                {"x":40, "y":yValue+80, "color":"#dd99ff", "value":"Query Node", "fontSize":"12px", "fontWeight":""},
-                {"x":40,"y":iniY, "color":"white",
-                    "value":"10-fold Cross Validation Accuracy for the Raw Data, the Total="+allNodeAcc,
-                    "fontSize":"12px", "fontWeight":""},
-                {"x":14, "y":iniY, "color":"white", "value":"O:", "fontSize":"14px", "fontWeight":"bold"}];
-
-        g = svg.selectAll("g").data(data).enter().append("g");
-    }else {
-        var data = [{"x":40, "y":yValue, "color":"Lightblue", "value":"Network Node", "fontSize":"12px", "fontWeight":""},
-                {"x":40, "y":yValue+20, "color":"Green", "value":"Real Evidence Node", "fontSize":"12px", "fontWeight":""},
-                {"x":40, "y":yValue+40, "color":"#8FBC8F", "value":"Virtual Evidence Node", "fontSize":"12px", "fontWeight":""},
-                {"x":40, "y":yValue+60, "color":"DarkSalmon", "value":"Target Node", "fontSize":"12px", "fontWeight":""},
-                {"x":40, "y":yValue+80, "color":"#dd99ff", "value":"Query Node", "fontSize":"12px", "fontWeight":""}];
-        g = svg.selectAll("g").data(data).enter().append("g");
+        data.push({"x":40,"y":iniY, "color":"white",
+                        "value":"10-fold Cross Validation Accuracy for the Raw Data, the Total="+allNodeAcc,
+                        "fontSize":"12px", "fontWeight":""},
+                  {"x":14, "y":iniY, "color":"white", "value":"O:", "fontSize":"14px", "fontWeight":"bold"});
     }
 
-    if( g != null ) {
-        var circle = g.append("circle")
+    var g = svg.selectAll("g").data(data).enter().append("g");
+
+    var circle = g.append("circle")
         .attr("cx", x)
         .attr("cy", function(d){ return d.y; })
         .attr("r", r)
         .style("fill", function(d){ return d.color;});
 
-        var text = g.append("text")
+    var text = g.append("text")
 	    .attr("x", function(d){ return d.x;})
 	    .attr("y", function(d){ return d.y;})
 	    .attr("dy", ".45em")
@@ -183,7 +173,7 @@ function drawLegend(allNodeAcc, allNodeAccInternal, allNodeAccExternal) {
 	    .style("font-size", function(d){ return d.fontSize;})
 	    .style("font-weight", function(d){ return d.fontWeight;})
 	    .text(function(d){ return d.value;});
-    }
+
 }
 
 function addQueryNodeNameSelect( model ) {
