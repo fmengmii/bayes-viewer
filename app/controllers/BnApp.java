@@ -313,10 +313,18 @@ public class BnApp extends Controller {
 				String nodeId = dataSet.getVariableId(i);
 				//Logger.info("stateCountMap: nodeId=" + nodeId);
 				String[] stateNameArray = dataSet.getStateNames(i);
-
+				/*if( i == 1 ) {
+					Logger.info("stateNameArray:");
+					for( int m = 0; m<stateNameArray.length; m++ ) {
+						Logger.info(stateNameArray[m]);
+					}
+				}*/
 				Map<String, Integer> stateCountMap = new HashMap<String, Integer>();
 				for (int j = 0; j < dataSet.getRecordCount(); j++) {
 					int stateSeqNum = dataSet.getInt(i, j);
+					/*if( i == 1 && stateSeqNum == 4) {
+						Logger.info("state6 seqNum=" + stateSeqNum + " and label=" + stateNameArray[stateSeqNum] + " for i=" +i + " and j=" +j);
+					}*/
 					String stateLabel = stateNameArray[stateSeqNum];
 					if (stateCountMap.containsKey(stateLabel)) {
 						int count = stateCountMap.get(stateLabel);

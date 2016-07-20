@@ -139,20 +139,23 @@ function drawLegend(allNodeAcc, allNodeAccInternal, allNodeAccExternal) {
 
     if(allNodeAcc && allNodeAccInternal && allNodeAccExternal) {
         data.push({"x":40,"y":iniY, "color":"white",
-                        "value":"10-fold Cross Validation Accuracy for the Raw Data, the Total="+allNodeAcc,
+                        "value":"10-fold Cross Validation Accuracy for the Model Raw Data",
                         "fontSize":"12px", "fontWeight":""},
                   {"x":14, "y":iniY, "color":"white", "value":"O:", "fontSize":"14px", "fontWeight":"bold"},
                   {"x":40,"y":iniY+20, "color":"white",
-                        "value":"10-fold Cross Validation Accuracy for the Test Data, the Total="+allNodeAccInternal,
+                        "value":"10-fold Cross Validation Accuracy for the Test Data",
                         "fontSize":"12px", "fontWeight":""},
                   {"x":17, "y":iniY+20, "color":"white", "value":"I:", "fontSize":"14px", "fontWeight":"bold"},
                   {"x":40,"y":iniY+40, "color":"white",
-                        "value":"External Validation Accuracy for the Test Data, the Total="+allNodeAccExternal,
+                        "value":"External Validation Accuracy for the Test Data",
                         "fontSize":"12px", "fontWeight":""},
                   {"x":14, "y":iniY+40, "color":"white", "value":"E:", "fontSize":"14px", "fontWeight":"bold"});
+                 // "value":"10-fold Cross Validation Accuracy for the Raw Data, the Total="+allNodeAcc,
+                 // "value":"10-fold Cross Validation Accuracy for the Test Data, the Total="+allNodeAccInternal
+                 //"value":"External Validation Accuracy for the Test Data, the Total="+allNodeAccExternal,
     } else if(allNodeAcc) {
         data.push({"x":40,"y":iniY, "color":"white",
-                        "value":"10-fold Cross Validation Accuracy for the Raw Data, the Total="+allNodeAcc,
+                        "value":"10-fold Cross Validation Accuracy for the Model Raw Data",
                         "fontSize":"12px", "fontWeight":""},
                   {"x":14, "y":iniY, "color":"white", "value":"O:", "fontSize":"14px", "fontWeight":"bold"});
     }

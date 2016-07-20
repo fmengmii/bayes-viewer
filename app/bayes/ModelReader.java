@@ -20,6 +20,7 @@ public class ModelReader
 	private DataSet dataSetExternal;
 	//private DataSet dataSetInternal;
 	private int foldNum = 10;
+	private int foldingRandSeed = 2;
 	private Map<Integer, double[]> networkLastMap = new HashMap();
 	private Map<Integer, Boolean> networkTargetMap = new HashMap();
 
@@ -158,15 +159,12 @@ public class ModelReader
 		StringBuilder strBlder = new StringBuilder("[");
 
 		if( dataSet != null ) {
-			nodeAccuracyMap = getCrossValidationMap( dataSet, dataSetStateMap);
+			nodeAccuracyMap = getValidationMap( dataSet, dataSetStateMap );
 		}
 
 		if( dataSetExternal != null) {
-			//Logger.info("dataSetExternal is not null...");
-			internalValidationNodeAccuracyMap = getCrossValidationMap(
+			internalValidationNodeAccuracyMap = getValidationMap(
 					dataSetExternal, dataSetExternalStateMap );
-
-			//external validation
 			try{
 				int numDataSetColumn = dataSetExternal.getVariableCount();
 				double allNodeAccuracy = 0;
@@ -175,12 +173,10 @@ public class ModelReader
 					//get name of current column in the data set
 					String curNodeId = dataSetExternal.getVariableId(col);
 					String[] curNodeStateNameArray = dataSetExternal.getStateNames(col);
-					double totalCalStateProbValue = 0;
-
+					int totalCorrectPredictiveCase = 0;
 					for( int row=0; row < dataSetExternal.getRecordCount() ; row++ ) {
 						network.clearAllEvidence();
 						int realStateSeqNum = dataSetExternal.getInt(col, row);
-						String curStateValue = curNodeStateNameArray[realStateSeqNum];
 						for (int i = 0; i < dataSetExternal.getVariableCount(); i++) {
 							if( i != col ) {
 								int stateSeqNum = dataSetExternal.getInt( i, row);
@@ -196,20 +192,24 @@ public class ModelReader
 						for (int i=0; i<nodes.length; i++) {
 							int node = nodes[i];
 							String nodeID = network.getNodeId(node);
-							String nodeName = network.getNodeName(node);
 							if( nodeID.equals(curNodeId) ) {
-								String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
 								double[] values = network.getNodeValue(nodes[i]);
-
-								double calStateProb = values[realStateSeqNum];
-								//Logger.info("calStateProb=" + calStateProb);
-								totalCalStateProbValue += calStateProb;
+								double max = values[0];
+								int maxIndex = 0;
+								for( int count = 1; count < values.length; count++ ) {
+									if( values[count] > max ) {
+										max = values[count];
+										maxIndex = count;
+									}
+								}
+								if( realStateSeqNum == maxIndex ) {
+									totalCorrectPredictiveCase++;
+								}
 							}
 						}
 					}
-					double averageProb = totalCalStateProbValue / dataSetExternal.getRecordCount();
-					allNodeAccuracy += averageProb;
-					String externalValidationProb = formatter.format(averageProb);
+					double nodeAcc = (double) totalCorrectPredictiveCase / dataSetExternal.getRecordCount();
+					String externalValidationProb = formatter.format(nodeAcc);
 					externalValidationNodeAccuracyMap.put(curNodeId, externalValidationProb);
 				}
 				double totalExternalValidation = allNodeAccuracy / numNodes;
@@ -423,10 +423,10 @@ public class ModelReader
 		return strBlder.toString();
 	}
 
-	private Map<String, String> getCrossValidationMap (DataSet dataSet,
-													   Map<String, Map<String, Integer>> dataSetStateMap) {
+	private Map<String, String> getValidationMap (DataSet dataSet,
+												  Map<String, Map<String, Integer>> dataSetStateMap) {
 
-		Map<String, String> crossValidationNodeAccuracyMap = new HashMap<String, String>();
+		Map<String, String> validationNodeAccuracyMap = new HashMap<String, String>();
 		try {
 			recordNetworkTarget();
 			ArrayList<DataMatch> tempMatching = new ArrayList<DataMatch>();
@@ -447,54 +447,66 @@ public class ModelReader
 			}
 			//Convert dataMatch array
 			DataMatch[] matches = tempMatching.toArray(new DataMatch[tempMatching.size()]);
-			EM em = new EM();
+			/*EM em = new EM();
 			em.setEqSampleSize(dataSet.getRecordCount());
 			em.setRandomizeParameters(false);
 			em.setUniformizeParameters(true);
-
-			Validator validator = new Validator(network, dataSet, matches);
+			*/
+			//Validator validator = new Validator(network, dataSet, matches);
 			int[] nodes = network.getAllNodes();
 			for (int i = 0; i < nodes.length; i++) {
 				int node = nodes[i];
 				String nodeID = network.getNodeId(node);
+				Validator validator = new Validator(network, dataSet, matches);
 				validator.addClassNode(nodeID);
-			}
-			validator.kFold(em, foldNum);  //10 is K-foldCount
-			int totalCorrectCaseNum = 0;
-			int totalRecordNum = 0;
-			for (int i = 0; i < nodes.length; i++) {
-				int node = nodes[i];
-				String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
+				EM em = new EM();
+				//em.setEqSampleSize(dataSet.getRecordCount());
+				//em.setEqSampleSize(347);
+				em.setEqSampleSize(1);
+				//em.setEqSampleSize(0);
+				em.setRandomizeParameters(false);
+				//em.setSeed(2);
+				em.setUniformizeParameters(true);
 
-				String nodeID = network.getNodeId(node);
+				validator.kFold(em, foldNum, foldingRandSeed);  //10 is K-foldCount
+
+				int totalCorrectCaseNum = 0;
+				int totalRecord = dataSet.getRecordCount();
+				String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
 
 				for (int j = 0; j < outcomeIDs.length; j++) {
 					double accuracy = validator.getAccuracy(nodeID, outcomeIDs[j]);
-					if (Math.abs(accuracy - 1.0) <= 0.00001) {
-						Map<String, Integer> stateCountMap = dataSetStateMap.get(nodeID);
+					//Logger.info("internalValidation for nodeId="+ nodeID +
+					//		", state=" + outcomeIDs[j]+", accuracy="+accuracy);
+
+					Map<String, Integer> stateCountMap = dataSetStateMap.get(nodeID);
+					if(stateCountMap.get(outcomeIDs[j]) != null && !Double.isNaN(accuracy)) {
 						int stateCount = stateCountMap.get(outcomeIDs[j]);
-						totalCorrectCaseNum += stateCount;
-						int totalRecord = dataSet.getRecordCount();
-						totalRecordNum += totalRecord;
-						double nodeAccuracy = (double) stateCount / (double) totalRecord;
-						DecimalFormat numberFormat = new DecimalFormat("0.00");
-						String nodeAccuracyFormat = numberFormat.format(nodeAccuracy).toString();
-						crossValidationNodeAccuracyMap.put(nodeID, nodeAccuracyFormat);
+						//Logger.info("stateCount=" + stateCount);
+						totalCorrectCaseNum += accuracy * stateCount;
+					}
+					if( i == 1) {
+						//Logger.info("totalCorrectCaseNum for state=" + outcomeIDs[j] + " is " + totalCorrectCaseNum);
 					}
 				}
-			}
-
-			if (totalRecordNum != 0) {
-				double allNodeAccuracy = (double) totalCorrectCaseNum / (double) totalRecordNum;
+				double nodeAccuracy = (double)totalCorrectCaseNum / (double)totalRecord;
+				//Logger.info("nodeAccuracy=" + nodeAccuracy );
 				DecimalFormat numberFormat = new DecimalFormat("0.00");
-				String allNodeAccuracyFormat = numberFormat.format(allNodeAccuracy).toString();
-				crossValidationNodeAccuracyMap.put("total", allNodeAccuracyFormat);
+				String nodeAccuracyFormat = numberFormat.format(nodeAccuracy).toString();
+				validationNodeAccuracyMap.put(nodeID, nodeAccuracyFormat);
+				DataSet resultDataSet = validator.getResultDataSet();
+				if( i == 1 && totalRecord == 25 ) {
+					File tmpFile = new File("/tmp/validationResultDataSet");
+					if( !tmpFile.exists() ) {
+						tmpFile.createNewFile();
+					}
+					resultDataSet.writeFile(tmpFile.getAbsolutePath());
+				}
 			}
-
 		} catch (Exception ex) {
 			Logger.info("cross validation matches exception is " + ex.toString());
 		}
-		return crossValidationNodeAccuracyMap;
+		return validationNodeAccuracyMap;
 	}
 
 	public boolean isAllUpperCase( String nodeName) {
@@ -505,6 +517,7 @@ public class ModelReader
 		}
 		return true;
 	}
+
 	public String setEvidence(String nodeID, String outcomeID)
 	{
 		//loadModel(modelName);
