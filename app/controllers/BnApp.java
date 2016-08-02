@@ -174,6 +174,7 @@ public class BnApp extends Controller {
 			String rawDataFileName = networkFile.rawDataFile.fileName + "." +
 					networkFile.rawDataFile.fileType;
 			networkFileMap.put("rawDataFileName", rawDataFileName);
+			networkFileMap.put("rawDataIsPublic", networkFile.rawDataFile.isPublic);
 		} else {
 			networkFileMap.put("rawDataFileName", "");
 		}
@@ -291,6 +292,7 @@ public class BnApp extends Controller {
 	private static ModelReader getDataSetAndStateMap( ModelReader modelReader,
 													  RawDataFile rawDataFile,
 													  boolean isExternalDataSet ) {
+
 		try {
 			File tmpFile = new File("/tmp/" +
 					rawDataFile.fileName + "." + rawDataFile.fileType);
@@ -311,21 +313,14 @@ public class BnApp extends Controller {
 			Map<String, Map<String, Integer>> dataSetStateMap = new HashMap<String, Map<String, Integer>>();
 			for (int i = 0; i < dataSet.getVariableCount(); i++) {
 				String nodeId = dataSet.getVariableId(i);
-				//Logger.info("stateCountMap: nodeId=" + nodeId);
 				String[] stateNameArray = dataSet.getStateNames(i);
-				/*if( i == 1 ) {
-					Logger.info("stateNameArray:");
-					for( int m = 0; m<stateNameArray.length; m++ ) {
-						Logger.info(stateNameArray[m]);
-					}
-				}*/
 				Map<String, Integer> stateCountMap = new HashMap<String, Integer>();
+
 				for (int j = 0; j < dataSet.getRecordCount(); j++) {
 					int stateSeqNum = dataSet.getInt(i, j);
-					/*if( i == 1 && stateSeqNum == 4) {
-						Logger.info("state6 seqNum=" + stateSeqNum + " and label=" + stateNameArray[stateSeqNum] + " for i=" +i + " and j=" +j);
-					}*/
-					String stateLabel = stateNameArray[stateSeqNum];
+					//String stateLabel = stateNameArray[stateSeqNum]; // that's wrong for incomplete state in test file
+					String stateLabel = "State" + stateSeqNum;
+
 					if (stateCountMap.containsKey(stateLabel)) {
 						int count = stateCountMap.get(stateLabel);
 						stateCountMap.put(stateLabel, ++count);
@@ -372,6 +367,7 @@ public class BnApp extends Controller {
 		networkFile = NetworkFile.findByFileNameAndType(
 				fileName, fileType);
 
+		//Logger.info("testRawData model fileName=" + fileName + "modelFile id=" + networkFile.id);
 		if( networkFile != null ) {
 			modelReader.readModelFromFileContent(modelFileName,
 				networkFile.fileContent, algorithm);
@@ -379,7 +375,7 @@ public class BnApp extends Controller {
 			Cache.set("network", network);
 			//handle raw data
 			RawDataFile oriRawDataFile = RawDataFile.findByNetworkFile(networkFile);
-
+			//Logger.info("uploadTestRawData...oriRawDataFile...");
 			if (oriRawDataFile != null) {
 				modelReader = getDataSetAndStateMap( modelReader, oriRawDataFile, false);
 			}
@@ -420,113 +416,9 @@ public class BnApp extends Controller {
 
 		Cache.set("testRawDataFileObj", rawDataFileTest);
 
+		//Logger.info("start for test raw data ...");
 		modelReader = getDataSetAndStateMap( modelReader, rawDataFileTest, true);
-		/*
-		DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss"); //year month day hour minute second
-		Date date = new Date();
-		try {
-			File tmpFile = new File("/tmp/" +
-					dataFileName + "_" + dateFormat.format(date) + "_" + session("user") + "." + dataFileType);
-			if( tmpFile.exists() ) {
-				tmpFile.delete();
-			}
-			tmpFile.createNewFile();
 
-			PrintWriter writer = new PrintWriter(tmpFile);
-			writer.print(dataFileContent);
-			writer.close();
-
-			DataSet dataSetExternal = new DataSet();
-			dataSetExternal.readFile(tmpFile.getAbsolutePath());
-			tmpFile.delete();
-
-
-			//get dataSetStateMap
-			Map<String, Map<String, Integer>> dataSetStateMap = new HashMap<String, Map<String, Integer>>();
-			for( int i=0; i < dataSet.getVariableCount(); i++ ) {
-				String nodeId = dataSet.getVariableId(i);
-				String[] stateNameArray = dataSet.getStateNames(i);
-				//Logger.info("stateCountMap: nodeId=" + nodeId);
-				Map<String, Integer> stateCountMap = new HashMap<String, Integer>();
-				for( int j=0; j < dataSet.getRecordCount() ; j++ ) {
-					int stateSeqNum = dataSet.getInt(i, j);
-					String stateLabel = stateNameArray[stateSeqNum];
-					if( stateCountMap.containsKey(stateLabel) ) {
-						int count = stateCountMap.get(stateLabel);
-						stateCountMap.put( stateLabel, ++count);
-					} else {
-						stateCountMap.put( stateLabel, 1);
-					}
-				}
-				dataSetStateMap.put(nodeId, stateCountMap);
-			}
-
-			modelReader.setDataSetExternal(dataSetExternal);
-			Logger.info("uploadTestRawData: setDataSetExternal.");
-			//modelReader.setDataSetStateMap(dataSetStateMap);
-			Cache.set("dataSetExternal", dataSetExternal);
-		} catch ( Exception ex ) {
-			Logger.error("loadModel:" + ex.toString());
-			return badRequest("Raw data format problem: " + ex.toString());
-		}
-		*/
-
-
-		/*
-		//handle original raw data
-		RawDataFile rawDataFile = RawDataFile.findByNetworkFile(networkFile);
-
-		if( rawDataFile != null ) {
-			try {
-				File tmpFile = new File("/tmp/" +
-						rawDataFile.fileName + "." + rawDataFile.fileType);
-				if( tmpFile.exists() ) {
-					Logger.info("tmpFile exist.");
-					tmpFile.delete();
-				}
-				tmpFile.createNewFile();
-
-
-				PrintWriter writer = new PrintWriter(tmpFile);
-				writer.print(rawDataFile.fileContent);
-				writer.close();
-
-				DataSet dataSet = new DataSet();
-				dataSet.readFile(tmpFile.getAbsolutePath());
-
-				Map<String, Map<String, Integer>> dataSetStateMap = new HashMap<String, Map<String, Integer>>();
-				for( int i=0; i < dataSet.getVariableCount(); i++ ) {
-					String nodeId = dataSet.getVariableId(i);
-					//Logger.info("stateCountMap: nodeId=" + nodeId);
-					String[] stateNameArray = dataSet.getStateNames(i);
-
-					Map<String, Integer> stateCountMap = new HashMap<String, Integer>();
-					for( int j=0; j < dataSet.getRecordCount() ; j++ ) {
-						int stateSeqNum = dataSet.getInt(i, j);
-						String stateLabel = stateNameArray[stateSeqNum];
-						if (stateCountMap.containsKey(stateLabel)) {
-							int count = stateCountMap.get(stateLabel);
-							stateCountMap.put(stateLabel, ++count);
-						} else {
-							stateCountMap.put(stateLabel, 1);
-						}
-					}
-					dataSetStateMap.put(nodeId, stateCountMap);
-				}
-
-				modelReader.setDataSet(dataSet);
-
-				modelReader.setDataSetStateMap(dataSetStateMap);
-				Cache.set("dataSet", dataSet);
-
-				tmpFile.delete();
-
-			} catch ( Exception ex ) {
-				Logger.error("loadModel:" + ex.toString());
-				return badRequest("Raw data format problem: " + ex.toString());
-			}
-		}
-		*/
 		String modelStr = modelReader.readModelFromFileContent(
 				modelFileName, networkFile.fileContent, algorithm );
 
@@ -612,6 +504,7 @@ public class BnApp extends Controller {
 
 		NetworkFile networkFile;
 
+		Logger.info("updateModelFile=" + updateModelFile);
 		if( updateModelFile ) {
 			FilePart modelUpload = filePartList.get(0);
 
@@ -622,6 +515,7 @@ public class BnApp extends Controller {
 			//Logger.info("uploadModel: fullFileName=" + fullFileName);
 			String fileName = parseFullFileName[0];
 			String fileType = parseFullFileName[1];
+
 			User user = User.findByUserName(session("user"));
 
 			if( user == null ) {
@@ -637,8 +531,10 @@ public class BnApp extends Controller {
 
 			networkFile = NetworkFile.findByFileNameAndType(
 					fileName, fileType);
+
 			if (networkFile != null) {
 				if (updateModelFile) {
+					long id = networkFile.id;
 					List<User> sharedUsers = networkFile.modelSharedUsers;
 
 					if (!isModelPublic && modelSharedByArray != null &&
@@ -657,7 +553,7 @@ public class BnApp extends Controller {
 					networkFile.fileContent = fileContent;
 					networkFile.annotation = annotation;
 					networkFile.isPublic = isModelPublic;
-					networkFile.update();
+					networkFile.update(id);
 
 					//logging
 					logAdvice(networkFile, "update");
@@ -696,6 +592,7 @@ public class BnApp extends Controller {
 					fileName, fileType);
 
 			if( networkFile != null ) {
+				long id = networkFile.id;
 				List<User> sharedUsers = networkFile.modelSharedUsers;
 
 				if (!isModelPublic && modelSharedByArray != null &&
@@ -713,7 +610,7 @@ public class BnApp extends Controller {
 				networkFile.modelSharedUsers = sharedUsers;
 				networkFile.isPublic = isModelPublic;
 				networkFile.annotation = annotation;
-				networkFile.update();
+				networkFile.update(id);
 				flash("success", "The file has been updated successfully.");
 			}
 
@@ -723,6 +620,7 @@ public class BnApp extends Controller {
 		}
 
 		if( updateDataFile ) {
+			Logger.info("update Raw data here.");
 			FilePart dataUpload = null ;
 			if( filePartList.size() == 2 ) {
 				dataUpload = filePartList.get(1);
@@ -755,6 +653,7 @@ public class BnApp extends Controller {
 			RawDataFile rawDataFile = RawDataFile.findByNetworkFile(networkFile);
 
 			if( rawDataFile != null ) {
+				long id = rawDataFile.id;
 				List<User> sharedUsers = rawDataFile.rawDataSharedUsers;
 				if( !isRawDataPublic && rawDataSharedByArray != null &&
 						!rawDataSharedByArray.equals("null")) {
@@ -775,7 +674,8 @@ public class BnApp extends Controller {
 				rawDataFile.fileContent = dataFileContent;
 				rawDataFile.isPublic = isRawDataPublic;
 
-				rawDataFile.update();
+				rawDataFile.update(id);
+				Logger.info("rawDataFile has been updated.");
 				flash("success", "The files have been updated successfully.");
 			} else {
 				List<User> sharedUsers = new ArrayList<User>();
@@ -799,6 +699,7 @@ public class BnApp extends Controller {
 		} else {
 			RawDataFile rawDataFile = RawDataFile.findByNetworkFile(networkFile);
 			if( rawDataFile != null) {
+				long id = rawDataFile.id;
 				List<User> sharedUsers = new ArrayList<User>();
 
 				if( !isRawDataPublic && rawDataSharedByArray != null &&
@@ -813,7 +714,7 @@ public class BnApp extends Controller {
 				}
 				rawDataFile.rawDataSharedUsers = sharedUsers;
 				rawDataFile.isPublic = isRawDataPublic;
-				rawDataFile.update();
+				rawDataFile.update(id);
 				flash("success", "The files have been updated successfully.");
 			}
 		}
@@ -872,7 +773,8 @@ public class BnApp extends Controller {
 		em.setRandomizeParameters(false);  //default is true, it will randomize the CPTs of the nodes before learning
 		em.setUniformizeParameters(true); //default is false
 
-		em.setEqSampleSize(dataSetNew.getRecordCount());
+		//em.setEqSampleSize(dataSetNew.getRecordCount());
+		em.setEqSampleSize(1);
 		em.learn(dataSetNew, networkNew, matches);
 
 

@@ -194,6 +194,7 @@ function updateModel() {
         if( data.isPublic ) {
             updateDivContent += '<p class="isPublic">' +
                     'The model file is public.</p>';
+            $('#isUpdateModelPublic').prop('checked', true);
         } else if( data.sharedWith != null && data.sharedWith != "") {
             updateDivContent += '<p class="sharedWith">' +
                     'Shared with:&nbsp;' + data.sharedWith + '</p>';
@@ -205,6 +206,9 @@ function updateModel() {
         if( data.rawDataFileName != null &&  data.rawDataFileName != "") {
             updateDivContent += '<p class="rawDataFileName">' +
                     'Raw data file name:&nbsp;' + data.rawDataFileName + '</p>';
+            if( data.rawDataIsPublic ) {
+                $('#isUpdateRawDataPublic').prop('checked', true);
+            }
         }
 
         $('#fileStatusDiv').html(updateDivContent);
@@ -614,6 +618,7 @@ function getModelUpload() {
         if( modelFileNameArray[1] != "xdsl") {
 	        alertBoxShow(
 	            "The model file extension is not  '.xdsl'. \nPlease choose a correct file.");
+	        upload = false;
 	    } else {
 	        upload = true;
 	    }
@@ -629,8 +634,7 @@ function getModelUpload() {
 	    var dataFileNameArray = dataFileName.split(".");
         if( dataFileNameArray[1] != "csv") {
 	        alertBoxShow("The data file extension is not  '.csv'. \nPlease choose a correct file. ");
-	    } else {
-	        upload = true;
+	        upload = false;
 	    }
 	}
 
@@ -748,10 +752,10 @@ function getModelUpload() {
 
 function getModelUpdate() {
 	var formData = new FormData();
-	var upload = false;
-	var modelFile = null;
+	//var upload = false;
+	var modelFile = $('#updateModelFile')[0].files[0];
 	var dataFile = $('#updateDataFile')[0].files[0];
-
+    var modelFileName = $('#load').val();
 	var updateModelFile = false;
 	var updateDataFile = false;
 	var isModelPublic = $('#isUpdateModelPublic').is(":checked");
@@ -759,6 +763,24 @@ function getModelUpdate() {
 	var isSameSharedBy = $('#isUpdateSameSharedBy').is(":checked");
 	var modelSharedByArray = $('#updateModelSharedBy').val();
     var annotation = $('#annotationUpdate').val();
+    if( modelFile != null ) {
+	    var uploadedModelFileName = modelFile.name;
+	    if( modelFileName != uploadedModelFileName ) {
+            alertBoxShow(
+                "The updated model file name is not the same as original name. " +
+                "\nPlease choose a correct file.");
+        }
+        formData.append('modelFile', modelFile);
+        updateModelFile = true;
+	    /*
+	    var modelFileNameArray = modelFileName.split(".");
+        if( modelFileNameArray[1] != "xdsl") {
+	        alertBoxShow(
+	            "The model file extension is not  '.xdsl'. \nPlease choose a correct file.");
+	    } else {
+	        upload = true;
+	    }*/
+	}
 
 	if( !isModelPublic && modelSharedByArray != null ) {
 	    modelSharedByArray = modelSharedByArray.toString();
@@ -779,8 +801,6 @@ function getModelUpdate() {
 	} else {
 	    rawDataSharedByArray = null;
 	}
-
-    var modelFileName = $('#load').val();
 
 	if( dataFile ) {
 	    formData.append('dataFile', dataFile);

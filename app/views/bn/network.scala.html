@@ -275,17 +275,17 @@
             <p class="rawDataFileName"></p>
 			**@
         </div>
-        <br>
+        @** <br> **@
         <form enctype="multipart/form-data" id="updateModelForm" >
 		<p style="font-size:20px"><strong>Upload the updated information:</strong></p>
 		<ol type="1">
 			<li>
 				<p>Model file: </p>
-				@**
+
 				<div id="updateModelFileDiv" style="display:inline">
 					<input id="updateModelFile" name="updateModelFile" type="file">
 				</div>
-				<br>**@
+				<br>
 
 				Public:&nbsp;<input id="isUpdateModelPublic" name="isUpdateModelPublic" type="checkbox">
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR
@@ -301,7 +301,7 @@
 				<label class="annotationLabel" for="annotation">Model annotation:&nbsp;</label>
 				<textarea id="annotationUpdate" rows="3" cols="100"></textarea>
 			</li>
-			<br>
+			@** <br> **@
 			<li>
 				<p class="rawDataFile">Raw data file: </p>
 				<input id="updateDataFile" name="dataFile" type="file"  /><br>

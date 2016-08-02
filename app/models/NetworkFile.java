@@ -21,7 +21,7 @@ import java.sql.Connection;
 
 @Entity
 @Table(name="network_file", uniqueConstraints={
-        @UniqueConstraint(columnNames = {"file_type", "file_name"})
+        @UniqueConstraint(columnNames = {"file_type", "file_name", "is_active"})
 })
 @JsonIgnoreProperties({"user","fileContent", "modelSharedUsers", "rawDataFile"})
 public class NetworkFile extends Model {

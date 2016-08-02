@@ -173,16 +173,17 @@ public class ModelReader
 					//get name of current column in the data set
 					String curNodeId = dataSetExternal.getVariableId(col);
 					String[] curNodeStateNameArray = dataSetExternal.getStateNames(col);
+
 					int totalCorrectPredictiveCase = 0;
+
 					for( int row=0; row < dataSetExternal.getRecordCount() ; row++ ) {
 						network.clearAllEvidence();
 						int realStateSeqNum = dataSetExternal.getInt(col, row);
 						for (int i = 0; i < dataSetExternal.getVariableCount(); i++) {
 							if( i != col ) {
 								int stateSeqNum = dataSetExternal.getInt( i, row);
-								String[] stateNameArray = dataSetExternal.getStateNames(i);
-								network.setEvidence(dataSetExternal.getVariableId(i),
-										stateNameArray[stateSeqNum]);
+								String stateLabel = "State" + stateSeqNum;
+								network.setEvidence(dataSetExternal.getVariableId(i), stateLabel);
 							}
 						}
 						recordNetworkTarget();
@@ -202,7 +203,8 @@ public class ModelReader
 										maxIndex = count;
 									}
 								}
-								if( realStateSeqNum == maxIndex ) {
+								String maxStateLabel = "State" + maxIndex;
+								if( curNodeStateNameArray[realStateSeqNum].equals(maxStateLabel) ) {
 									totalCorrectPredictiveCase++;
 								}
 							}
@@ -485,9 +487,9 @@ public class ModelReader
 						//Logger.info("stateCount=" + stateCount);
 						totalCorrectCaseNum += accuracy * stateCount;
 					}
-					if( i == 1) {
-						//Logger.info("totalCorrectCaseNum for state=" + outcomeIDs[j] + " is " + totalCorrectCaseNum);
-					}
+					/*if( i == 1) {
+						Logger.info("totalCorrectCaseNum for state=" + outcomeIDs[j] + " is " + totalCorrectCaseNum);
+					}*/
 				}
 				double nodeAccuracy = (double)totalCorrectCaseNum / (double)totalRecord;
 				//Logger.info("nodeAccuracy=" + nodeAccuracy );
@@ -495,8 +497,8 @@ public class ModelReader
 				String nodeAccuracyFormat = numberFormat.format(nodeAccuracy).toString();
 				validationNodeAccuracyMap.put(nodeID, nodeAccuracyFormat);
 				DataSet resultDataSet = validator.getResultDataSet();
-				if( i == 1 && totalRecord == 25 ) {
-					File tmpFile = new File("/tmp/validationResultDataSet");
+				if( i == 1 && totalRecord == 103 ) {
+					File tmpFile = new File("/tmp/validationResultDataSetNewTest");
 					if( !tmpFile.exists() ) {
 						tmpFile.createNewFile();
 					}

@@ -23,7 +23,7 @@ create table network_file (
   is_public                 tinyint(1) default 0,
   is_active                 tinyint(1) default 0,
   update_time               TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  constraint uq_network_file_1 unique (file_type,file_name),
+  constraint uq_network_file_1 unique (file_type,file_name,is_active),
   constraint pk_network_file primary key (id))
 ;
 
