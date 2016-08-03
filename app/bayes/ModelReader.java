@@ -482,14 +482,16 @@ public class ModelReader
 					//		", state=" + outcomeIDs[j]+", accuracy="+accuracy);
 
 					Map<String, Integer> stateCountMap = dataSetStateMap.get(nodeID);
-					if(stateCountMap.get(outcomeIDs[j]) != null && !Double.isNaN(accuracy)) {
-						int stateCount = stateCountMap.get(outcomeIDs[j]);
-						//Logger.info("stateCount=" + stateCount);
+					String outcomeIdLabel = outcomeIDs[j];
+					if( !outcomeIdLabel.startsWith("State") && outcomeIdLabel.startsWith("x") ) {
+						 outcomeIdLabel = "State" + outcomeIDs[j].substring(1);
+					}
+
+					if(stateCountMap.get(outcomeIdLabel) != null && !Double.isNaN(accuracy)) {
+						int stateCount = stateCountMap.get(outcomeIdLabel);
 						totalCorrectCaseNum += accuracy * stateCount;
 					}
-					/*if( i == 1) {
-						Logger.info("totalCorrectCaseNum for state=" + outcomeIDs[j] + " is " + totalCorrectCaseNum);
-					}*/
+
 				}
 				double nodeAccuracy = (double)totalCorrectCaseNum / (double)totalRecord;
 				//Logger.info("nodeAccuracy=" + nodeAccuracy );
