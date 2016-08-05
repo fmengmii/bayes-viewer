@@ -104,11 +104,14 @@ function networkLoadModel(model) {
         $('#showAlgorithmChangeDiv').show();
     }
 
-    drawLegend(model.allNodeAcc, model.allNodeAccInternal,
+    drawLegend(model.originalNodeAcc, model.testNodeAcc);
+    /*drawLegend(model.allNodeAcc, model.allNodeAccInternal,
             model.allNodeAccExternal);
+    */
 }
 
-function drawLegend(allNodeAcc, allNodeAccInternal, allNodeAccExternal) {
+//function drawLegend(allNodeAcc, allNodeAccInternal, allNodeAccExternal) {
+function drawLegend(originalNodeAcc, testNodeAcc) {
     if( $("#network svg").length ) {
         d3.select("svg").remove();
     }
@@ -137,27 +140,41 @@ function drawLegend(allNodeAcc, allNodeAccInternal, allNodeAccExternal) {
                 {"x":40, "y":yValue+80, "color":"#dd99ff", "value":"Query Node",
                     "fontSize":"12px", "fontWeight":""}];
 
-    if(allNodeAcc && allNodeAccInternal && allNodeAccExternal) {
+    //if(allNodeAcc && allNodeAccInternal && allNodeAccExternal) {
+    if( originalNodeAcc && testNodeAcc ) {
         data.push({"x":40,"y":iniY, "color":"white",
-                        "value":"10-fold Cross Validation Accuracy for the Model Raw Data",
+                        "value":"Internal 10-fold Cross Validation Accuracy for the Original Raw Data",
                         "fontSize":"12px", "fontWeight":""},
-                  {"x":14, "y":iniY, "color":"white", "value":"O:", "fontSize":"14px", "fontWeight":"bold"},
+                  {"x":12, "y":iniY, "color":"white", "value":"IO:", "fontSize":"14px", "fontWeight":"bold"},
+
                   {"x":40,"y":iniY+20, "color":"white",
-                        "value":"10-fold Cross Validation Accuracy for the Test Data",
+                        "value":"External Validation Accuracy for the Original Raw Data",
                         "fontSize":"12px", "fontWeight":""},
-                  {"x":17, "y":iniY+20, "color":"white", "value":"I:", "fontSize":"14px", "fontWeight":"bold"},
+                  {"x":10, "y":iniY+20, "color":"white", "value":"EO:", "fontSize":"14px", "fontWeight":"bold"},
+
                   {"x":40,"y":iniY+40, "color":"white",
-                        "value":"External Validation Accuracy for the Test Data",
+                        "value":"Internal 10-fold Cross Validation Accuracy for the Testing Data",
                         "fontSize":"12px", "fontWeight":""},
-                  {"x":14, "y":iniY+40, "color":"white", "value":"E:", "fontSize":"14px", "fontWeight":"bold"});
+                  {"x":12, "y":iniY+40, "color":"white", "value":"IT:", "fontSize":"14px", "fontWeight":"bold"},
+
+                  {"x":40,"y":iniY+60, "color":"white",
+                        "value":"External Validation Accuracy for the Testing Data",
+                        "fontSize":"12px", "fontWeight":""},
+                  {"x":10, "y":iniY+60, "color":"white", "value":"ET:", "fontSize":"14px", "fontWeight":"bold"});
                  // "value":"10-fold Cross Validation Accuracy for the Raw Data, the Total="+allNodeAcc,
                  // "value":"10-fold Cross Validation Accuracy for the Test Data, the Total="+allNodeAccInternal
                  //"value":"External Validation Accuracy for the Test Data, the Total="+allNodeAccExternal,
-    } else if(allNodeAcc) {
+    //} else if(allNodeAcc) {
+    } else if(originalNodeAcc) {
         data.push({"x":40,"y":iniY, "color":"white",
-                        "value":"10-fold Cross Validation Accuracy for the Model Raw Data",
+                        "value":"Internal 10-fold Cross Validation Accuracy for the Original Raw Data",
                         "fontSize":"12px", "fontWeight":""},
-                  {"x":14, "y":iniY, "color":"white", "value":"O:", "fontSize":"14px", "fontWeight":"bold"});
+                  {"x":12, "y":iniY, "color":"white", "value":"IO:", "fontSize":"14px", "fontWeight":"bold"},
+
+                  {"x":40,"y":iniY+20, "color":"white",
+                        "value":"External Validation Accuracy for the Original Raw Data",
+                        "fontSize":"12px", "fontWeight":""},
+                  {"x":10, "y":iniY+20, "color":"white", "value":"EO:", "fontSize":"14px", "fontWeight":"bold"});
     }
 
     var g = svg.selectAll("g").data(data).enter().append("g");

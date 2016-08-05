@@ -306,7 +306,7 @@ html, body{
     font-family:Segoe UI, Segoe UI Semilight;
     /*font-family:'Brush Script MT',Phyllis,'Lucida Handwriting',cursive;*/
     /*text-decoration:underline;*/
-    color:#d9d9d9;
+    color:#404040;/*#d9d9d9;*/
     cursor: none;
 }
 
@@ -330,13 +330,13 @@ html, body{
 
 .activeButton:hover{
     color:#d9d9d9; /*#ffffff;*/
-    font-size: 27px;
+    font-size: 24px;
     text-decoration:none;
 }
 
 .activeButton.selected{
     color:#ffffff;
-    font-size: 27px;
+    font-size: 24px;
     text-decoration:none;
 }
 

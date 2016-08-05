@@ -18,7 +18,6 @@ public class ModelReader
 	private Network network;
 	private DataSet dataSet;
 	private DataSet dataSetExternal;
-	//private DataSet dataSetInternal;
 	private int foldNum = 10;
 	private int foldingRandSeed = 2;
 	private Map<Integer, double[]> networkLastMap = new HashMap();
@@ -27,9 +26,9 @@ public class ModelReader
 	private Map<String, Map<String, Integer>> dataSetStateMap = new HashMap();
 	private Map<String, Map<String, Integer>> dataSetExternalStateMap = new HashMap();
 
-	private Map<String, String> nodeAccuracyMap = new HashMap<String, String>();
-	private Map<String, String> internalValidationNodeAccuracyMap = new HashMap<String, String>();
-	private Map<String, String> externalValidationNodeAccuracyMap = new HashMap<String, String>();
+	private Map<String, String> originalNodeAccuracyMap = new HashMap<String, String>();
+	private Map<String, String> testNodeAccuracyMap = new HashMap<String, String>();
+
 	private Gson gson;
 	private String modelPath;
 
@@ -75,7 +74,6 @@ public class ModelReader
 
 	public void setModelPath(String path) {this.modelPath = path;}
 
-	
 	public String read(String modelPath)
 	{
 		loadModel(modelPath);
@@ -159,68 +157,12 @@ public class ModelReader
 		StringBuilder strBlder = new StringBuilder("[");
 
 		if( dataSet != null ) {
-			nodeAccuracyMap = getValidationMap( dataSet, dataSetStateMap );
+			originalNodeAccuracyMap = getValidationMap( dataSet, dataSetStateMap );
 		}
 
 		if( dataSetExternal != null) {
-			internalValidationNodeAccuracyMap = getValidationMap(
+			testNodeAccuracyMap = getValidationMap(
 					dataSetExternal, dataSetExternalStateMap );
-			try{
-				int numDataSetColumn = dataSetExternal.getVariableCount();
-				double allNodeAccuracy = 0;
-				int numNodes = network.getNodeCount();
-				for(int col = 0; col < numDataSetColumn; col++) {
-					//get name of current column in the data set
-					String curNodeId = dataSetExternal.getVariableId(col);
-					String[] curNodeStateNameArray = dataSetExternal.getStateNames(col);
-
-					int totalCorrectPredictiveCase = 0;
-
-					for( int row=0; row < dataSetExternal.getRecordCount() ; row++ ) {
-						network.clearAllEvidence();
-						int realStateSeqNum = dataSetExternal.getInt(col, row);
-						for (int i = 0; i < dataSetExternal.getVariableCount(); i++) {
-							if( i != col ) {
-								int stateSeqNum = dataSetExternal.getInt( i, row);
-								String stateLabel = "State" + stateSeqNum;
-								network.setEvidence(dataSetExternal.getVariableId(i), stateLabel);
-							}
-						}
-						recordNetworkTarget();
-						network.updateBeliefs();
-						recoverNetworkTarget();
-						int[] nodes = network.getAllNodes();
-						for (int i=0; i<nodes.length; i++) {
-							int node = nodes[i];
-							String nodeID = network.getNodeId(node);
-							if( nodeID.equals(curNodeId) ) {
-								double[] values = network.getNodeValue(nodes[i]);
-								double max = values[0];
-								int maxIndex = 0;
-								for( int count = 1; count < values.length; count++ ) {
-									if( values[count] > max ) {
-										max = values[count];
-										maxIndex = count;
-									}
-								}
-								String maxStateLabel = "State" + maxIndex;
-								if( curNodeStateNameArray[realStateSeqNum].equals(maxStateLabel) ) {
-									totalCorrectPredictiveCase++;
-								}
-							}
-						}
-					}
-					double nodeAcc = (double) totalCorrectPredictiveCase / dataSetExternal.getRecordCount();
-					String externalValidationProb = formatter.format(nodeAcc);
-					externalValidationNodeAccuracyMap.put(curNodeId, externalValidationProb);
-				}
-				double totalExternalValidation = allNodeAccuracy / numNodes;
-				String totalExternalValidationProb =  formatter.format(totalExternalValidation);
-				externalValidationNodeAccuracyMap.put("total", totalExternalValidationProb);
-				network.clearAllEvidence();
-			} catch(Exception ex ){
-				Logger.error("external validation exception=" + ex.toString());
-			}
 		}
 
 		try {
@@ -232,31 +174,25 @@ public class ModelReader
 			List<int[]> edgeList = new ArrayList<int[]>();
 			boolean accuracyExist = false;
 
-			if( nodeAccuracyMap.size() > 0 ) {
-				strBlder.append("{\"allNodeAcc\":\"" + nodeAccuracyMap.get("total") + "\"");
+			if( originalNodeAccuracyMap.size() > 0 ) {
+				strBlder.append("{\"originalNodeAcc\":\"true\"");
 				accuracyExist = true;
 			}
-			if( internalValidationNodeAccuracyMap.size() > 0 ) {
-				if( nodeAccuracyMap.size() > 0 ) {
+
+			if( testNodeAccuracyMap.size() > 0 ) {
+				if( originalNodeAccuracyMap.size() > 0 ) {
 					strBlder.append(",");
 				} else {
 					strBlder.append("{");
 				}
-				strBlder.append("\"allNodeAccInternal\":\"" + externalValidationNodeAccuracyMap.get("total") + "\"");
+				strBlder.append("\"testNodeAcc\":\"true\"");
 				accuracyExist = true;
 			}
-			if( externalValidationNodeAccuracyMap.size() > 0 ) {
-				if( nodeAccuracyMap.size() > 0  || internalValidationNodeAccuracyMap.size() > 0 ) {
-					strBlder.append(",");
-				} else {
-					strBlder.append("{");
-				}
-				strBlder.append("\"allNodeAccExternal\":\"" + externalValidationNodeAccuracyMap.get("total") + "\"");
-				accuracyExist = true;
-			}
+
 			if(accuracyExist) {
 				strBlder.append(",\"nodes\":[");
-			} else {
+			}
+			else {
 				strBlder.append("{\"nodes\":[");
 			}
 
@@ -283,28 +219,20 @@ public class ModelReader
 						"\"name\":\"" + nodeName + "\"," );
 
 				strBlder.append("\"nameLabel\":\"" + nodeName );
-				if( nodeAccuracyMap.size() > 0 ||
-						internalValidationNodeAccuracyMap.size() > 0 ||
-						externalValidationNodeAccuracyMap.size() > 0 ) {
-
+				if( originalNodeAccuracyMap.size() > 0 || testNodeAccuracyMap.size() > 0 ) {
 					strBlder.append("(");
-					if( nodeAccuracyMap.size() > 0 ) {
-						strBlder.append("O:" + nodeAccuracyMap.get(nodeID));
-						//Logger.info("O append...");
+					if( originalNodeAccuracyMap.size() > 0 ) {
+						strBlder.append("IO:" + originalNodeAccuracyMap.get("internal" + nodeID));
+						strBlder.append(", ");
+						strBlder.append("EO:" + originalNodeAccuracyMap.get("external" + nodeID));
 					}
-
-					if( internalValidationNodeAccuracyMap.size() > 0 ) {
-						if( nodeAccuracyMap.size() > 0 ) {
+					if( testNodeAccuracyMap.size() > 0 ) {
+						if( originalNodeAccuracyMap.size() > 0 ) {
 							strBlder.append(", ");
 						}
-						strBlder.append("I:" + internalValidationNodeAccuracyMap.get(nodeID));
-					}
-
-					if( externalValidationNodeAccuracyMap.size() > 0 ) {
-						if( nodeAccuracyMap.size() > 0 || internalValidationNodeAccuracyMap.size() > 0 ) {
-							strBlder.append(", ");
-						}
-						strBlder.append("E:" + externalValidationNodeAccuracyMap.get(nodeID));
+						strBlder.append("IT:" + testNodeAccuracyMap.get("internal" + nodeID));
+						strBlder.append(", ");
+						strBlder.append("ET:" + testNodeAccuracyMap.get("external" + nodeID));
 					}
 					strBlder.append(")");
 				}
@@ -429,11 +357,11 @@ public class ModelReader
 												  Map<String, Map<String, Integer>> dataSetStateMap) {
 
 		Map<String, String> validationNodeAccuracyMap = new HashMap<String, String>();
+		int numDataSetColumn = dataSet.getVariableCount();
+		DecimalFormat numberFormat = new DecimalFormat("0.00");
 		try {
 			recordNetworkTarget();
 			ArrayList<DataMatch> tempMatching = new ArrayList<DataMatch>();
-			int numDataSetColumn = dataSet.getVariableCount();
-			int numNodes = network.getNodeCount();
 			for (int col = 0; col < numDataSetColumn; col++) {
 				//get name of current column in the data set
 				String colName = dataSet.getVariableId(col);
@@ -449,12 +377,6 @@ public class ModelReader
 			}
 			//Convert dataMatch array
 			DataMatch[] matches = tempMatching.toArray(new DataMatch[tempMatching.size()]);
-			/*EM em = new EM();
-			em.setEqSampleSize(dataSet.getRecordCount());
-			em.setRandomizeParameters(false);
-			em.setUniformizeParameters(true);
-			*/
-			//Validator validator = new Validator(network, dataSet, matches);
 			int[] nodes = network.getAllNodes();
 			for (int i = 0; i < nodes.length; i++) {
 				int node = nodes[i];
@@ -462,12 +384,8 @@ public class ModelReader
 				Validator validator = new Validator(network, dataSet, matches);
 				validator.addClassNode(nodeID);
 				EM em = new EM();
-				//em.setEqSampleSize(dataSet.getRecordCount());
-				//em.setEqSampleSize(347);
-				em.setEqSampleSize(1);
-				//em.setEqSampleSize(0);
+				em.setEqSampleSize(1);  //same as confidence in GeNIe
 				em.setRandomizeParameters(false);
-				//em.setSeed(2);
 				em.setUniformizeParameters(true);
 
 				validator.kFold(em, foldNum, foldingRandSeed);  //10 is K-foldCount
@@ -478,9 +396,6 @@ public class ModelReader
 
 				for (int j = 0; j < outcomeIDs.length; j++) {
 					double accuracy = validator.getAccuracy(nodeID, outcomeIDs[j]);
-					//Logger.info("internalValidation for nodeId="+ nodeID +
-					//		", state=" + outcomeIDs[j]+", accuracy="+accuracy);
-
 					Map<String, Integer> stateCountMap = dataSetStateMap.get(nodeID);
 					String outcomeIdLabel = outcomeIDs[j];
 					if( !outcomeIdLabel.startsWith("State") && outcomeIdLabel.startsWith("x") ) {
@@ -494,13 +409,14 @@ public class ModelReader
 
 				}
 				double nodeAccuracy = (double)totalCorrectCaseNum / (double)totalRecord;
-				//Logger.info("nodeAccuracy=" + nodeAccuracy );
-				DecimalFormat numberFormat = new DecimalFormat("0.00");
+				//DecimalFormat numberFormat = new DecimalFormat("0.00");
 				String nodeAccuracyFormat = numberFormat.format(nodeAccuracy).toString();
-				validationNodeAccuracyMap.put(nodeID, nodeAccuracyFormat);
+				String internalValidationNodeID = "internal" + nodeID;
+				validationNodeAccuracyMap.put(internalValidationNodeID, nodeAccuracyFormat);
+
 				DataSet resultDataSet = validator.getResultDataSet();
 				if( i == 1 && totalRecord == 103 ) {
-					File tmpFile = new File("/tmp/validationResultDataSetNewTest");
+					File tmpFile = new File("/tmp/validationResultDataSetNewTest_new");
 					if( !tmpFile.exists() ) {
 						tmpFile.createNewFile();
 					}
@@ -510,6 +426,67 @@ public class ModelReader
 		} catch (Exception ex) {
 			Logger.info("cross validation matches exception is " + ex.toString());
 		}
+
+		//The followings are the external validation
+		try{
+			double allNodeAccuracy = 0;
+			int numNodes = network.getNodeCount();
+			for(int col = 0; col < numDataSetColumn; col++) {
+				//get name of current column in the data set
+				String curNodeId = dataSet.getVariableId(col);
+				String[] curNodeStateNameArray = dataSet.getStateNames(col);
+
+				int totalCorrectPredictiveCase = 0;
+
+				for( int row=0; row < dataSet.getRecordCount() ; row++ ) {
+					network.clearAllEvidence();
+					int realStateSeqNum = dataSet.getInt(col, row);
+					for (int i = 0; i < dataSet.getVariableCount(); i++) {
+						if( i != col ) {
+							int stateSeqNum = dataSet.getInt( i, row);
+							String stateLabel = "State" + stateSeqNum;
+							network.setEvidence(dataSet.getVariableId(i), stateLabel);
+						}
+					}
+					recordNetworkTarget();
+					network.updateBeliefs();
+					recoverNetworkTarget();
+					int[] nodes = network.getAllNodes();
+					for (int i=0; i<nodes.length; i++) {
+						int node = nodes[i];
+						String nodeID = network.getNodeId(node);
+						if( nodeID.equals(curNodeId) ) {
+							double[] values = network.getNodeValue(nodes[i]);
+							double max = values[0];
+							int maxIndex = 0;
+							for( int count = 1; count < values.length; count++ ) {
+								if( values[count] > max ) {
+									max = values[count];
+									maxIndex = count;
+								}
+							}
+							String maxStateLabel = "State" + maxIndex;
+							if( curNodeStateNameArray[realStateSeqNum].equals(maxStateLabel) ) {
+								totalCorrectPredictiveCase++;
+							}
+						}
+					}
+				}
+				double nodeAcc = (double) totalCorrectPredictiveCase / dataSet.getRecordCount();
+				String externalValidationProb = numberFormat.format(nodeAcc);
+				String externalValidationNodeId = "external" + curNodeId;
+				validationNodeAccuracyMap.put(externalValidationNodeId, externalValidationProb);
+			}
+			/*
+			double totalExternalValidation = allNodeAccuracy / numNodes;
+			String totalExternalValidationProb =  formatter.format(totalExternalValidation);
+			externalValidationNodeAccuracyMap.put("total", totalExternalValidationProb);
+			*/
+			network.clearAllEvidence();
+		} catch(Exception ex ){
+			Logger.error("external validation exception=" + ex.toString());
+		}
+
 		return validationNodeAccuracyMap;
 	}
 
