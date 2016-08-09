@@ -437,10 +437,15 @@ public class ModelReader
 				String[] curNodeStateNameArray = dataSet.getStateNames(col);
 
 				int totalCorrectPredictiveCase = 0;
-
+				/*if( col == 1) {
+					Logger.info("curNodeId:" + curNodeId);
+				}*/
 				for( int row=0; row < dataSet.getRecordCount() ; row++ ) {
 					network.clearAllEvidence();
 					int realStateSeqNum = dataSet.getInt(col, row);
+					/*if( col == 1 && row < 5) {
+						Logger.info("realStateSeqNum:" + realStateSeqNum);
+					}*/
 					for (int i = 0; i < dataSet.getVariableCount(); i++) {
 						if( i != col ) {
 							int stateSeqNum = dataSet.getInt( i, row);
@@ -458,19 +463,31 @@ public class ModelReader
 						if( nodeID.equals(curNodeId) ) {
 							double[] values = network.getNodeValue(nodes[i]);
 							double max = values[0];
+							/*if( col == 1 && row < 5 ) {
+								Logger.info("values:" + max);
+							}*/
 							int maxIndex = 0;
 							for( int count = 1; count < values.length; count++ ) {
+								/*if( col == 1 && row < 5 ) {
+									Logger.info("values:" + values[count]);
+								}*/
 								if( values[count] > max ) {
 									max = values[count];
 									maxIndex = count;
 								}
 							}
 							String maxStateLabel = "State" + maxIndex;
+							/*if( col == 1 && row < 5 ) {
+								Logger.info("predicted:" + maxStateLabel);
+							}*/
 							if( curNodeStateNameArray[realStateSeqNum].equals(maxStateLabel) ) {
 								totalCorrectPredictiveCase++;
 							}
 						}
 					}
+					/*if( col == 1 && row < 5 ) {
+						Logger.info("\n");
+					}*/
 				}
 				double nodeAcc = (double) totalCorrectPredictiveCase / dataSet.getRecordCount();
 				String externalValidationProb = numberFormat.format(nodeAcc);

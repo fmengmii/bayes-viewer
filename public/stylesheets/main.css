@@ -724,3 +724,7 @@ a:hover, a:active{
 .annotationLabel, .sharedByLabel{
     font-weight: normal;
 }
+
+#queryNodeNameDiv {
+    margin-left: 20px;
+}

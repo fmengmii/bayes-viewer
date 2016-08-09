@@ -54,6 +54,7 @@ function loadModel() {
     $('#updateDiv').hide();
     $('#testModelDiv').hide();
 
+
 	if(modelName == null) {
 	    alertBoxShow("Sorry, there is not an existed network yet.");
 	} else {
@@ -112,7 +113,7 @@ function showUpload() {
     $('#viewLogDiv').hide();
     $('#updateDiv').hide();
     $('#testModelDiv').hide();
-
+    $('#queryNodeNameDiv').css("display", "none");
     $('#uploadDiv').show();
     $("#load").val('');
 }
@@ -162,6 +163,7 @@ function updateModel() {
     $('#splitter').hide();
     $('#uploadDiv').hide();
     $('#viewLogDiv').hide();
+    $('#queryNodeNameDiv').css("display", "none");
 
     if( modelName == null || modelName == '' ) {
         alertBoxShow("Please select a network file first.");
@@ -251,6 +253,8 @@ function viewLogHistory (){
     $('#splitter').hide();
     $('#updateDiv').hide();
     $('#uploadDiv').hide();
+    $('#testModelDiv').hide();
+    $('#queryNodeNameDiv').css("display", "none");
 
     if( $("#load").val() == null || $("#load").val() == '') {
         alertBoxShow("Please select a network file first.");
@@ -928,6 +932,7 @@ function testModel() {
     $('#splitter').hide();
     $('#uploadDiv').hide();
     $('#viewLogDiv').hide();
+    $('#queryNodeNameDiv').css("display", "none");
 
     if( modelName == null || modelName == '') {
         alertBoxShow("Please select a network file first.");

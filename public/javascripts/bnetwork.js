@@ -96,9 +96,16 @@ function setNodeColor(nodeID, color)
 function networkLoadModel(model) {
 	//cy.load(networkInfoArray[0]);
 	cy.load(model);
-    if( $('#queryNodeNameDiv').css('display') == "none" ) {
-        addQueryNodeNameSelect(model);
-    }
+    /*if( $('#queryNodeNameDiv').css('display') == "none" ) {
+        if( $('#queryNodeNameDiv').find("select").length ) {
+             $('#queryNodeNameDiv').show();
+        } else {
+            addQueryNodeNameSelect(model);
+        }
+    }*/
+
+    $('#queryNodeNameDiv').empty();
+    addQueryNodeNameSelect(model);
 
     if( $('#showAlgorithmChangeDiv').css('display') == "none" ) {
         $('#showAlgorithmChangeDiv').show();
@@ -199,7 +206,10 @@ function drawLegend(originalNodeAcc, testNodeAcc) {
 function addQueryNodeNameSelect( model ) {
     var nodes = model.nodes;
     var nodeIDs = [];
-    var selectString = "<select size='5' id='queryNodeNameSelect' " +
+    var selectString = "<label for='queryNodeNameSelect' " +
+            "class='queryNodeNameLabel'>Query node name:&nbsp;</label>";
+
+    selectString += "<select size='5' id='queryNodeNameSelect' " +
         "name='queryNodeNameSelect' multiple='multiple'>";
 
     for( var i=0; i<nodes.length; i++ ){
