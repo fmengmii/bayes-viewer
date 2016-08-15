@@ -1,5 +1,6 @@
 import com.github.play2war.plugin._
 
+//name := "bayes-viewer-test"
 name := "bayes-viewer"
 
 version := "1.0-SNAPSHOT"

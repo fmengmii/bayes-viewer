@@ -1,6 +1,7 @@
 @(models: List[String], dataType:String, users: List[User], bnAlgorithmNameMap: Map[String, String])
 
 @main("BN Viewer"){
+
 	<div id="topButtonsDiv">
 		<button class="button topButton homeButton" type="button" onclick="location.href='/bn/home';">Home</button>
 		<button class="button topButton publicButton" type="button" onclick="location.href='/bn/public';">Public</button>
@@ -40,7 +41,8 @@
                     }
                     @if(dataType.equals("private")) {
                         <button type="button" class="button lowerButton updateModelButton" onclick="updateModel()">Update Model</button>
-                        <button type="button" class="button lowerButton deleteModelButton" onclick="deleteModel()">Delete Model</button>
+						<button type="button" class="button lowerButton downloadModelButton" onclick="downloadModel()">Download Model</button>
+						<button type="button" class="button lowerButton deleteModelButton" onclick="deleteModel()">Delete Model</button>
                         <button type="button" class="button lowerButton uploadButton" onclick="showUpload()">Upload New Model</button>
                         <button type="button" class="button lowerButton viewLogButton" onclick="viewLogHistory()">View Log</button>
                     }
@@ -198,7 +200,11 @@
     <div id="rawData">
 		<div id="windowContent" style="overflow: hidden">
 			<div id="rawTable"></div>
-			<div style="float: right"> <input type="button" value="Close" id="rawDoneButton" /></div>
+			<div style="float: right">
+				<button type="button" onclick="downloadData()">Download</button>
+				<input type="button" value="Close" id="rawDoneButton" />
+			</div>
+
 		</div>
 	</div>
 

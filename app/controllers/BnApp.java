@@ -9,6 +9,7 @@ import bayes.ModelReader;
 import play.*;
 import play.cache.Cache;
 import play.data.Form;
+import static play.data.Form.form;
 import play.libs.Json;
 import play.mvc.*;
 import play.mvc.Http.*;
@@ -215,6 +216,46 @@ public class BnApp extends Controller {
 		}
 	}
 
+	public static Result downloadModel (String modelName) {
+		//Logger.info("get modelName=" + modelName);
+		String[] parseFullFileName = modelName.split("\\.");
+
+		String fileName = parseFullFileName[0];
+		String fileType = parseFullFileName[1];
+		NetworkFile networkFile = NetworkFile.findByFileNameAndType(
+				fileName, fileType);
+
+		if (networkFile != null) {
+			response().setContentType("application/x-download");
+			response().setHeader("Content-disposition","attachment; filename=" + modelName);
+			return ok(networkFile.fileContent);
+		} else {
+			return ok("Error:The network file didn't exist in database.");
+		}
+	}
+
+	public static Result downloadData (String modelName) {
+		//Logger.info("get modelName=" + modelName);
+		String[] parseFullFileName = modelName.split("\\.");
+
+		String fileName = parseFullFileName[0];
+		String fileType = parseFullFileName[1];
+		NetworkFile networkFile = NetworkFile.findByFileNameAndType(
+				fileName, fileType);
+
+		if (networkFile != null) {
+			RawDataFile rawDataFile = RawDataFile.findByNetworkFile(networkFile);
+			if( rawDataFile != null ) {
+				String dataFileName = rawDataFile.fileName + "." + rawDataFile.fileType;
+				response().setContentType("application/x-download");
+				response().setHeader("Content-disposition", "attachment; filename=" + dataFileName);
+				return ok(rawDataFile.fileContent);
+			}
+		}
+
+		return ok("Error:The data file didn't exist in database.");
+
+	}
 	public static Result getModelHistory(String modelName) {
 		String[] parseFullFileName = modelName.split("\\.");
 
@@ -289,6 +330,7 @@ public class BnApp extends Controller {
 		return ok(modelStr);
 	}
 
+
 	private static ModelReader getDataSetAndStateMap( ModelReader modelReader,
 													  RawDataFile rawDataFile,
 													  boolean isExternalDataSet ) {
@@ -314,10 +356,19 @@ public class BnApp extends Controller {
 			for (int i = 0; i < dataSet.getVariableCount(); i++) {
 				String nodeId = dataSet.getVariableId(i);
 				String[] stateNameArray = dataSet.getStateNames(i);
+				/*if( i==1 ) {
+					Logger.info("getDataSetAndStateMap: dataSet get stateNameArray below:");
+					for( int m=0; m<stateNameArray.length; m++ ) {
+						Logger.info(stateNameArray[m]);
+					}
+				}*/
 				Map<String, Integer> stateCountMap = new HashMap<String, Integer>();
 
 				for (int j = 0; j < dataSet.getRecordCount(); j++) {
 					int stateSeqNum = dataSet.getInt(i, j);
+					/*if( i==1 && j < 6 ){
+						Logger.info("i=1, j=" + j + " stateSeqNum=" + stateSeqNum );
+					}*/
 					//String stateLabel = stateNameArray[stateSeqNum]; // that's wrong for incomplete state in test file
 					String stateLabel = "State" + stateSeqNum;
 
@@ -825,11 +876,14 @@ public class BnApp extends Controller {
 		String[] rawDataRows = rawDataFileContent.split("\n");
 		String[] rawDataColumnTitleArray = rawDataRows[0].split(",");
 		if( nodeIdList.size() != rawDataColumnTitleArray.length ) {
+			Logger.info("No match for length: nodeIdList length=" + nodeIdList.size() +
+				" rawDataColumn length=" + rawDataColumnTitleArray.length);
 			return false; //column number does not match with the number of node ids
 		}
 
 		for( int i = 0; i < rawDataColumnTitleArray.length; i++) {
 			if( !nodeIdList.contains(rawDataColumnTitleArray[i]) ) {
+				Logger.info("No match for column name=" + rawDataColumnTitleArray[i]);
 				return false; // column name does not match with node id
 			}
 		}
@@ -991,9 +1045,15 @@ public class BnApp extends Controller {
     	return ok(cptStr);
     }
 
+	public static class DownloadModel {
+		//@Constraints.Required
+		public String modelName;
+	}
+	/*
 	public static Result readMe() {
 		return ok();
-	}
+	}*/
+
 
     /*
 	public static class Login {

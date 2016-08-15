@@ -5,7 +5,7 @@
 # Home page
 GET         /                                   controllers.Application.index()
 GET         /under-construction                 controllers.Application.underConstruction()
-GET         /model/load/:path/:algorithm                   controllers.BnApp.loadModel(path: String, algorithm: String)
+GET         /model/load/:path/:algorithm        controllers.BnApp.loadModel(path: String, algorithm: String)
 POST        /model/setevidence                  controllers.BnApp.setEvidence()
 POST        /model/setvirtualevidence           controllers.BnApp.setVirtualEvidence()
 GET         /model/clearallevidence             controllers.BnApp.clearAllEvidence()
@@ -18,6 +18,8 @@ POST        /model/uploadmodel                  controllers.BnApp.uploadModel(up
 POST        /model/uploadtestrawdata            controllers.BnApp.uploadTestRawData(modelFileName: String, algorithm: String)
 POST        /model/checkmodel                   controllers.BnApp.checkModel()
 POST        /model/deletemodel/:modelName       controllers.BnApp.deleteModel(modelName: String)
+GET         /model/downloadmodel/:modelName     controllers.BnApp.downloadModel(modelName: String)
+GET         /model/downloaddata/:modelName      controllers.BnApp.downloadData(modelName: String)
 GET         /model/getmodelstatus/:modelName    controllers.BnApp.getModelStatus(modelName: String)
 GET         /model/getmodelhistory/:modelName   controllers.BnApp.getModelHistory(modelName: String)
 GET         /viewer/getrawdata/:modelName       controllers.BnApp.getRawData(modelName: String)

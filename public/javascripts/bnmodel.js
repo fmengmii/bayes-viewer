@@ -244,6 +244,43 @@ function updateModel() {
     });
 }
 
+function downloadModel() {
+    var modelName = $("#load").val();
+    $('.lowerButton').removeClass('selected');
+    $('.downloadModelButton').addClass('selected');
+
+    $('#testModelDiv').hide();
+    $('#updateDiv').hide();
+    $('#splitter').hide();
+    $('#uploadDiv').hide();
+    $('#viewLogDiv').hide();
+    $('#queryNodeNameDiv').css("display", "none");
+
+    if( modelName == null || modelName == '' ) {
+        alertBoxShow("Please select a network file first.");
+        return false;
+    }
+
+	if(modelName.indexOf("sharedBy") != -1){
+	    alertBoxShow("You don't have a privilege to update the file because it's a shared file.");
+	    return false;
+    }
+    window.location.href="/model/downloadmodel/" + modelName;
+}
+
+function downloadData(){
+    var modelName = $("#load").val();
+    if( modelName == null || modelName == '' ) {
+        alertBoxShow("Please select a network file first.");
+        return false;
+    }
+
+	if(modelName.indexOf("sharedBy") != -1){
+	    alertBoxShow("You don't have a privilege to update the file because it's a shared file.");
+	    return false;
+    }
+    window.location.href="/model/downloaddata/" + modelName;
+}
 function viewLogHistory (){
     var modelName = $("#load").val();
     $('.lowerButton').removeClass('selected');

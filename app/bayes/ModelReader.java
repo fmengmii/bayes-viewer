@@ -424,38 +424,56 @@ public class ModelReader
 				}
 			}
 		} catch (Exception ex) {
-			Logger.info("cross validation matches exception is " + ex.toString());
+			Logger.info("getValidationMap: cross validation matches exception is " + ex.toString());
 		}
 
 		//The followings are the external validation
 		try{
 			double allNodeAccuracy = 0;
 			int numNodes = network.getNodeCount();
+			//Logger.info("start external validation...");
 			for(int col = 0; col < numDataSetColumn; col++) {
+				//Logger.info("enter col=" + col);
 				//get name of current column in the data set
 				String curNodeId = dataSet.getVariableId(col);
+				//Logger.info("after get variable id.");
 				String[] curNodeStateNameArray = dataSet.getStateNames(col);
 
 				int totalCorrectPredictiveCase = 0;
-				/*if( col == 1) {
-					Logger.info("curNodeId:" + curNodeId);
+				/*if( col < 2 ) {
+					Logger.info("getValidationMap curNodeId:" + curNodeId);
+					Logger.info("getValidationMap: dataSet get curNodeStateNameArray below:");
+					for( int m=0; m<curNodeStateNameArray.length; m++ ) {
+						Logger.info(curNodeStateNameArray[m]);
+					}
 				}*/
 				for( int row=0; row < dataSet.getRecordCount() ; row++ ) {
 					network.clearAllEvidence();
 					int realStateSeqNum = dataSet.getInt(col, row);
-					/*if( col == 1 && row < 5) {
-						Logger.info("realStateSeqNum:" + realStateSeqNum);
+					/*if( col == 1 && row < 6) {
+						Logger.info("realStateSeqNum for col=" + col + " and row=" + row + " and realStateSeqNum=" + realStateSeqNum);
 					}*/
 					for (int i = 0; i < dataSet.getVariableCount(); i++) {
 						if( i != col ) {
-							int stateSeqNum = dataSet.getInt( i, row);
-							String stateLabel = "State" + stateSeqNum;
-							network.setEvidence(dataSet.getVariableId(i), stateLabel);
+							int stateSeqNum = dataSet.getInt( i, row );
+							String[] nodeStateNameArray = dataSet.getStateNames(i);
+							//Logger.info("for i=" + i + " and row=" + row + " and stateSeqNum=" + stateSeqNum);
+							//String stateLabel = "State" + stateSeqNum;
+							/*if( col < 2 && row == 13) {
+								Logger.info("stateLabel=" + stateLabel);
+							}*/
+							//network.setEvidence(dataSet.getVariableId(i), stateLabel);
+							network.setEvidence(dataSet.getVariableId(i), nodeStateNameArray[stateSeqNum]);
+							/*if( col < 2 && row == 13) {
+								Logger.info("after setEvidence.");
+							}*/
 						}
 					}
+
 					recordNetworkTarget();
 					network.updateBeliefs();
 					recoverNetworkTarget();
+
 					int[] nodes = network.getAllNodes();
 					for (int i=0; i<nodes.length; i++) {
 						int node = nodes[i];
@@ -463,36 +481,34 @@ public class ModelReader
 						if( nodeID.equals(curNodeId) ) {
 							double[] values = network.getNodeValue(nodes[i]);
 							double max = values[0];
-							/*if( col == 1 && row < 5 ) {
-								Logger.info("values:" + max);
+							/*if( col < 2  ) {
+								Logger.info("values max for curNodeId=:" + curNodeId + " max=" + max);
 							}*/
 							int maxIndex = 0;
 							for( int count = 1; count < values.length; count++ ) {
-								/*if( col == 1 && row < 5 ) {
-									Logger.info("values:" + values[count]);
+								/*if( col < 2  ) {
+									Logger.info("values for curNodeId=:" + curNodeId + " count=" + count + " value=" + values[count]);
 								}*/
 								if( values[count] > max ) {
 									max = values[count];
 									maxIndex = count;
 								}
 							}
-							String maxStateLabel = "State" + maxIndex;
-							/*if( col == 1 && row < 5 ) {
-								Logger.info("predicted:" + maxStateLabel);
-							}*/
-							if( curNodeStateNameArray[realStateSeqNum].equals(maxStateLabel) ) {
+
+							if( realStateSeqNum == maxIndex ) {
 								totalCorrectPredictiveCase++;
 							}
 						}
 					}
-					/*if( col == 1 && row < 5 ) {
-						Logger.info("\n");
-					}*/
 				}
+				//Logger.info("start acc.");
 				double nodeAcc = (double) totalCorrectPredictiveCase / dataSet.getRecordCount();
 				String externalValidationProb = numberFormat.format(nodeAcc);
 				String externalValidationNodeId = "external" + curNodeId;
 				validationNodeAccuracyMap.put(externalValidationNodeId, externalValidationProb);
+				/*if( col < 2  ) {
+					Logger.info("after externalValidatin for col=" + col);
+				}*/
 			}
 			/*
 			double totalExternalValidation = allNodeAccuracy / numNodes;
@@ -501,7 +517,7 @@ public class ModelReader
 			*/
 			network.clearAllEvidence();
 		} catch(Exception ex ){
-			Logger.error("external validation exception=" + ex.toString());
+			Logger.error("getValidationMap: external validation exception=" + ex.toString());
 		}
 
 		return validationNodeAccuracyMap;
