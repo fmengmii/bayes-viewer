@@ -32,13 +32,20 @@ function drawChart(nodeInfoArray, divSelect)
 	var finalData = [];
 
 	var nodeName = nodeInfoArray["nodename"];
+	var nodeID = nodeInfoArray["id"];
 	var nodeOutcomes = nodeInfoArray["values"];
+	var isSearch = "false";
 	var isRealEvidence = nodeInfoArray["isRealEvidence"];
 	var isVirtualEvidence = nodeInfoArray["isVirtualEvidence"];
 	var isTarget = nodeInfoArray["isTarget"];
-	var i;
+	var queryNodeNameArray = $("#queryNodeNameSelect").val();
+	if( queryNodeNameArray != null &&
+	        queryNodeNameArray.contains(nodeID)){
+	    isSearch = "true";
+	}
+	//var i;
 
-    for (i=0; i<nodeOutcomes.length; i++) {
+    for (var i=0; i<nodeOutcomes.length; i++) {
 	    outcomes.push(truncateOutcome((nodeOutcomes[i])["outcomeid"]));
 		var item = {};  //JSON object
 		item["value"] = (nodeOutcomes[i])["value"];
@@ -92,24 +99,34 @@ function drawChart(nodeInfoArray, divSelect)
 	    .enter().append("g")
 	    .attr("transform", function(d, i) { return "translate(0," + i * barHeight + ")"; });
 
-	if(isRealEvidence == "true"){
+    if( isSearch == "true" ) {
+        setNodeColor(nodeID, '#dd99ff');
+        bar.append("rect")
+	    .style("fill", "#dd99ff")
+	    .attr("width", function(d){ return x(d.value);})
+	    .attr("height", barHeight - 1);
+    } else if(isRealEvidence == "true"){
+        setNodeColor(nodeID, 'Green');
 	    bar.append("rect")
 	    .style("fill", "Green")
 	    .attr("width", function(d){ return x(d.value);})
 	    .attr("height", barHeight - 1);
 	}else if( isVirtualEvidence == "true"){
+	    setNodeColor(nodeID, '#8FBC8F');
 	    bar.append("rect")
 	    .style("fill", "#8FBC8F")
 	    .attr("width", function(d){ return x(d.value);})
 	    .attr("height", barHeight - 1);
 	}else if(isTarget == "true"){
+	    setNodeColor(nodeID, 'DarkSalmon');
 	    bar.append("rect")
 	    .style("fill", "DarkSalmon")
 	    .attr("width", function(d){ return x(d.value);})
 	    .attr("height", barHeight - 1);
 	} else {
+	    setNodeColor(nodeID, '#74a9d8'); //#4c91cd, lightblue, steelblue
 	    bar.append("rect")
-	    .style("fill", "steelblue")
+	    .style("fill", "#74a9d8")
 	    .attr("width", function(d){ return x(d.value);})
 	    .attr("height", barHeight - 1);
 	}

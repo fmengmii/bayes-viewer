@@ -1,13 +1,14 @@
 function documentReady() {
     //$(document).ready(function () {
 
-    var maxContentHeight = $(window).height() - $("#headerDiv").height() -
+    var maxContentHeight = $("body").height() - $("#headerDiv").height() -
         $('#footDiv').height() ;
-	//alert("maxContentH=" + maxContentHeight);
     $("#centerLeftDiv").css("height", maxContentHeight);
     $("#contentDiv").css("height", maxContentHeight);
 
-    var maxContentWidth = $(window).width() - $(".centerLeftTd").width();
+    //var maxContentWidth = $(window).width() - $(".centerLeftTd").width();
+    var maxContentWidth = $("body").width() - $(".centerLeftTd").width();
+    //alert("maxContentW=" + maxContentWidth);
     $(".centerRightTd").css("width", maxContentWidth);
     $("#contentDiv").css("width", maxContentWidth);
     $("#lowerButtonsDiv").css("width", maxContentWidth);
@@ -44,7 +45,7 @@ function documentReady() {
         $('.bnButton').addClass('selected');
         $('.topButton').removeClass('selected');
         $('.publicButton').addClass('selected');
-         $('.bnButton').addClass('selected');
+        $('.bnButton').addClass('selected');
     } else if( location == "/bn/private" ) {
         $('.leftButton').removeClass('selected');
         $('.bnButton').addClass('selected');
@@ -70,17 +71,10 @@ function documentReady() {
 }
 
 $(document).ready(function () {
-
     var notificationWidth = 720;
     var notificationHeight = 68;
 
     if($(".lowerButtonsTr").length ) {
-        //var lowerButtonsTrHeight = $(".lowerButtonsTr").height();
-        //var lowerButtonsTrWidth = $(".lowerButtonsTr").width();
-        //var notificationX = topButtonsDivPosition.left + lowerButtonsTrWidth/2 - notificationWidth/2;
-        //var headerDivCenterWidth = $("#headerDiv .center").width();
-        //var notificationX = headerDivCenterPosition.left + headerDivCenterWidth/2 - notificationWidth/2;
-
         var topButtonsDivPosition = $("#topButtonsDiv").position();
         var headerDivCenterPosition = $("#headerDiv .center").position();
         var notificationX = headerDivCenterPosition.left;
@@ -127,34 +121,23 @@ $(document).ready(function () {
         $('.alert').css("width", notificationWidth);
     }
 
-    var maxSplitterHeight = $("#contentDiv").height() - $("#topButtonsDiv").height() -
-        $("#lowerButtonsDiv").height() ;
-    var maxSplitterWidth = 1438;
-    var splitterWidth;
-    if( $("#contentDiv").width() > maxSplitterWidth ) {
-        splitterWidth = maxSplitterWidth;
-    } else {
-        splitterWidth = $("#contentDiv").width()
-    }
-    var networkWidth = splitterWidth - 330;
-	//$('#splitter').jqxSplitter({ width: splitterWidth, height: maxSplitterHeight, panels: [{ size: '75%'}, { size: 600}] });
-	$('#splitter').jqxSplitter({ width: splitterWidth, height: maxSplitterHeight, panels: [{size: networkWidth}] });
-	//$("#jqxSplitter").jqxSplitter({ width: 250});
-	$('#splitter').on('resize', function(ev) {
-		cy.resize();
-	});
-	$("#chartJQXPanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
+    interfaceSizing();
 
+    $('#splitter').on('resize', function(ev) {
+    	cy.resize();
+    });
 
 	$('#dialogSetValues').jqxWindow({  width: 600,
 		height: 400, resizable: true,
 		okButton: $('#doneButton'), autoOpen: false
 	});
+
 	$('#dialogSetValues').on('close', function (event) {
 		if (event.args.dialogResult.OK) {
 			console.log("OK!");
 		}
 	});
+
 	$('#rawData').jqxWindow({
 		width: 600, height: 400, resizable: true,
 		okButton: $("#rawDoneButton"), autoOpen: false
@@ -181,7 +164,48 @@ $(document).ready(function () {
 		}
 	});
 	wall.fitWidth();
+
+    $(window).resize(function(){
+        documentReady();
+        interfaceSizing();
+    });
+
 });
+
+function interfaceSizing() {
+    var maxModelContentDivHeight = $("#contentDiv").height() - $("#topButtonsDiv").height() -
+            $("#lowerButtonsDiv").height() - $("#legendDiv").height();
+    if( $('#legendDiv').css('display') == "none" ) {
+        maxModelContentDivHeight = maxModelContentDivHeight + $("#legendDiv").height() ;
+    }
+
+    //alert("maxModelContentDivH=" + maxModelContentDivHeight);
+    var splitterWidth = $("#contentDiv").width() - 10;
+    var updateDivWidth = $("#contentDiv").width() - 10;
+    var uploadDivWidth = $("#contentDiv").width() - 10;
+    var testModelDivWidth = $("#contentDiv").width() - 10;
+    var viewLogDivWidth = $("#contentDiv").width() - 10;
+
+    var splitterHeight = maxModelContentDivHeight;
+    var updateDivHeight = maxModelContentDivHeight;
+    var uploadDivHeight = maxModelContentDivHeight;
+    var testModelDivHeight = maxModelContentDivHeight;
+    var viewLogDivHeight = maxModelContentDivHeight;
+
+    $('#updateDiv').css("height", updateDivHeight);
+    $('#updateDiv').css("width", updateDivWidth);
+    $('#uploadDiv').css("height", uploadDivHeight);
+    $('#uploadDiv').css("width", uploadDivWidth);
+    $('#testModelDiv').css("height", testModelDivHeight);
+    $('#testModelDiv').css("width", testModelDivWidth);
+    $('#viewLogDiv').css("height", viewLogDivHeight);
+    $('#viewLogDiv').css("width", viewLogDivWidth);
+
+	var networkWidth = splitterWidth - 330;
+	$("#chartJQXPanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
+    //$('#splitter').jqxSplitter({ width: splitterWidth, height: maxSplitterHeight, panels: [{size: networkWidth}] });
+    $('#splitter').jqxSplitter({ width: splitterWidth, height: splitterHeight, panels: [{size: networkWidth}] });
+}
 
 function flashSuccessBoxShow() {
     hideConfirmBox();

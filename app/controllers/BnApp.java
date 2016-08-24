@@ -271,11 +271,11 @@ public class BnApp extends Controller {
 		return ok(Json.toJson(logMap));
 	}
 
-	public static Result changeAlgorithm(String modelName, String algorithm) {
+	public static Result changeAlgorithm(String modelName, String algorithm, String kFold) {
 		ModelReader modelReader = new ModelReader();
+		modelReader.setFoldNum(Integer.parseInt(kFold));
 		modelReader.setNetwork(Cache.get("network"));
 		Network network = modelReader.getNetwork();
-
 		int algorithmType = -1;
 		try {
 			Field field = Network.BayesianAlgorithmType.class.getDeclaredField(algorithm);
@@ -303,8 +303,11 @@ public class BnApp extends Controller {
 		}
 	}
 
-	public static Result loadModel(String modelName, String algorithm) {
+	public static Result loadModel(String modelName, String algorithm, String kFold) {
+		//Logger.info("loadModel comming in");
 		ModelReader modelReader = new ModelReader();
+		//modelReader.setFoldNum(Integer.parseInt(kFold));
+		//Logger.info("kfold=" + Integer.parseInt(kFold));
 
 		String[] modelFullName = modelName.split("\\.");
 		NetworkFile networkFile = NetworkFile.findByFileNameAndType(
@@ -317,6 +320,7 @@ public class BnApp extends Controller {
 
 		if (rawDataFile != null) {
 			modelReader =  getDataSetAndStateMap( modelReader, rawDataFile, false);
+			modelReader.setFoldNum(Integer.parseInt(kFold));
 		}
 
 		String modelStr = modelReader.readModelFromFileContent(
@@ -339,7 +343,7 @@ public class BnApp extends Controller {
 			File tmpFile = new File("/tmp/" +
 					rawDataFile.fileName + "." + rawDataFile.fileType);
 			if (tmpFile.exists()) {
-				Logger.info("tmpFile exist.");
+				//Logger.info("tmpFile exist.");
 				tmpFile.delete();
 			}
 			tmpFile.createNewFile();
@@ -1033,6 +1037,17 @@ public class BnApp extends Controller {
 
     	return ok(modelStr);
     }
+
+	public static Result clearAll()
+    {
+    	ModelReader modelReader = new ModelReader();
+    	modelReader.setNetwork(Cache.get("network"));
+    	String modelName = session("modelName");
+    	String modelStr = modelReader.clearAll(modelName);
+
+    	return ok(modelStr);
+    }
+
 
     public static Result getCPT(String nodeID)
     {

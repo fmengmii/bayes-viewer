@@ -9,7 +9,6 @@
 		 @** @if( models != null ) {  **@
 		<div id="showAlgorithmChangeDiv">
 			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			<label for="algorithmSelect" class="algorithmSelectLabel">Inference algorithm
 				<a class="logo navbar-btn" target="_blank" href="@routes.Assets.at("files/BN_inference_algorithm.pdf")"
 					title="references"><img src="@routes.Assets.at("images/question.png")"></a>&nbsp;:</label>
@@ -22,7 +21,11 @@
 					}
 				}
 			</select>
+			&nbsp;&nbsp;&nbsp;
+			<label for="kFoldValue" class="algorithmSelectLabel">K-fold count:</label>
+			<input type="text" id="kFoldField" size="2" placeholder="10">&nbsp;&nbsp;</input>
 			<button class="queryNodeNameButton" type="button" onclick="changeAlgorithm();">change</button>
+
 		</div>
 	</div>
 	<div id="lowerButtonsDiv">
@@ -32,6 +35,7 @@
                     <button type="button" class="button lowerButton showNetworkButton" onclick="loadModel()">View Model</button>
                     <button type="button" class="button lowerButton clearEviButton" onclick="clearAllEvidence()">Clear All Evidences</button>
                     <button type="button" class="button lowerButton clearTarButton" onclick="clearAllTargets()">Clear All Targets</button>
+					@**<button type="button" class="button lowerButton clearAllButton" onclick="clearAll()">Clear All</button>**@
 					<button type="button" class="button lowerButton centerButton" onclick="centerNetwork()">Center Network</button>
 					<button type="button" class="button lowerButton centerButton" onclick="showRawData()">View Raw Data</button>
 					@if(dataType.equals("public")) {
@@ -51,7 +55,7 @@
 			<tr >
 				<td class="lowerSelectTd">
 					<div id="lowerSelectDiv">
-						<label for="load" class="lowerSelectLabel">Select a network file:</label>
+						<label for="load" class="lowerSelectLabel">Select a model:</label>
 						@if( models == null || models.size() == 0 ) {
 							<select id="load" onMouseDown="loadModel();">
 								<option selected disabled hidden value=''>No existed bayesian network</option>
@@ -65,17 +69,20 @@
 							</select>
 						}
 					</div>
-					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				</td>
+			</tr>
+			<tr><td class="lowerQueryNameTd">
+					@**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**@
 					<div id="queryNodeNameDiv">
 						@** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **@
-						<label for="queryNodeNameSelect" class="queryNodeNameLabel">Query node name:</label>
+						@**<label for="queryNodeNameSelect" class="queryNodeNameLabel">Find a node by name:</label>**@
 
 					</div>
 				</td>
 			</tr>
         </table>
 	</div>
-
+	<div id="legendDiv"></div>
 	@if(flash.containsKey("success")){
 		<div id="flashSuccessWindow">
 			<div>title</div>
@@ -115,7 +122,7 @@
 			&nbsp;&nbsp;
 			<strong>Confirm:</strong>&nbsp;
 			<span class="alertLearnBoxMessage">
-			&nbsp;&nbsp;Do you want to learn a new model from the testing raw data?<br>
+			&nbsp;&nbsp;Do you want to learn a new model from the test data?<br>
 			&nbsp;&nbsp;
 				<input id="combineWithOriRawData" name="combineWithOriRawData"
                         value="yes" type="checkbox">&nbsp;Combine the original and testing raw data
@@ -192,8 +199,8 @@
     <div id="nodeMenu">
 	    <input id="nodeID" type="hidden"/>
 		<ul >
-			<li id="target" onclick="setAsTarget()">Set As Target</li>
-			<li id="offTarget" onclick="removeTarget()">Remove Target</li>
+			<li id="target" onclick="setAsObservation()">Set As Observation</li>
+			<li id="offTarget" onclick="removeObservation()">Remove Observation</li>
 		</ul>
     </div>
 
@@ -209,7 +216,6 @@
 	</div>
 
 	<div id="uploadDiv">
-		<br>
 		<form enctype="multipart/form-data" id="modelForm" >
 		<p style="font-size:20px"><strong>Please upload new file:</strong></p>
 		<ol type="1">
@@ -270,7 +276,6 @@
 	</div>
 
     <div id="updateDiv">
-		<br>
         <div id="fileStatusDiv">
 			@**
             <p style="font-size:20px"><strong>The current status of the file:</strong></p>
@@ -344,9 +349,8 @@
 		<br>
     </div>
 	<div id="testModelDiv">
-		<br>
         <div id="modelFileStatusDiv"></div>
-        <br>
+        @**<br>**@
         <form enctype="multipart/form-data" id="uploadTestRawDataForm">
 		<p style="font-size:20px"><strong>Upload raw testing data file:</strong></p>
 			<input id="uploadTestRawDataFile" name="dataFile" type="file"  /><br>
@@ -360,7 +364,7 @@
 		</div>
 		<br>
     </div>
-	<br>
+
     <div id="viewLogDiv"></div>
 }
 

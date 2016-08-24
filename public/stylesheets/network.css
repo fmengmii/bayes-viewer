@@ -24,29 +24,33 @@ node {
     border-width:thin medium thin thin;
     width: 100%;
     margin-top:-1px;
+    overflow:auto;
 }
 
 #uploadDiv{
-    overflow:hidden;
+    overflow:auto;
     display: none;
     padding-left: 20px;
 }
 
 #updateDiv{
-    overflow:hidden;
+    overflow:auto;
     display: none;
     padding-left: 20px;
 }
 
 #testModelDiv{
-    overflow:hidden;
+    overflow:auto;
     display: none;
     padding-left: 20px;
 }
-
+#viewLogDiv{
+    overflow:auto;
+}
 #dialogSetValues{
     display:none;
 }
+
 
 #confirm-box{
     display:none;

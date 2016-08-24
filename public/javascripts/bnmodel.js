@@ -7,16 +7,19 @@ function changeAlgorithm(){
     }
     var modelName = $("#load").val();
     var algorithm = $("#algorithmSelect").val();
+    var kFold = $('#kFoldField').val();
+    if( kFold == null || kFold == "" ) {
+        kFold = 10;
+    }
     if(modelName.indexOf("sharedBy") != -1){
         var modelNameArray = modelName.split("sharedBy");
         modelName = modelNameArray[0].trim();
     }
-    var loadModelAjax = jsRoutes.controllers.BnApp.changeAlgorithm(modelName, algorithm);
+    var loadModelAjax = jsRoutes.controllers.BnApp.changeAlgorithm(modelName, algorithm, kFold);
     //var loadModelAjax = jsRoutes.controllers.BnApp.loadModel(modelName, algorithm);
     $.ajax({
         url: loadModelAjax.url
     }).done(function(data) {
-        //alert("changeAlgorithm return data=" + data);
         if( data.startsWith("Error:")) {
             var message = data.substr(6, data.length);
             alertBoxShow(message);
@@ -31,7 +34,7 @@ function changeAlgorithm(){
             //networkLoadModel(networkInfoArray[0]);
 		    drawCharts(networkInfoArray[1]);
 		    $('#chartDiv').trigger('resize');
-		    successBoxShow("The change of inference algorithm is successfully.");
+		    successBoxShow("The change for inference algorithm or K-fold count is successfully.");
 		}
     }).fail(function() {
     });
@@ -44,6 +47,10 @@ function loadModel() {
     }
     var modelName = $("#load").val();
     var algorithm = $("#algorithmSelect").val();
+    var kFold = $('#kFoldField').val();
+    if( kFold == null || kFold == "" ) {
+        kFold = "10";
+    }
     //alert("algorithm val=" + algorithm);
     $('.lowerButton').removeClass('selected');
     $('.showNetworkButton').addClass('selected');
@@ -53,23 +60,25 @@ function loadModel() {
     $('#uploadDiv').hide();
     $('#updateDiv').hide();
     $('#testModelDiv').hide();
-
+    $('#legendDiv').hide();
 
 	if(modelName == null) {
 	    alertBoxShow("Sorry, there is not an existed network yet.");
 	} else {
-        /*
-        var modelPath = "public/models/" + modelName;
-        var loadModelAjax = jsRoutes.controllers.Application.loadModel(modelPath);
-        */
         if(modelName.indexOf("sharedBy") != -1){
             var modelNameArray = modelName.split("sharedBy");
             modelName = modelNameArray[0].trim();
         }
-        var loadModelAjax = jsRoutes.controllers.BnApp.loadModel(modelName, algorithm);
+        //alert("before load kFold=" + kFold);
+        var loadModelAjax = jsRoutes.controllers.BnApp.loadModel(modelName, algorithm, kFold);
+        //start spinner
+        var i = $('<i class="fa fa-spinner fa-pulse"></i>');
+        $('#lowerSelectDiv').append(i);
+
         $.ajax({
             url: loadModelAjax.url
         }).done(function(data) {
+            $("#lowerSelectDiv i").remove();
             if( data.startsWith("Error:")) {
                 var message = data.substr(6, data.length);
                 alertBoxShow(message);
@@ -80,29 +89,16 @@ function loadModel() {
                 $("#algorithmSelect").val("Lauritzen");
                 return false;
             } else {
-                //console.log(data);
-                //$('#uploadDiv').hide();
-                //$('#splitter').css('display', 'block');
                 $('#splitter').show();
                 networkInfoArray = JSON.parse(data);
-                //cy.load(networkInfoArray[0]);
-                //clearAllEvidence();
                 networkLoadModel(networkInfoArray[0]);
                 drawCharts(networkInfoArray[1]);
                 $('#chartDiv').trigger('resize');
-
-                //clearAllEvidence();
-                //location.reload();
-                //getRawDataOptions("load");
-                //console.log(networkInfoArray);
             }
         }).fail(function() {
 
         });
-
-        //clearAllEvidence();
     }
-	//cy.load({nodes:[{data: {id:'a'}},{data: {id:'b'}}],edges:[{data:{id:'ab',source:'a',target:'b'}}]});
 }
 
 function showUpload() {
@@ -110,6 +106,7 @@ function showUpload() {
     $('.uploadButton').addClass('selected');
 
     $('#splitter').hide();
+    $('#legendDiv').hide();
     $('#viewLogDiv').hide();
     $('#updateDiv').hide();
     $('#testModelDiv').hide();
@@ -117,16 +114,6 @@ function showUpload() {
     $('#uploadDiv').show();
     $("#load").val('');
 }
-/*
-function showUpdate() {
-    $('.lowerButton').removeClass('selected');
-    $('.updateModelButton').addClass('selected');
-
-    $('#splitter').hide();
-    $('#uploadDiv').hide();
-    $('#viewLogDiv').hide();
-    $('#updateDiv').show();
-}*/
 
 function deleteModel(){
     var modelName = $("#load").val();
@@ -161,6 +148,7 @@ function updateModel() {
     $('#testModelDiv').hide();
     $('#updateDiv').hide();
     $('#splitter').hide();
+    $('#legendDiv').hide();
     $('#uploadDiv').hide();
     $('#viewLogDiv').hide();
     $('#queryNodeNameDiv').css("display", "none");
@@ -214,32 +202,6 @@ function updateModel() {
         }
 
         $('#fileStatusDiv').html(updateDivContent);
-            /*
-            if( data.rawDataFileName != '') {
-                var uploadRawDataFile = '<br><input id="updateDataFile" name="dataFile" type="file"/><br>';
-                $(".rawDataFile").append("<br>");
-                $(".rawDataFile").append(uploadRawDataFile);
-            }*/
-            /*
-            $('.selectedModelFileName').html("Model file name:&nbsp;" + $('#load').val());
-            $('.uploadedBy').html("Uploaded by:&nbsp;" + data.uploadedBy);
-            $('.uploadTime').html("Upload time:&nbsp;" + data.uploadTime);
-
-            $('.isPublic').empty();
-            $('.sharedWith').empty();
-            $('.rawDataFileName').empty();
-            if( data.isPublic ) {
-                $('.isPublic').html("The model file is public.");
-            } else if( data.sharedWith != null && data.sharedWith != "") {
-                $('.sharedWith').html("Shared with:&nbsp;" + data.sharedWith);
-            } else {
-                $('.sharedWith').html("Shared with:&nbsp;No");
-            }
-            if( data.rawDataFileName != null &&  data.rawDataFileName != "") {
-                $('.rawDataFileName').html(
-                    "Raw data file name:&nbsp;" + data.rawDataFileName);
-            }
-            */
     }).fail(function() {
     });
 }
@@ -252,6 +214,7 @@ function downloadModel() {
     $('#testModelDiv').hide();
     $('#updateDiv').hide();
     $('#splitter').hide();
+    $('#legendDiv').hide();
     $('#uploadDiv').hide();
     $('#viewLogDiv').hide();
     $('#queryNodeNameDiv').css("display", "none");
@@ -288,6 +251,7 @@ function viewLogHistory (){
 
     $('#viewLogDiv').hide();
     $('#splitter').hide();
+    $('#legendDiv').hide();
     $('#updateDiv').hide();
     $('#uploadDiv').hide();
     $('#testModelDiv').hide();
@@ -338,11 +302,6 @@ function viewLogHistory (){
             var newTableObject = document.getElementById("tableSortable");
             sorttable.makeSortable(newTableObject);
 
-            /* show viewLogDiv scroll */
-            /*var maxContentHeight = $(window).height() -
-                $('#headerDiv').height() - $('#buttonsDiv').height() -
-                $('#footerDiv').height();*/
-
             var maxContentHeight = $("#contentDiv").height() - $("#topButtonsDiv").height() -
                 $("#lowerButtonsDiv").height() - 44;
 
@@ -383,14 +342,6 @@ function checkSharedWith() {
     }
 }
 
-/*
-function loadNetwork(modelName) {
-    //window.location.href="/network";
-    //alert("loadNetwork..");
-    $('.lowerButton').removeClass('selected');
-    loadModel(modelName);
-}*/
-
 function alertBoxShow(message) {
     $("i").remove();
     hideConfirmBox();
@@ -401,10 +352,6 @@ function alertBoxShow(message) {
     $("#alert-box").show();
     $('.alertBoxMessage').html(message);
     $('.lowerButton').removeClass('selected');
-    /*
-    if( $("#load").val() != '' ) {
-       $("#load").focus();
-    }*/
 }
 
 function hideFlashSuccessBox() {
@@ -429,10 +376,6 @@ function hideConfirmLearnModelBox() {
 function hideAlertBox() {
     $("#errorWindow").hide();
     $("#alert-box").hide();
-   /*
-   if( $("#load").val() != '' ) {
-       $("#load").focus();
-   }*/
 }
 
 function successBoxShow(message) {
@@ -444,12 +387,7 @@ function successBoxShow(message) {
     $("#successWindow").show();
     $("#success-box").show();
     $('.successBoxMessage').html(message);
-    //$("#success-box").append(message);
     $('.lowerButton').removeClass('selected');
-    /*
-    if( $("#load").val() != '' ) {
-       $("#load").focus();
-    }*/
 }
 
 function hideSuccessBox() {
@@ -489,8 +427,6 @@ function confirmYesFunctionForDelete(modelName) {
     hideAlertBox();
     hideFlashSuccessBox();
     hideFlashErrorBox();
-    //$("#confirmWindow").hide();
-    //$("#confirm-box").hide();
 
     //start spinner
     $('.deleting').show();
@@ -537,8 +473,6 @@ function confirmYesFunctionForUpload(updateModelFile,
     hideAlertBox();
     hideFlashSuccessBox();
     hideFlashErrorBox();
-    //$("#confirmWindow").hide();
-    //$("#confirm-box").hide();
     var uploadModelAjax = jsRoutes.controllers.BnApp.uploadModel(
             updateModelFile, updateDataFile, isModelPublic, isRawDataPublic,
             modelSharedByArray, rawDataSharedByArray, annotation );
@@ -554,8 +488,6 @@ function confirmYesFunctionForUpload(updateModelFile,
         $('.uploading').hide();
         $('i').remove();
         if( data == "success") {
-            //alert("upload success.");
-            //successBoxShow("The file has been updated successfully.");
             location.href = "/bn/private";
         } else {
             alertBoxShow(data);
@@ -575,8 +507,6 @@ function confirmNoFunction() {
     hideAlertBox();
     hideFlashSuccessBox();
     hideFlashErrorBox();
-    //$("#confirmWindow").hide();
-    //$("#confirm-box").hide();
     location.href = "/bn/private";
 }
 
@@ -591,11 +521,11 @@ function confirmBoxForUpload(message,
                         modelSharedByArray,
                         rawDataSharedByArray,
                         annotation) {
-    //alert("confirmBoxForUpload...");
     hideSuccessBox();
     hideAlertBox();
     hideFlashSuccessBox();
     hideFlashErrorBox();
+    $('#testModelDiv').hide();
     $("#confirmWindow").show();
     $("#confirm-box").show();
     $("#confirm-box").prepend("<strong>Confirm</strong>: " + message);
@@ -697,6 +627,7 @@ function getModelUpload() {
         contentType: false,
         processData: false
     }).done(function(data) {
+
         if( data == "modelFileNameDuplicate" ) {
             alertBoxShow("Model file name is duplicate with a file other user uploaded, " +
                          "please change the file name.");
@@ -766,27 +697,21 @@ function getModelUpload() {
                 processData: false
             }).done(function(data) {
                 $('.uploading').hide();
-                $('i').remove();
+                $('#uploadButtonDiv i').remove();
                 if( data == "success") {
-                    //alert("upload success.");
-                    //successBoxShow("The network file has been uploaded successfully.");
-                    //$('#flashSuccessWindow').show();
-                    //$('#flash-success-box').show();
                     location.href = "/bn/private";
-                    //$('#flashSuccessWindow').show();
-                    //$('#flash-success-box').show();
                 } else {
                     alertBoxShow(data);
                 }
             }).fail(function(ts){
                  $('.uploading').hide();
-                 $('i').remove();
+                 $('#uploadButtonDiv i').remove();
                  alertBoxShow(ts.responseText);
             });
         }
     }).fail(function() {
         $('.uploading').hide();
-        $('i').remove();
+        $('#uploadButtonDiv i').remove();
         alertBoxShow("Upload New Network File failed. Please try again.");
     });
 }
@@ -813,14 +738,6 @@ function getModelUpdate() {
         }
         formData.append('modelFile', modelFile);
         updateModelFile = true;
-	    /*
-	    var modelFileNameArray = modelFileName.split(".");
-        if( modelFileNameArray[1] != "xdsl") {
-	        alertBoxShow(
-	            "The model file extension is not  '.xdsl'. \nPlease choose a correct file.");
-	    } else {
-	        upload = true;
-	    }*/
 	}
 
 	if( !isModelPublic && modelSharedByArray != null ) {
@@ -871,7 +788,7 @@ function getModelUpdate() {
         processData: false
     }).done(function(data) {
         $('.uploading').hide();
-        $('i').remove();
+        $('#uploadButtonDiv i').remove();
         if( data == "success") {
             location.href = "/bn/private";
         } else {
@@ -889,7 +806,6 @@ function saveNewModel() {
     var modelName = $('#load').val();
     var saveNewModelAjax = jsRoutes.controllers.BnApp.saveNewModel(
                 modelName, combineRawData );
-
     $.ajax({
         url: saveNewModelAjax.url
     }).done(function(data) {
@@ -939,6 +855,7 @@ function getTestRawData(){
         } else {
             $('#uploadDiv').hide();
             $('#uploadTestRawDataForm')[0].reset();
+            $('#testModelDiv').hide();
             $('#splitter').show();
             networkInfoArray = JSON.parse(data);
             networkLoadModel(networkInfoArray[0]);
@@ -967,6 +884,7 @@ function testModel() {
     $('#testModelDiv').hide();
     $('#updateDiv').hide();
     $('#splitter').hide();
+    $('#legendDiv').hide();
     $('#uploadDiv').hide();
     $('#viewLogDiv').hide();
     $('#queryNodeNameDiv').css("display", "none");
@@ -1031,17 +949,7 @@ function clearAllEvidence(showMessage) {
 	}).done(function(data) {
 		//console.log(data);
 		networkInfoArray = JSON.parse(data);
-		//networkLoadModel(networkInfoArray[0]);
-
 		drawCharts(networkInfoArray[1]);
-		var outcomeValues = networkInfoArray[1];
-        for(i=0; i< outcomeValues.length; i++){
-		    if( outcomeValues[i].isTarget != "true" ) {
-		        //outcomeValues[i].isVirtualEvidence != "true" ){
-		        setNodeColor(outcomeValues[i].id, 'lightblue');
-		    }
-		}
-
 		$('#chartDiv').trigger('resize');
 
 		if(showMessage) {
@@ -1070,7 +978,7 @@ function clearEvidence()
 		//console.log(data);
 		networkInfoArray = JSON.parse(data);
 		drawCharts(networkInfoArray[1]);
-        setNodeColor(nodeID, 'lightblue');
+        setNodeColor(nodeID, '#74a9d8');
         $('#chartDiv').trigger('resize');
 	}).fail(function() {
 	    alertBoxShow("Clear Evidence failed. Please try again.");
@@ -1158,7 +1066,7 @@ function setVirtualEvidence()
 	});
 }
 
-function setAsTarget()
+function setAsObservation()
 {
 	var nodeID = $('#nodeMenu #nodeID').val();
 
@@ -1183,28 +1091,19 @@ function setAsTarget()
 		            break;
 		        }
 		    }
-		    /*
-		    var nodeOutcomes = outcomeValues.filter(function(e) {
-			    if (e.id == nodeID)
-			        return e;
-		    });
-            */
 
-		    //$('.chartEvidence').empty();
 		    var chartClass = '.chart' + nodeIndex;
 		    $(chartClass).empty();
-		    drawChart(nodeOutcomes, chartClass);
-
-		    //cy.getElementById(nodeID).css('background-color', 'yellow');
+		    drawChart(nodeOutcomes, chartClass, false);
 		    setNodeColor(nodeID, 'DarkSalmon');
 		    $('#chartDiv').trigger('resize');
 		}
 	}).fail(function() {
-	    alertBoxShow("Set As Target failed. Please try again.");
+	    alertBoxShow("Set As Observation failed. Please try again.");
 	});
 }
 
-function removeTarget()
+function removeObservation()
 {
 	var nodeID = $('#nodeMenu #nodeID').val();
 	//console.log(nodeID);
@@ -1218,11 +1117,6 @@ function removeTarget()
 		//drawCharts(networkInfoArray[1]);
 
 		var outcomeValues = networkInfoArray[1];
-		/*var nodeOutcomes = outcomeValues.filter(function(e) {
-			if (e.id == nodeID)
-				return e;
-		});
-        */
         var nodeOutcomes;
 		var nodeIndex;
 		for( var index=0; index < outcomeValues.length; index++ ) {
@@ -1234,11 +1128,11 @@ function removeTarget()
 		}
 		var chartClass = '.chart' + nodeIndex;
 		$(chartClass).empty();
-        drawChart(nodeOutcomes, chartClass);
-		setNodeColor(nodeID, 'lightblue');
+        drawChart(nodeOutcomes, chartClass, false);
+		setNodeColor(nodeID, '#74a9d8');
 		$('#chartDiv').trigger('resize');
 	}).fail(function() {
-	    alertBoxShow("Remove Target failed. Please try again.");
+	    alertBoxShow("Remove Observation failed. Please try again.");
 	});
 }
 
@@ -1260,21 +1154,35 @@ function clearAllTargets()
 	}).done(function(data) {
 		networkInfoArray = JSON.parse(data);
 		drawCharts(networkInfoArray[1]);
+		$('#chartDiv').trigger('resize');
+	}).fail(function() {
+	    alertBoxShow("Clear All Targets failed. Please try again.");
+	});
+}
+
+function clearAll()
+{
+    if( $("#load").val() == null || $("#load").val() == '') {
+        alertBoxShow("Please select a network file first.");
+        return false;
+    }
+
+    if( !$("#splitter").is(":visible") ) {
+        alertBoxShow("Please view a network first.");
+        return false;
+    }
+
+	var clearAllAjax = jsRoutes.controllers.BnApp.clearAll();
+	$.ajax({
+		url: clearAllAjax.url
+	}).done(function(data) {
+		networkInfoArray = JSON.parse(data);
+		drawCharts(networkInfoArray[1]);
 
 		var outcomeValues = networkInfoArray[1];
 		for(i=0; i< outcomeValues.length; i++){
-		    if( outcomeValues[i].isRealEvidence != "true" &&
-		            outcomeValues[i].isVirtualEvidence != "true" ){
-		        setNodeColor(outcomeValues[i].id, 'lightblue');
-		    }
+		    setNodeColor(outcomeValues[i].id, '#74a9d8');
 		}
-		/*
-		var nodeOutcomes = outcomeValues.filter(function(e) {
-			if (e.id == nodeID)
-				return e;
-		});
-        */
-		//cy.$('node').css('background-color', 'lightblue');
 
 		$('#chartDiv').trigger('resize');
 

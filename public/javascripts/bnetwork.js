@@ -1,4 +1,3 @@
-
 var cy;
 
 //$(window).load(function () {
@@ -12,7 +11,7 @@ $(function() { // on dom ready
 	    .selector('node')
 	      .css({
 	        'content': 'data(nameLabel)',
-	        'background-color': 'lightblue',
+	        'background-color': '#dd99ff',
 	        'font-size': 12,
 			'font-family': "Helvetica"
 	        
@@ -35,21 +34,22 @@ $(function() { // on dom ready
 	});
   
 	cy.on('tap', 'node', function(evt) {
-		console.log(evt.cyTarget.id());
+		//console.log(evt.cyTarget.id());
 		nodeSelected(evt.cyTarget.id(), evt.cyTarget.data('name'));
 	});
 	
 	cy.on('cxttap', 'node', function(evt) {
-		console.log(evt.cyTarget.id());
-		var color = cy.getElementById(evt.cyTarget.id()).css('background-color');
+		//console.log(evt.cyTarget.id());
+		//var color = cy.getElementById(evt.cyTarget.id()).css('background-color');
+		var color = getNodeColor(evt.cyTarget.id());
 		if (color == 'DarkSalmon') {
-			console.log(color);
+			//console.log(color);
 			$('#nodeMenu #target').css({'color':'#F8F8F8'});
 			$('#nodeMenu #offTarget').css({'color':'#000000'});
 			$('#nodeMenu').jqxMenu('disable', 'target', true);
 			$('#nodeMenu').jqxMenu('disable', 'offTarget', false);
 		} else {
-			console.log(color);
+			//console.log(color);
 			$('#nodeMenu #target').css({'color':'#000000'});
 			$('#nodeMenu #offTarget').css({'color':'#F8F8F8'});
 			$('#nodeMenu').jqxMenu('disable', 'target', false);
@@ -88,22 +88,15 @@ function setNodeColorAll(color)
 	cy.$('node').css('background-color', color);
 }
 
-function setNodeColor(nodeID, color)
-{
+function setNodeColor(nodeID, color) {
 	cy.getElementById(nodeID).css('background-color', color);
 }
 
-function networkLoadModel(model) {
-	//cy.load(networkInfoArray[0]);
-	cy.load(model);
-    /*if( $('#queryNodeNameDiv').css('display') == "none" ) {
-        if( $('#queryNodeNameDiv').find("select").length ) {
-             $('#queryNodeNameDiv').show();
-        } else {
-            addQueryNodeNameSelect(model);
-        }
-    }*/
+function getNodeColor( nodeID ) {
+    return cy.getElementById(nodeID).css('background-color');
+}
 
+function networkLoadModel(model) {
     $('#queryNodeNameDiv').empty();
     addQueryNodeNameSelect(model);
 
@@ -112,88 +105,84 @@ function networkLoadModel(model) {
     }
 
     drawLegend(model.originalNodeAcc, model.testNodeAcc);
-    /*drawLegend(model.allNodeAcc, model.allNodeAccInternal,
-            model.allNodeAccExternal);
-    */
+    cy.load(model);
 }
 
-//function drawLegend(allNodeAcc, allNodeAccInternal, allNodeAccExternal) {
 function drawLegend(originalNodeAcc, testNodeAcc) {
-    if( $("#network svg").length ) {
+    if( $('#legendDiv').css('display') == "none" ) {
+        $('#legendDiv').show();
+        interfaceSizing();
+    }
+    if( $("#legendDiv svg").length ) {
         d3.select("svg").remove();
     }
-    var yValue = 11;
-    var iniY = yValue + 100;
-	var maxWidth = $("#network").width();
-
+    var yValue = -4; //11
+    var xValue = 3;
+    var maxWidth = $("#legendDiv").width();
     var left = 11; //maxWidth - 180;
-    var x = 20;
     var r=8;
-	var svg = d3.select("#network")
+	var svg = d3.select("#legendDiv")
 	    .append("svg")
 	    .attr("width", maxWidth)
-	    .attr("height", 300)
+	    .attr("height", 24)
 	    .append("g")
 	    .attr('transform', 'translate(' + left + ', 20)');
 
-    var data = [{"x":40, "y":yValue, "color":"Lightblue", "value":"Network Node",
+    var data = [{"x":xValue, "y":yValue, "color":"#74a9d8", "value":"Network Node",
                     "fontSize":"12px", "fontWeight":""},
-                {"x":40, "y":yValue+20, "color":"Green", "value":"Real Evidence Node",
+                {"x":xValue+100, "y":yValue, "color":"Green", "value":"Real Evidence Node",
                     "fontSize":"12px", "fontWeight":""},
-                {"x":40, "y":yValue+40, "color":"#8FBC8F", "value":"Virtual Evidence Node",
+                {"x":xValue+234, "y":yValue, "color":"#8FBC8F", "value":"Virtual Evidence Node",
                     "fontSize":"12px", "fontWeight":""},
-                {"x":40, "y":yValue+60, "color":"DarkSalmon", "value":"Target Node",
+                {"x":xValue+376, "y":yValue, "color":"DarkSalmon", "value":"Observation Node",
                     "fontSize":"12px", "fontWeight":""},
-                {"x":40, "y":yValue+80, "color":"#dd99ff", "value":"Query Node",
+                {"x":xValue+498, "y":yValue, "color":"#dd99ff", "value":"Searched Node",
                     "fontSize":"12px", "fontWeight":""}];
 
-    //if(allNodeAcc && allNodeAccInternal && allNodeAccExternal) {
-    if( originalNodeAcc && testNodeAcc ) {
-        data.push({"x":40,"y":iniY, "color":"white",
-                        "value":"Internal 10-fold Cross Validation Accuracy for the Original Raw Data",
-                        "fontSize":"12px", "fontWeight":""},
-                  {"x":12, "y":iniY, "color":"white", "value":"IO:", "fontSize":"14px", "fontWeight":"bold"},
+    if ( originalNodeAcc ) {
+        data.push( {"x":xValue+620,"y":yValue, "color":"white",
+                    "value":"Internal K-fold Cross Validation Accuracy",
+                    "fontSize":"12px", "fontWeight":""});
 
-                  {"x":40,"y":iniY+20, "color":"white",
-                        "value":"External Validation Accuracy for the Original Raw Data",
-                        "fontSize":"12px", "fontWeight":""},
-                  {"x":10, "y":iniY+20, "color":"white", "value":"EO:", "fontSize":"14px", "fontWeight":"bold"},
+        data.push( {"x":xValue+611,"y":yValue, "color":"white",
+                    "value":"I:",
+                    "fontSize":"12px", "fontWeight":"bold"});
 
-                  {"x":40,"y":iniY+40, "color":"white",
-                        "value":"Internal 10-fold Cross Validation Accuracy for the Testing Data",
-                        "fontSize":"12px", "fontWeight":""},
-                  {"x":12, "y":iniY+40, "color":"white", "value":"IT:", "fontSize":"14px", "fontWeight":"bold"},
+        data.push( {"x":xValue+870,"y":yValue, "color":"white",
+                    "value":"External Validation Accuracy",
+                    "fontSize":"12px", "fontWeight":""});
 
-                  {"x":40,"y":iniY+60, "color":"white",
-                        "value":"External Validation Accuracy for the Testing Data",
-                        "fontSize":"12px", "fontWeight":""},
-                  {"x":10, "y":iniY+60, "color":"white", "value":"ET:", "fontSize":"14px", "fontWeight":"bold"});
-                 // "value":"10-fold Cross Validation Accuracy for the Raw Data, the Total="+allNodeAcc,
-                 // "value":"10-fold Cross Validation Accuracy for the Test Data, the Total="+allNodeAccInternal
-                 //"value":"External Validation Accuracy for the Test Data, the Total="+allNodeAccExternal,
-    //} else if(allNodeAcc) {
-    } else if(originalNodeAcc) {
-        data.push({"x":40,"y":iniY, "color":"white",
-                        "value":"Internal 10-fold Cross Validation Accuracy for the Original Raw Data",
-                        "fontSize":"12px", "fontWeight":""},
-                  {"x":12, "y":iniY, "color":"white", "value":"IO:", "fontSize":"14px", "fontWeight":"bold"},
+        data.push( {"x":xValue+856,"y":yValue, "color":"white",
+                    "value":"E:",
+                    "fontSize":"12px", "fontWeight":"bold"});
 
-                  {"x":40,"y":iniY+20, "color":"white",
-                        "value":"External Validation Accuracy for the Original Raw Data",
-                        "fontSize":"12px", "fontWeight":""},
-                  {"x":10, "y":iniY+20, "color":"white", "value":"EO:", "fontSize":"14px", "fontWeight":"bold"});
+        data.push( {"x":xValue+1055,"y":yValue, "color":"white",
+                    "value":"Original Raw Data",
+                    "fontSize":"12px", "fontWeight":""});
+        data.push( {"x":xValue+1041,"y":yValue, "color":"white",
+                    "value":"O:",
+                    "fontSize":"12px", "fontWeight":"bold"});
+    }
+
+    if( testNodeAcc ) {
+        data.push( {"x":xValue+1182,"y":yValue, "color":"white",
+                    "value":"Test Data",
+                    "fontSize":"12px", "fontWeight":""});
+        data.push( {"x":xValue+1170,"y":yValue, "color":"white",
+                    "value":"T:",
+                    "fontSize":"12px", "fontWeight":"bold"});
     }
 
     var g = svg.selectAll("g").data(data).enter().append("g");
 
     var circle = g.append("circle")
-        .attr("cx", x)
+        .attr("cx", function(d){ return d.x; })
         .attr("cy", function(d){ return d.y; })
         .attr("r", r)
         .style("fill", function(d){ return d.color;});
 
     var text = g.append("text")
-	    .attr("x", function(d){ return d.x;})
+	    .attr("x", function(d){ return d.x+10;})
 	    .attr("y", function(d){ return d.y;})
 	    .attr("dy", ".45em")
 	    .attr("fill", "black")
@@ -207,7 +196,7 @@ function addQueryNodeNameSelect( model ) {
     var nodes = model.nodes;
     var nodeIDs = [];
     var selectString = "<label for='queryNodeNameSelect' " +
-            "class='queryNodeNameLabel'>Query node name:&nbsp;</label>";
+            "class='queryNodeNameLabel'>Search a node by name:&nbsp;</label>";
 
     selectString += "<select size='5' id='queryNodeNameSelect' " +
         "name='queryNodeNameSelect' multiple='multiple'>";
@@ -220,19 +209,40 @@ function addQueryNodeNameSelect( model ) {
 
     selectString += "&nbsp;"
 	selectString += "<button class='queryNodeNameButton' " +
-	    "onclick='queryNodeName();'>query</button>";
+	    "onclick='queryNodeName();'>search</button>";
+	selectString += "&nbsp;&nbsp;&nbsp;&nbsp;<button class='legendToggleButton' " +
+	    "onclick='toggleLegend();'>legend</button>";
 	$("#queryNodeNameDiv").append(selectString);
 	$("#queryNodeNameSelect").multiselect().multiselectfilter();
 	$('#queryNodeNameDiv').show();
 }
 
+/**
+ * Array.prototype.[method name] allows you to define/overwrite an objects method
+ * needle is the item you are searching for
+ * this is a special variable that refers to "this" instance of an Array.
+ * returns true if needle is in the array, and false otherwise
+ */
+Array.prototype.contains = function ( needle ) {
+   for (i in this) {
+       if (this[i] == needle) return true;
+   }
+   return false;
+}
+
 function queryNodeName(){
     var queryNodeNameArray = $("#queryNodeNameSelect").val();
-    if( queryNodeNameArray.length == 0 ) {
-        alertBoxShow("Please select node name first.");
-    } else {
-        for( var i=0; i< queryNodeNameArray.length; i++ ) {
-            cy.getElementById(queryNodeNameArray[i]).css('background-color', "#dd99ff");
-        }
-    }
+    var outcomeValues = networkInfoArray[1];
+    for( var index=0; index < outcomeValues.length; index++ ) {
+		nodeOutcomes = outcomeValues[index];
+		var chartClass = '.chart' + index;
+		$(chartClass).empty();
+		drawChart(nodeOutcomes, chartClass);
+		$('#chartDiv').trigger('resize');
+	}
+}
+
+function toggleLegend(){
+    $('#legendDiv').toggle();
+    interfaceSizing();
 }

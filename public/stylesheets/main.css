@@ -16,32 +16,44 @@ html, body{
 }
 
 #topButtonsDiv {
+    /*float:left;*/
    /*padding-top:20px;*/
    display:block;
+   /*display: inline;*/
    background-color:#4c91cd;
    /*border: solid red 2px;*/
-   width:100%;
+   /*width:100%;*/
    height: 34px; /*29px;*/
 }
 
+#legendDiv{
+    /*display:block;*/
+    height: 30px;
+    display: none;
+    width: 100%;
+}
 #lowerButtonsDiv {
    padding-bottom:1px;
    display:block;
    /*border: solid red 2px;*/
    /*margin-top: -13px;
-   border: solid blue 2px;
-   width:100%;
-   height: 29px;*/
+   border: solid blue 2px;*/
+   /*width:100%; */
+   /*height: 102px;*/
 }
 
 .lowerButtonsTable{
     /*border: 1px solid pink;*/
-    height: 68px;
-    weight: 100%;
+    /*height: 102px;*/
+    /*weight: 100%;*/
 }
 
+/*.lowerButtonsTr{
+    height: 34px;
+}*/
 .lowerButtonsTd{
     /*vertical-align:top;*/
+    /*width:100%;*/
     background-color:#ffebcc; /*#ffebcc;*/ /*#4c91cd;*/
     height: 34px; /*29px;*/
 }
@@ -56,11 +68,16 @@ html, body{
     /*margin-bottom:-5px;*/
 }
 
+.lowerQueryNameTd{
+    float:left;
+    height:34px;
+    padding-left: 5px;
+}
+
 #queryNodeNameDiv{
     float: left;
     display: none;
     height:34px;
-
 }
 #showAlgorithmChangeDiv{
     float: left;
@@ -149,7 +166,7 @@ html, body{
 }
 
 #footDiv, .push {
-	position:absolute;
+	/*position:absolute;*/
 	width:100%;
 	height:28px; /*2em;*/
 	font-family:Segoe UI;
@@ -279,6 +296,7 @@ html, body{
     /*padding: 2px 0px 2px 0px !important;*/
 }
 
+
 .lowerSelectLabel{
     font-size: 16px;
     font-weight: normal;
@@ -368,7 +386,7 @@ html, body{
     color: #4c91cd; /*#21578A;*/
 }
 
-.queryNodeNameButton{
+.queryNodeNameButton, .legendToggleButton{
     height:30px;
     font-weight: bold;
     font-size: 16px;
@@ -387,7 +405,7 @@ html, body{
     outline:none !important;
 }
 
-.queryNodeNameButton:hover{
+.queryNodeNameButton:hover, .legendToggleButton:hover{
      color: #4c91cd;
 }
 /*.bootstrap-select */
@@ -414,6 +432,15 @@ html, body{
     background:#e6e6e6 !important;
 }
 
+#kFoldField{
+    height: 28px !important;
+    border:1px solid #d3d3d3 !important;
+    border-bottom-right-radius:4px !important;
+    border-bottom-left-radius:4px !important;
+    border-top-right-radius:4px !important;
+    border-top-left-radius:4px !important;
+    font-weight: normal !important;
+}
 #algorithmSelect{
     align-items:center !important;
     -webkit-appearance: menulist !important;
@@ -630,16 +657,18 @@ a:hover, a:active{
     border-right-color:#004280;*/
     /*overflow: auto;*/
     font-size:18px;
+    /*width: 100%;*/
 }
 
 .centerLeftTd{
     width: 250px;
     min-width: 250px;
 }
-/*
+
 .centerRightTd{
-    border: solid blue 2px;
-}*/
+    /*border: solid blue 2px;*/
+    vertical-align: top;
+}
 
 #flashSuccessWindow{
     //display: none;
@@ -725,6 +754,3 @@ a:hover, a:active{
     font-weight: normal;
 }
 
-#queryNodeNameDiv {
-    margin-left: 20px;
-}
