@@ -217,6 +217,44 @@ function addQueryNodeNameSelect( model ) {
 	$('#queryNodeNameDiv').show();
 }
 
+function addQueryNodeName( nodeID, nodeName) {
+    var exist = false;
+    $("#queryNodeNameSelect option").each(function(){
+        if( $(this).val() == nodeID ) {
+            exist = true;
+        }
+    });
+    if( !exist ) {
+	    $('#queryNodeNameSelect').append("<option value='" + nodeID + "'>" +
+	            nodeName + "</option>");
+	    var options = $("#queryNodeNameSelect option");     // Collect options
+        options.detach().sort(function(a,b) {               // Detach from select, then Sort
+            var at = $(a).text();
+            var bt = $(b).text();
+            return (at > bt)?1:((at < bt)?-1:0);            // Tell the sort function how to order
+        });
+        options.appendTo("#queryNodeNameSelect");
+	    $("#queryNodeNameSelect").multiselect("refresh");
+    }
+}
+
+function removeQueryNodeName( nodeID ) {
+    $("#queryNodeNameSelect option").each(function(){
+        if( $(this).val() == nodeID ) {
+            $(this).remove();
+        }
+    });
+    var options = $("#queryNodeNameSelect option");     // Collect options
+    options.detach().sort(function(a,b) {               // Detach from select, then Sort
+        var at = $(a).text();
+        var bt = $(b).text();
+        return (at > bt)?1:((at < bt)?-1:0);            // Tell the sort function how to order
+    });
+    options.appendTo("#queryNodeNameSelect");
+    $("#queryNodeNameSelect").multiselect("refresh");
+}
+
+
 /**
  * Array.prototype.[method name] allows you to define/overwrite an objects method
  * needle is the item you are searching for

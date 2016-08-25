@@ -949,6 +949,17 @@ function clearAllEvidence(showMessage) {
 	}).done(function(data) {
 		//console.log(data);
 		networkInfoArray = JSON.parse(data);
+		var outcomeValues = networkInfoArray[1];
+		for( var index=0; index < outcomeValues.length; index++ ) {
+		    if( outcomeValues[index].isRealEvidence !="true" &&
+		        outcomeValues[index].isVirtualEvidence !="true" &&
+		        outcomeValues[index].isTarget !="true" ) {
+
+		        var nodeID = outcomeValues[index].id;
+		        var nodeName = outcomeValues[index].nodename;
+		        addQueryNodeName(nodeID, nodeName);
+		    }
+		}
 		drawCharts(networkInfoArray[1]);
 		$('#chartDiv').trigger('resize');
 
@@ -977,6 +988,14 @@ function clearEvidence()
 	}).done(function(data) {
 		//console.log(data);
 		networkInfoArray = JSON.parse(data);
+		var outcomeValues = networkInfoArray[1];
+		for( var index=0; index < outcomeValues.length; index++ ) {
+		    if(outcomeValues[index].id == nodeID ) {
+		        var nodeName = outcomeValues[index].nodename;
+		        addQueryNodeName(nodeID, nodeName);
+		        break;
+		    }
+		}
 		drawCharts(networkInfoArray[1]);
         setNodeColor(nodeID, '#74a9d8');
         $('#chartDiv').trigger('resize');
@@ -1012,6 +1031,7 @@ function setEvidence()
 	        alertBoxShow("Value is not valid, Please try again.");
 	        return false;
 	    }
+	    removeQueryNodeName(nodeID);
 		networkInfoArray = JSON.parse(data);
 		drawCharts(networkInfoArray[1]);
 		setNodeColor(nodeID, 'Green');
@@ -1057,6 +1077,7 @@ function setVirtualEvidence()
 	        alertBoxShow("Value is not valid, Please try again.");
 	        return false;
 	    }
+	    removeQueryNodeName(nodeID);
 		networkInfoArray = JSON.parse(data);
 		drawCharts(networkInfoArray[1]);
 		setNodeColor(nodeID, 'DarkSeaGreen');
@@ -1075,7 +1096,8 @@ function setAsObservation()
             if( outcomeValuesOri[index].isVirtualEvidence == "true" ||
                 outcomeValuesOri[index].isRealEvidence == "true") {
 
-		        alertBoxShow("This is an Evidence node. Please clear evidence first.");
+		        alertBoxShow("This is an Evidence node. If you would like " +
+		            "to set as an observation node, please clear evidence first.");
 		        return;
 		    }
 		}
@@ -1089,6 +1111,7 @@ function setAsObservation()
 	        alertBoxShow(data.substring(7));
 	    }else{
 	        $('#nodeMenu').jqxMenu('close');
+	        removeQueryNodeName(nodeID);
 		    networkInfoArray = JSON.parse(data);
 		    //drawCharts(networkInfoArray[1]);
 
@@ -1128,10 +1151,12 @@ function removeObservation()
 		//drawCharts(networkInfoArray[1]);
 
 		var outcomeValues = networkInfoArray[1];
-        var nodeOutcomes;
+		var nodeOutcomes;
 		var nodeIndex;
 		for( var index=0; index < outcomeValues.length; index++ ) {
 		    if(outcomeValues[index].id == nodeID ) {
+		        var nodeName = outcomeValues[index].nodename;
+		        addQueryNodeName(nodeID, nodeName);
 		        nodeOutcomes = outcomeValues[index];
 		        nodeIndex = index;
 		        break;
@@ -1164,7 +1189,19 @@ function clearAllTargets()
 		url: clearAllTargetsAjax.url
 	}).done(function(data) {
 		networkInfoArray = JSON.parse(data);
+		var outcomeValues = networkInfoArray[1];
+		for( var index=0; index < outcomeValues.length; index++ ) {
+		    if( outcomeValues[index].isRealEvidence !="true" &&
+		        outcomeValues[index].isVirtualEvidence !="true" &&
+		        outcomeValues[index].isTarget !="true" ) {
+
+		        var nodeID = outcomeValues[index].id;
+		        var nodeName = outcomeValues[index].nodename;
+		        addQueryNodeName(nodeID, nodeName);
+		    }
+		}
 		drawCharts(networkInfoArray[1]);
+
 		$('#chartDiv').trigger('resize');
 	}).fail(function() {
 	    alertBoxShow("Clear All Targets failed. Please try again.");
