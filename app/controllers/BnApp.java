@@ -1060,10 +1060,10 @@ public class BnApp extends Controller {
     	return ok(cptStr);
     }
 
-	public static class DownloadModel {
+	/*public static class DownloadModel {
 		//@Constraints.Required
 		public String modelName;
-	}
+	}*/
 	/*
 	public static Result readMe() {
 		return ok();

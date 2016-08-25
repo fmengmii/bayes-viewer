@@ -1069,6 +1069,17 @@ function setVirtualEvidence()
 function setAsObservation()
 {
 	var nodeID = $('#nodeMenu #nodeID').val();
+    var outcomeValuesOri = networkInfoArray[1];
+    for( var index=0; index < outcomeValuesOri.length; index++ ) {
+        if(outcomeValuesOri[index].id == nodeID ) {
+            if( outcomeValuesOri[index].isVirtualEvidence == "true" ||
+                outcomeValuesOri[index].isRealEvidence == "true") {
+
+		        alertBoxShow("This is an Evidence node. Please clear evidence first.");
+		        return;
+		    }
+		}
+    }
 
 	var setAsTargetAjax = jsRoutes.controllers.BnApp.setAsTarget(nodeID);
 	$.ajax({
@@ -1099,7 +1110,7 @@ function setAsObservation()
 		    $('#chartDiv').trigger('resize');
 		}
 	}).fail(function() {
-	    alertBoxShow("Set As Observation failed. Please try again.");
+	    alertBoxShow("This is a Evidence node, it can't be set as Observation node.");
 	});
 }
 

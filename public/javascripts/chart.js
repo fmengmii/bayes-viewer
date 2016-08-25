@@ -99,13 +99,8 @@ function drawChart(nodeInfoArray, divSelect)
 	    .enter().append("g")
 	    .attr("transform", function(d, i) { return "translate(0," + i * barHeight + ")"; });
 
-    if( isSearch == "true" ) {
-        setNodeColor(nodeID, '#dd99ff');
-        bar.append("rect")
-	    .style("fill", "#dd99ff")
-	    .attr("width", function(d){ return x(d.value);})
-	    .attr("height", barHeight - 1);
-    } else if(isRealEvidence == "true"){
+
+    if(isRealEvidence == "true"){
         setNodeColor(nodeID, 'Green');
 	    bar.append("rect")
 	    .style("fill", "Green")
@@ -121,6 +116,12 @@ function drawChart(nodeInfoArray, divSelect)
 	    setNodeColor(nodeID, 'DarkSalmon');
 	    bar.append("rect")
 	    .style("fill", "DarkSalmon")
+	    .attr("width", function(d){ return x(d.value);})
+	    .attr("height", barHeight - 1);
+	}else if( isSearch == "true" ) {
+        setNodeColor(nodeID, '#dd99ff');
+        bar.append("rect")
+	    .style("fill", "#dd99ff")
 	    .attr("width", function(d){ return x(d.value);})
 	    .attr("height", barHeight - 1);
 	} else {
