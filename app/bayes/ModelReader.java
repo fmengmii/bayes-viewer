@@ -410,7 +410,6 @@ public class ModelReader
 
 		Map<String, String> validationNodeAccuracyMap = new HashMap<String, String>();
 		int numDataSetColumn = dataSet.getVariableCount();
-		//int numDataSetRow = dataSet.getRecordCount();
 		int totalRecord = dataSet.getRecordCount();
 		DecimalFormat numberFormat = new DecimalFormat("0.00");
 		String[][] validationResultArray = new String[totalRecord+2][numDataSetColumn*3];
@@ -428,17 +427,10 @@ public class ModelReader
 				validationResultArray[0][numDataSetColumn*2+col] = colName +"_external_predicted";
 
 				String[] stateNameArray = dataSet.getStateNames(col);
-				/*if( isTestData && col==1) {
-					for(int i=0; i<stateNameArray.length; i++) {
-						Logger.info("stateNameArray=" + stateNameArray[i]);
-					}
-				}*/
 
 				for( int row=0; row < totalRecord; row++ ) {
-					//validationResultArray[row+1][col] = dataSet.getInt(col, row);
 					int stateSeqNum = dataSet.getInt(col, row);
 					String stateLabel = stateNameArray[stateSeqNum];
-					//String stateLabel = "State" + stateSeqNum;
 					validationResultArray[row+1][col] = stateLabel;
 				}
 				validationResultArray[totalRecord+1][col] = "";
@@ -473,7 +465,6 @@ public class ModelReader
 
 				int totalCorrectCaseNum = 0;
 				String stateAccSummary = "";
-				//int totalRecord = dataSet.getRecordCount();
 				String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
 				String[] curNodeStateNameArray = dataSet.getStateNames(i);
 				String[] totalStateNameArray = new String[outcomeIDs.length];
@@ -522,7 +513,7 @@ public class ModelReader
 					}
 				}
 				/*
-				//The output is not sequential for state
+				//The following output is not sequential for state
 				for (int j = 0; j < outcomeIDs.length; j++) {
 					double accuracy = validator.getAccuracy(nodeID, outcomeIDs[j]); //real state label
 					Map<String, Integer> stateCountMap = dataSetStateMap.get(nodeID);
