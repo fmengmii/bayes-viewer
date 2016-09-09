@@ -337,7 +337,7 @@ public class BnApp extends Controller {
 
 	private static ModelReader getDataSetAndStateMap( ModelReader modelReader,
 													  RawDataFile rawDataFile,
-													  boolean isExternalDataSet ) {
+													  boolean isTestDataSet ) {
 
 		try {
 			File tmpFile = new File("/tmp/" +
@@ -361,7 +361,7 @@ public class BnApp extends Controller {
 				String nodeId = dataSet.getVariableId(i);
 				String[] stateNameArray = dataSet.getStateNames(i);
 				/*if( i==1 ) {
-					Logger.info("getDataSetAndStateMap: dataSet get stateNameArray below:");
+					Logger.info("getDataSetAndStateMapForRawData: dataSet get stateNameArray below:");
 					for( int m=0; m<stateNameArray.length; m++ ) {
 						Logger.info(stateNameArray[m]);
 					}
@@ -373,8 +373,8 @@ public class BnApp extends Controller {
 					/*if( i==1 && j < 6 ){
 						Logger.info("i=1, j=" + j + " stateSeqNum=" + stateSeqNum );
 					}*/
-					//String stateLabel = stateNameArray[stateSeqNum]; // that's wrong for incomplete state in test file
-					String stateLabel = "State" + stateSeqNum;
+					String stateLabel = stateNameArray[stateSeqNum]; // that will put real state into array
+					//String stateLabel = "State" + stateSeqNum;
 
 					if (stateCountMap.containsKey(stateLabel)) {
 						int count = stateCountMap.get(stateLabel);
@@ -386,14 +386,14 @@ public class BnApp extends Controller {
 				dataSetStateMap.put(nodeId, stateCountMap);
 			}
 
-			if( isExternalDataSet ) {
-				modelReader.setDataSetExternal(dataSet);
-				modelReader.setDataSetExternalStateMap(dataSetStateMap);
-				Cache.set("dataSetExternal", dataSet);
+			if( isTestDataSet ) {
+				modelReader.setDataSetForTestData(dataSet);
+				modelReader.setDataSetStateMapForTestData(dataSetStateMap);
+				Cache.set("dataSetForTestData", dataSet);
 			} else {
-				modelReader.setDataSet(dataSet);
-				modelReader.setDataSetStateMap(dataSetStateMap);
-				Cache.set("dataSet", dataSet);
+				modelReader.setDataSetForRawData(dataSet);
+				modelReader.setDataSetStateMapForRawData(dataSetStateMap);
+				Cache.set("dataSetForRawData", dataSet);
 			}
 			tmpFile.delete();
 		} catch (Exception ex) {

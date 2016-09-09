@@ -386,7 +386,8 @@ html, body{
     color: #4c91cd; /*#21578A;*/
 }
 
-.queryNodeNameButton, .legendToggleButton{
+.queryNodeNameButton, .legendToggleButton,
+.viewRawDataValidationResultButton, .viewTestDataValidationResultButton{
     height:30px;
     font-weight: bold;
     font-size: 16px;
@@ -405,7 +406,8 @@ html, body{
     outline:none !important;
 }
 
-.queryNodeNameButton:hover, .legendToggleButton:hover{
+.queryNodeNameButton:hover, .legendToggleButton:hover,
+.viewRawDataValidationResultButton:hover, .viewTestDataValidationResultButton:hover{
      color: #4c91cd;
 }
 /*.bootstrap-select */
@@ -702,6 +704,18 @@ a:hover, a:active{
     display: none;
 }
 
+#rawDataValidationResult{
+    display: none;
+}
+#testDataValidationResult{
+    display: none;
+}
+#downloadRawDataValidationResult{
+    display: none;
+}
+#downloadTestDataValidationResult{
+    display: none;
+}
 .navbar-brand{
     float: right !important;
     /*font-size: 1.15em !important;*/

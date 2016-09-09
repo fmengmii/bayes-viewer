@@ -72,17 +72,14 @@
 				</td>
 			</tr>
 			<tr><td class="lowerQueryNameTd">
-					@**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**@
-					<div id="queryNodeNameDiv">
-						@** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **@
-						@**<label for="queryNodeNameSelect" class="queryNodeNameLabel">Find a node by name:</label>**@
-
-					</div>
+					<div id="queryNodeNameDiv"/>
 				</td>
 			</tr>
         </table>
 	</div>
 	<div id="legendDiv"></div>
+
+
 	@if(flash.containsKey("success")){
 		<div id="flashSuccessWindow">
 			<div>title</div>
@@ -210,6 +207,28 @@
 			<div style="float: right">
 				<button type="button" onclick="downloadData()">Download</button>
 				<input type="button" value="Close" id="rawDoneButton" />
+			</div>
+
+		</div>
+	</div>
+
+	<div id="rawDataValidationResult">
+		<div id="rawDataValidationResultContent" style="overflow: hidden">
+			<div id="rawDataValidationResultTable"></div>
+			<div style="float: right">
+				<button type="button" onclick="downloadResult(false)">Download</button>
+				<a id="downloadRawDataValidationResult" type="text/csv">Download</a>
+				<input type="button" value="Close" id="rawDataValidationResultDoneButton" />
+			</div>
+		</div>
+	</div>
+	<div id="testDataValidationResult">
+		<div id="testDataValidationResultContent" style="overflow: hidden">
+			<div id="testDataValidationResultTable"></div>
+			<div style="float: right">
+				<button type="button" onclick="downloadResult(true)">Download</button>
+				<a id="downloadTestDataValidationResult" type="text/csv">Download</a>
+				<input type="button" value="Close" id="testDataValidationResultDoneButton" />
 			</div>
 
 		</div>

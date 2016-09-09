@@ -143,6 +143,16 @@ $(document).ready(function () {
 		okButton: $("#rawDoneButton"), autoOpen: false
 	});
 
+	$('#rawDataValidationResult').jqxWindow({
+		width: 600, height: 400, resizable: true,
+		okButton: $("#rawDataValidationResultDoneButton"), autoOpen: false
+	});
+
+    $('#testDataValidationResult').jqxWindow({
+		width: 600, height: 400, resizable: true,
+		okButton: $("#testDataValidationResultDoneButton"), autoOpen: false
+	});
+
 	//$('#dialogSetValues').jqxWindow('close');
 
 	$("#nodeMenu").jqxMenu({ width: '140px', height: '120px', autoOpenPopup: false, mode: 'popup'});
@@ -491,7 +501,7 @@ function getRawData(modelName, fileContent)
 
 	createColumnStruct(colNames,fields,columnStruct);
 
-	var data = csvToJSON(fileContent);
+	var data = csvToJSON(fileContent, "\n", ",");
 	var source =
 		{
 			dataType: "json",
@@ -582,18 +592,25 @@ function showHelp() {
 
 }
 
-function csvToJSON(csv)
-{
-	var lines=csv.split("\n");
+function csvToJSON(csv, lineDelimiter, colDelimiter){
+    if( lineDelimiter == null ) {
+        lineDelimiter = "\n";
+    }
+    if( colDelimiter == null ) {
+        colDelimiter == ",";
+    }
+	//var lines=csv.split("\n");
+	var lines=csv.split(lineDelimiter);
 	var result = [];
-	var headers=lines[0].split(",");
+	//var headers=lines[0].split(",");
+	var headers=lines[0].split(colDelimiter);
 
 	for(var i=1;i<lines.length;i++){
 		var obj = {};
-		var currentline=lines[i].split(",");
+		var currentLine = lines[i].split(colDelimiter);
 
 		for(var j=0;j<headers.length;j++){
-			obj[headers[j]] = currentline[j];
+			obj[headers[j]] = currentLine[j];
 		}
 
 		result.push(obj);

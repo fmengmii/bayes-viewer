@@ -98,8 +98,8 @@ function getNodeColor( nodeID ) {
 
 function networkLoadModel(model) {
     $('#queryNodeNameDiv').empty();
-    addQueryNodeNameSelect(model);
-
+    //addQueryNodeNameSelect(model);
+    addQueryNodeNameSelect();
     if( $('#showAlgorithmChangeDiv').css('display') == "none" ) {
         $('#showAlgorithmChangeDiv').show();
     }
@@ -192,7 +192,9 @@ function drawLegend(originalNodeAcc, testNodeAcc) {
 
 }
 
-function addQueryNodeNameSelect( model ) {
+//function addQueryNodeNameSelect( model ) {
+/*function addQueryNodeNameSelect(){
+    var model = networkInfoArray[0];
     var nodes = model.nodes;
     var nodeIDs = [];
     var selectString = "<label for='queryNodeNameSelect' " +
@@ -212,6 +214,18 @@ function addQueryNodeNameSelect( model ) {
 	    "onclick='queryNodeName();'>search</button>";
 	selectString += "&nbsp;&nbsp;&nbsp;&nbsp;<button class='legendToggleButton' " +
 	    "onclick='toggleLegend();'>legend</button>";
+
+    var isTestData = true;
+    if( model.originalNodeAcc == "true" ) {
+        isTestData = false;
+	    selectString += "&nbsp;&nbsp;&nbsp;&nbsp;<button class='viewRawDataValidationResultButton' " +
+	        "onclick='viewDataValidationResult(false);'>view raw data validation result</button>";
+	}
+	if( model.testNodeAcc == "true" ) {
+	    selectString += "&nbsp;&nbsp;&nbsp;&nbsp;<button class='viewTestDataValidationResultButton' " +
+	        "onclick='viewDataValidationResult(true);'>view test data validation result</button>";
+	}
+
 	$("#queryNodeNameDiv").append(selectString);
 	$("#queryNodeNameSelect").multiselect().multiselectfilter();
 	$('#queryNodeNameDiv').show();
@@ -261,6 +275,8 @@ function removeQueryNodeName( nodeID ) {
  * this is a special variable that refers to "this" instance of an Array.
  * returns true if needle is in the array, and false otherwise
  */
+
+/*
 Array.prototype.contains = function ( needle ) {
    for (i in this) {
        if (this[i] == needle) return true;
@@ -284,3 +300,30 @@ function toggleLegend(){
     $('#legendDiv').toggle();
     interfaceSizing();
 }
+
+function viewRawDataValidationResult() {
+    if( $("#load").val() == null || $("#load").val() == '') {
+        alertBoxShow("Please select a network file first.");
+        return false;
+    }
+    var modelName = $("#load").val();
+    if(modelName == null) {
+	    alertBoxShow("Sorry, there is not an existed network yet.");
+	} else {
+        var getRawDataAjax = jsRoutes.controllers.BnApp.getRawData(modelName);
+        $.ajax({
+            url: getRawDataAjax.url
+        }).done(function(data) {
+            if( data.startsWith("Error:") ) {
+                var message = data.replace("Error:", "");
+                alertBoxShow(message);
+            } else {
+                getRawData(modelName, data);
+                $("#rawData").jqxWindow('open');
+
+            }
+        }).fail(function(){
+        });
+    }
+}
+*/

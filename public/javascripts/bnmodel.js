@@ -90,6 +90,7 @@ function loadModel() {
                 return false;
             } else {
                 $('#splitter').show();
+                console.log(data);
                 networkInfoArray = JSON.parse(data);
                 networkLoadModel(networkInfoArray[0]);
                 drawCharts(networkInfoArray[1]);
@@ -1252,4 +1253,242 @@ function getCPT(nodeID)
 	});
 }
 
+function addQueryNodeNameSelect() {
+    var model = networkInfoArray[0];
+    var nodes = model.nodes;
+    var nodeIDs = [];
+    var selectString = "<label for='queryNodeNameSelect' " +
+            "class='queryNodeNameLabel'>Search a node by name:&nbsp;</label>";
 
+    selectString += "<select size='5' id='queryNodeNameSelect' " +
+        "name='queryNodeNameSelect' multiple='multiple'>";
+
+    for( var i=0; i<nodes.length; i++ ){
+	    selectString += "<option value='" + nodes[i].data.id + "'>" +
+	        nodes[i].data.name + "</option>";
+	}
+	selectString +=	"</select>";
+
+    selectString += "&nbsp;"
+	selectString += "<button class='queryNodeNameButton' " +
+	    "onclick='queryNodeName();'>search</button>";
+	selectString += "&nbsp;&nbsp;&nbsp;&nbsp;<button class='legendToggleButton' " +
+	    "onclick='toggleLegend();'>legend</button>";
+
+    var isTestData = true;
+    if( model.originalNodeAcc == "true" ) {
+        isTestData = false;
+	    selectString += "&nbsp;&nbsp;&nbsp;&nbsp;<button class='viewRawDataValidationResultButton' " +
+	        //"onclick='viewDataValidationResult(" + model.rawDataValidationResult + "," + isTestData + ");'>view raw data validation result</button>";
+	        "onclick='viewDataValidationResult(false);'>view raw data validation result</button>";
+	}
+	if( model.testNodeAcc == "true" ) {
+	    selectString += "&nbsp;&nbsp;&nbsp;&nbsp;<button class='viewTestDataValidationResultButton' " +
+	        //"onclick='viewDataValidationResult(" + model.testDataValidationResult + "," + isTestData + ");'>view test data validation result</button>";
+	        "onclick='viewDataValidationResult(true);'>view test data validation result</button>";
+	}
+
+	$("#queryNodeNameDiv").append(selectString);
+	$("#queryNodeNameSelect").multiselect().multiselectfilter();
+	$('#queryNodeNameDiv').show();
+}
+
+function addQueryNodeName( nodeID, nodeName) {
+    var exist = false;
+    $("#queryNodeNameSelect option").each(function(){
+        if( $(this).val() == nodeID ) {
+            exist = true;
+        }
+    });
+    if( !exist ) {
+	    $('#queryNodeNameSelect').append("<option value='" + nodeID + "'>" +
+	            nodeName + "</option>");
+	    var options = $("#queryNodeNameSelect option");     // Collect options
+        options.detach().sort(function(a,b) {               // Detach from select, then Sort
+            var at = $(a).text();
+            var bt = $(b).text();
+            return (at > bt)?1:((at < bt)?-1:0);            // Tell the sort function how to order
+        });
+        options.appendTo("#queryNodeNameSelect");
+	    $("#queryNodeNameSelect").multiselect("refresh");
+    }
+}
+
+function removeQueryNodeName( nodeID ) {
+    $("#queryNodeNameSelect option").each(function(){
+        if( $(this).val() == nodeID ) {
+            $(this).remove();
+        }
+    });
+    var options = $("#queryNodeNameSelect option");     // Collect options
+    options.detach().sort(function(a,b) {               // Detach from select, then Sort
+        var at = $(a).text();
+        var bt = $(b).text();
+        return (at > bt)?1:((at < bt)?-1:0);            // Tell the sort function how to order
+    });
+    options.appendTo("#queryNodeNameSelect");
+    $("#queryNodeNameSelect").multiselect("refresh");
+}
+
+
+/**
+ * Array.prototype.[method name] allows you to define/overwrite an objects method
+ * needle is the item you are searching for
+ * this is a special variable that refers to "this" instance of an Array.
+ * returns true if needle is in the array, and false otherwise
+ */
+
+Array.prototype.contains = function ( needle ) {
+   for (i in this) {
+       if (this[i] == needle) return true;
+   }
+   return false;
+}
+
+function queryNodeName(){
+    var queryNodeNameArray = $("#queryNodeNameSelect").val();
+    var outcomeValues = networkInfoArray[1];
+    for( var index=0; index < outcomeValues.length; index++ ) {
+		nodeOutcomes = outcomeValues[index];
+		var chartClass = '.chart' + index;
+		$(chartClass).empty();
+		drawChart(nodeOutcomes, chartClass);
+		$('#chartDiv').trigger('resize');
+	}
+}
+
+function toggleLegend(){
+    $('#legendDiv').toggle();
+    interfaceSizing();
+}
+
+function viewRawDataValidationResult() {
+    if( $("#load").val() == null || $("#load").val() == '') {
+        alertBoxShow("Please select a network file first.");
+        return false;
+    }
+    var modelName = $("#load").val();
+    if(modelName == null) {
+	    alertBoxShow("Sorry, there is not an existed network yet.");
+	} else {
+        var getRawDataAjax = jsRoutes.controllers.BnApp.getRawData(modelName);
+        $.ajax({
+            url: getRawDataAjax.url
+        }).done(function(data) {
+            if( data.startsWith("Error:") ) {
+                var message = data.replace("Error:", "");
+                alertBoxShow(message);
+            } else {
+                getRawData(modelName, data);
+                $("#rawData").jqxWindow('open');
+
+            }
+        }).fail(function(){
+        });
+    }
+}
+
+//function viewDataValidationResult(dataValidationResult, isTestData) {
+function viewDataValidationResult(isTestData) {
+    var model = networkInfoArray[0];
+    var modelName = $("#load").val();
+    if( isTestData ) {
+	    $('#testDataValidationResult').jqxWindow("setTitle", "Test Data Validation Result for " + modelName);
+	    dataValidationResult = model.testDataValidationResult;
+	} else {
+	    $('#rawDataValidationResult').jqxWindow("setTitle", "Raw Data Validation Result for " + modelName);
+	    dataValidationResult = model.rawDataValidationResult;
+	}
+	var fields = [];
+	var columnStruct = [];
+
+	var lines = dataValidationResult.split('@');
+	var colNames = lines[0].split('$');
+
+	createColumnStruct(colNames,fields,columnStruct);
+
+	var data = csvToJSON(dataValidationResult, "@", "$");
+	var source =
+		{
+			dataType: "json",
+			dataFields: fields,
+			localData: data
+		};
+
+	//createDataResultTable(source,columnStruct);
+	var dataAdapter = new $.jqx.dataAdapter(source);
+	/*$("#dataResultTable").jqxGrid(
+		{
+			width: "99%",
+			height: "95%",
+			source: dataAdapter,
+			columnsResize: true,
+			columns: columnStruct
+		});
+	*/
+	if( isTestData ) {
+	    $("#testDataValidationResultTable").jqxGrid(
+		{
+			width: "99%",
+			height: "95%",
+			source: dataAdapter,
+			columnsResize: true,
+			columns: columnStruct
+		});
+	    $("#testDataValidationResult").jqxWindow('open');
+	} else {
+	    $("#rawDataValidationResultTable").jqxGrid(
+		{
+			width: "99%",
+			height: "95%",
+			source: dataAdapter,
+			columnsResize: true,
+			columns: columnStruct
+		});
+	    $("#rawDataValidationResult").jqxWindow('open');
+	}
+}
+
+function downloadResult(isTestData) {
+    var model = networkInfoArray[0];
+    var downloadResultLinkTag;
+
+    var downloadFileName = "";
+    if( isTestData ) {
+	    dataValidationResult = model.testDataValidationResult;
+	    downloadFileName += "testData";
+	    downloadResultLinkTag = document.getElementById("downloadTestDataValidationResult");
+	} else {
+	    dataValidationResult = model.rawDataValidationResult;
+	    downloadFileName += "rawData"
+	    downloadResultLinkTag = document.getElementById("downloadRawDataValidationResult");
+	}
+	downloadFileName += "ValidationResult.csv";
+	var csv = "";
+    var lines = dataValidationResult.split('@');
+	var colNames = lines[0].split('$');
+
+    for(var i=0; i<lines.length; i++) {
+        var columns = lines[i].split("$");
+        for(var j=0; j<columns.length; j++) {
+            if( j < columns.length - 1 ) {
+                if( i == lines.length -2 ) {
+                    console.log(columns[j]);
+                    if( columns[j].includes("&#13;") ) {
+                        console.log("found &#13;");
+                    //columns[j].replace("\r\n", "&#13;");
+                    }
+                }
+                csv += columns[j] + ",";
+            } else {
+                csv += columns[j];
+            }
+        }
+        csv += "\n";
+    }
+    var data = new Blob([csv]);
+
+    downloadResultLinkTag.href = URL.createObjectURL(data);
+    downloadResultLinkTag.download = downloadFileName;
+    downloadResultLinkTag.click();
+}
