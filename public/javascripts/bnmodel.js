@@ -90,7 +90,7 @@ function loadModel() {
                 return false;
             } else {
                 $('#splitter').show();
-                console.log(data);
+                //console.log(data);
                 networkInfoArray = JSON.parse(data);
                 networkLoadModel(networkInfoArray[0]);
                 drawCharts(networkInfoArray[1]);
@@ -1272,20 +1272,20 @@ function addQueryNodeNameSelect() {
     selectString += "&nbsp;"
 	selectString += "<button class='queryNodeNameButton' " +
 	    "onclick='queryNodeName();'>search</button>";
-	selectString += "&nbsp;&nbsp;&nbsp;&nbsp;<button class='legendToggleButton' " +
+	selectString += "&nbsp;<button class='legendToggleButton' " +
 	    "onclick='toggleLegend();'>legend</button>";
 
     var isTestData = true;
     if( model.originalNodeAcc == "true" ) {
         isTestData = false;
-	    selectString += "&nbsp;&nbsp;&nbsp;&nbsp;<button class='viewRawDataValidationResultButton' " +
+	    selectString += "&nbsp;<button class='viewRawDataValidationResultButton' " +
 	        //"onclick='viewDataValidationResult(" + model.rawDataValidationResult + "," + isTestData + ");'>view raw data validation result</button>";
-	        "onclick='viewDataValidationResult(false);'>view raw data validation result</button>";
+	        "onclick='viewDataValidationResult(false);'>raw data validation</button>";
 	}
 	if( model.testNodeAcc == "true" ) {
-	    selectString += "&nbsp;&nbsp;&nbsp;&nbsp;<button class='viewTestDataValidationResultButton' " +
+	    selectString += "&nbsp;<button class='viewTestDataValidationResultButton' " +
 	        //"onclick='viewDataValidationResult(" + model.testDataValidationResult + "," + isTestData + ");'>view test data validation result</button>";
-	        "onclick='viewDataValidationResult(true);'>view test data validation result</button>";
+	        "onclick='viewDataValidationResult(true);'>test data validation</button>";
 	}
 
 	$("#queryNodeNameDiv").append(selectString);
@@ -1472,13 +1472,6 @@ function downloadResult(isTestData) {
         var columns = lines[i].split("$");
         for(var j=0; j<columns.length; j++) {
             if( j < columns.length - 1 ) {
-                if( i == lines.length -2 ) {
-                    console.log(columns[j]);
-                    if( columns[j].includes("&#13;") ) {
-                        console.log("found &#13;");
-                    //columns[j].replace("\r\n", "&#13;");
-                    }
-                }
                 csv += columns[j] + ",";
             } else {
                 csv += columns[j];

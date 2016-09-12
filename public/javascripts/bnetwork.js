@@ -122,58 +122,76 @@ function drawLegend(originalNodeAcc, testNodeAcc) {
     var left = 11; //maxWidth - 180;
     var r=8;
 	var svg = d3.select("#legendDiv")
+	    //**** responsive SVG
+	    .classed("svg-container", true) //container class to make it responsive
+	    //******
 	    .append("svg")
-	    .attr("width", maxWidth)
-	    .attr("height", 24)
+	    //.attr("width", maxWidth)
+	    //.attr("height", 24)
+	    //***** using responsive SVG
+	    .attr("preserveAspectRatio", "xMinYMin meet")
+	    //.attr("viewBox", "0 0 600 400 " )
+        .attr("viewBox", "0 0 " + maxWidth + " 24" )
+        //class to make it responsive
+        .classed("svg-content-responsive", true)
+        //*****
 	    .append("g")
 	    .attr('transform', 'translate(' + left + ', 20)');
 
-    var data = [{"x":xValue, "y":yValue, "color":"#74a9d8", "value":"Network Node",
-                    "fontSize":"12px", "fontWeight":""},
-                {"x":xValue+100, "y":yValue, "color":"Green", "value":"Real Evidence Node",
-                    "fontSize":"12px", "fontWeight":""},
-                {"x":xValue+234, "y":yValue, "color":"#8FBC8F", "value":"Virtual Evidence Node",
-                    "fontSize":"12px", "fontWeight":""},
-                {"x":xValue+376, "y":yValue, "color":"DarkSalmon", "value":"Observation Node",
-                    "fontSize":"12px", "fontWeight":""},
-                {"x":xValue+498, "y":yValue, "color":"#dd99ff", "value":"Searched Node",
-                    "fontSize":"12px", "fontWeight":""}];
+    var data = [{"x":xValue+37, "y":yValue, "color":"#74a9d8", "value":"Network",
+                    "fontSize":"11px", "fontWeight":""},
+                {"x":xValue+100, "y":yValue, "color":"Green", "value":"Real Evidence",
+                    "fontSize":"11px", "fontWeight":""},
+                {"x":xValue+193, "y":yValue, "color":"#8FBC8F", "value":"Virtual Evidence",
+                    "fontSize":"11px", "fontWeight":""},
+                {"x":xValue+296, "y":yValue, "color":"DarkSalmon", "value":"Observation",
+                    "fontSize":"11px", "fontWeight":""},
+                {"x":xValue+378, "y":yValue, "color":"#dd99ff", "value":"Search",
+                    "fontSize":"11px", "fontWeight":""}];
 
     if ( originalNodeAcc ) {
-        data.push( {"x":xValue+620,"y":yValue, "color":"white",
+        data.push( {"x":xValue+449,"y":yValue, "color":"white",
                     "value":"Internal K-fold Cross Validation Accuracy",
                     "fontSize":"12px", "fontWeight":""});
 
-        data.push( {"x":xValue+611,"y":yValue, "color":"white",
+        data.push( {"x":xValue+440,"y":yValue, "color":"white",
                     "value":"I:",
                     "fontSize":"12px", "fontWeight":"bold"});
 
-        data.push( {"x":xValue+870,"y":yValue, "color":"white",
+        data.push( {"x":xValue+696,"y":yValue, "color":"white",
                     "value":"External Validation Accuracy",
                     "fontSize":"12px", "fontWeight":""});
 
-        data.push( {"x":xValue+856,"y":yValue, "color":"white",
+        data.push( {"x":xValue+684,"y":yValue, "color":"white",
                     "value":"E:",
                     "fontSize":"12px", "fontWeight":"bold"});
 
-        data.push( {"x":xValue+1055,"y":yValue, "color":"white",
+        data.push( {"x":xValue+880,"y":yValue, "color":"white",
                     "value":"Original Raw Data",
                     "fontSize":"12px", "fontWeight":""});
-        data.push( {"x":xValue+1041,"y":yValue, "color":"white",
+        data.push( {"x":xValue+865,"y":yValue, "color":"white",
                     "value":"O:",
                     "fontSize":"12px", "fontWeight":"bold"});
     }
 
     if( testNodeAcc ) {
-        data.push( {"x":xValue+1182,"y":yValue, "color":"white",
+        data.push( {"x":xValue+1007,"y":yValue, "color":"white",
                     "value":"Test Data",
                     "fontSize":"12px", "fontWeight":""});
-        data.push( {"x":xValue+1170,"y":yValue, "color":"white",
+        data.push( {"x":xValue+995,"y":yValue, "color":"white",
                     "value":"T:",
                     "fontSize":"12px", "fontWeight":"bold"});
     }
 
     var g = svg.selectAll("g").data(data).enter().append("g");
+
+     var text = g.append("text")
+	    .attr("x", -5)
+	    .attr("y", yValue)
+	    .attr("dy", ".45em")
+	    .attr("fill", "black")
+	    .style("font-size", "11px")
+	    .text("Node:");
 
     var circle = g.append("circle")
         .attr("cx", function(d){ return d.x; })
