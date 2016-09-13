@@ -1,4 +1,9 @@
 var cy;
+var networkNodeColor = "#74a9d8";
+var realEvidenceNodeColor = "Green";
+var virtualEvidenceNodeColor = "#8FBC8F";
+var observationNodeColor = "DarkSalmon";
+var searchNodeColor = "#dd99ff";
 
 //$(window).load(function () {
 $(function() { // on dom ready
@@ -138,15 +143,15 @@ function drawLegend(originalNodeAcc, testNodeAcc) {
 	    .append("g")
 	    .attr('transform', 'translate(' + left + ', 20)');
 
-    var data = [{"x":xValue+37, "y":yValue, "color":"#74a9d8", "value":"Network",
+    var data = [{"x":xValue+37, "y":yValue, "color":networkNodeColor, "value":"Network",
                     "fontSize":"11px", "fontWeight":""},
-                {"x":xValue+100, "y":yValue, "color":"Green", "value":"Real Evidence",
+                {"x":xValue+100, "y":yValue, "color":realEvidenceNodeColor, "value":"Real Evidence",
                     "fontSize":"11px", "fontWeight":""},
-                {"x":xValue+193, "y":yValue, "color":"#8FBC8F", "value":"Virtual Evidence",
+                {"x":xValue+193, "y":yValue, "color":virtualEvidenceNodeColor, "value":"Virtual Evidence",
                     "fontSize":"11px", "fontWeight":""},
-                {"x":xValue+296, "y":yValue, "color":"DarkSalmon", "value":"Observation",
+                {"x":xValue+296, "y":yValue, "color":observationNodeColor, "value":"Observation",
                     "fontSize":"11px", "fontWeight":""},
-                {"x":xValue+378, "y":yValue, "color":"#dd99ff", "value":"Search",
+                {"x":xValue+378, "y":yValue, "color":searchNodeColor, "value":"Search",
                     "fontSize":"11px", "fontWeight":""}];
 
     if ( originalNodeAcc ) {
