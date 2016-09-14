@@ -73,8 +73,10 @@ function documentReady() {
 $(document).ready(function () {
     var notificationWidth = 720;
     var notificationHeight = 68;
+    var maxHeight = $("body").height();
+    var maxWidth = $("body").width();
 
-    if($(".lowerButtonsTr").length ) {
+    if( $(".lowerButtonsTr").length ) {
         var topButtonsDivPosition = $("#topButtonsDiv").position();
         var headerDivCenterPosition = $("#headerDiv .center").position();
         var notificationX = headerDivCenterPosition.left;
@@ -127,7 +129,7 @@ $(document).ready(function () {
     	cy.resize();
     });
 
-	$('#dialogSetValues').jqxWindow({  width: 600,
+	$('#dialogSetValues').jqxWindow({ width: 600,
 		height: 400, resizable: true,
 		okButton: $('#doneButton'), autoOpen: false
 	});
@@ -139,21 +141,33 @@ $(document).ready(function () {
 	});
 
 	$('#rawData').jqxWindow({
-		width: 600, height: 400, resizable: true,
-		okButton: $("#rawDoneButton"), autoOpen: false
+		width: 800, height: 600,
+		maxHeight: maxHeight,
+		maxWidth: maxWidth,
+		resizable: true,
+		okButton: $("#rawDoneButton"),
+		autoOpen: false
 	});
 
+    $('#rawData').jqxWindow('expand');
+
 	$('#rawDataValidationResult').jqxWindow({
-		width: 600, height: 400, resizable: true,
-		okButton: $("#rawDataValidationResultDoneButton"), autoOpen: false
+		width: 1200, height: 800,
+		maxHeight: maxHeight,
+		maxWidth: maxWidth,
+		resizable: true,
+		okButton: $("#rawDataValidationResultDoneButton"),
+		autoOpen: false
 	});
 
     $('#testDataValidationResult').jqxWindow({
-		width: 600, height: 400, resizable: true,
-		okButton: $("#testDataValidationResultDoneButton"), autoOpen: false
+		width: 1200, height: 800,
+		maxHeight: maxHeight,
+		maxWidth: maxWidth,
+		resizable: true,
+		okButton: $("#testDataValidationResultDoneButton"),
+		autoOpen: false
 	});
-
-	//$('#dialogSetValues').jqxWindow('close');
 
 	$("#nodeMenu").jqxMenu({ width: '140px', height: '120px', autoOpenPopup: false, mode: 'popup'});
 

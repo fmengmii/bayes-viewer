@@ -412,7 +412,16 @@ public class ModelReader
 		int numDataSetColumn = dataSet.getVariableCount();
 		int totalRecord = dataSet.getRecordCount();
 		DecimalFormat numberFormat = new DecimalFormat("0.00");
-		String[][] validationResultArray = new String[totalRecord+2][numDataSetColumn*3];
+		// ***get maximal state number***
+		int[] nodes = network.getAllNodes();
+		int maxStateNum = 0;
+		for (int i = 0; i < nodes.length; i++) {
+			String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
+			if( outcomeIDs.length > maxStateNum ) {
+				maxStateNum = outcomeIDs.length;
+			}
+		}
+		String[][] validationResultArray = new String[totalRecord+2+maxStateNum][numDataSetColumn*3];
 
 		try {
 			recordNetworkTarget();
@@ -423,8 +432,8 @@ public class ModelReader
 				String colName = dataSet.getVariableId(col);
 
 				validationResultArray[0][col] = colName;
-				validationResultArray[0][numDataSetColumn+col] = colName +"_internal_predicted";
-				validationResultArray[0][numDataSetColumn*2+col] = colName +"_external_predicted";
+				validationResultArray[0][numDataSetColumn+col] = colName +"_I";
+				validationResultArray[0][numDataSetColumn*2+col] = colName +"_E";
 
 				String[] stateNameArray = dataSet.getStateNames(col);
 
@@ -433,7 +442,6 @@ public class ModelReader
 					String stateLabel = stateNameArray[stateSeqNum];
 					validationResultArray[row+1][col] = stateLabel;
 				}
-				validationResultArray[totalRecord+1][col] = "";
 
 				String curNodeName = colName;
 				int curSlice = 0;
@@ -448,11 +456,9 @@ public class ModelReader
 
 			//Convert dataMatch array
 			DataMatch[] matches = tempMatching.toArray(new DataMatch[tempMatching.size()]);
-			int[] nodes = network.getAllNodes();
 			for (int i = 0; i < nodes.length; i++) {
 				int node = nodes[i];
 				String nodeID = network.getNodeId(node);
-				String nodeName = network.getNodeName(node);
 
 				Validator validator = new Validator(network, dataSet, matches);
 				validator.addClassNode(nodeID);
@@ -464,7 +470,6 @@ public class ModelReader
 				validator.kFold(em, foldNum, foldingRandSeed);  //10 is K-foldCount
 
 				int totalCorrectCaseNum = 0;
-				String stateAccSummary = "";
 				String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
 				String[] curNodeStateNameArray = dataSet.getStateNames(i);
 				String[] totalStateNameArray = new String[outcomeIDs.length];
@@ -493,6 +498,7 @@ public class ModelReader
 				}
 				for (int j = 0; j < outcomeIDs.length; j++) {
 					String outcomeIdLabel = outcomeIDs[j];
+					String stateAccSummary = "";
 					int index = stateToIndexMap.get(outcomeIdLabel);
 					String networkStateLabel = outcomeIDs[index];
 
@@ -506,33 +512,13 @@ public class ModelReader
 						totalCorrectCaseNum += correctCaseNum;
 						stateAccSummary += outcomeIdLabel + " = " +
 								numberFormat.format(accuracy).toString();
-						stateAccSummary += " (" + correctCaseNum + "/" + stateCount + ")  ";
+						stateAccSummary += " (" + correctCaseNum + "/" + stateCount + ")";
 					} else {
 						stateAccSummary += outcomeIdLabel + " = -nan(ind)";
-						stateAccSummary += " (0/0)  ";
+						stateAccSummary += " (0/0)";
 					}
+					validationResultArray[totalRecord+1+j][i+numDataSetColumn] = stateAccSummary;
 				}
-				/*
-				//The following output is not sequential for state
-				for (int j = 0; j < outcomeIDs.length; j++) {
-					double accuracy = validator.getAccuracy(nodeID, outcomeIDs[j]); //real state label
-					Map<String, Integer> stateCountMap = dataSetStateMap.get(nodeID);
-					//String outcomeIdLabel = outcomeIDs[j];
-					String outcomeIdLabel = totalStateNameArray[j];
-					if(stateCountMap.get(outcomeIdLabel) != null ) {
-						int stateCount = stateCountMap.get(outcomeIdLabel);
-						int correctCaseNum = (int)(accuracy * stateCount);
-
-						totalCorrectCaseNum += correctCaseNum;
-						stateAccSummary += outcomeIdLabel + " = " +
-							numberFormat.format(accuracy).toString();
-						stateAccSummary += " (" + correctCaseNum + "/" + stateCount + ")  ";
-					} else {
-						stateAccSummary += outcomeIdLabel + " = -nan(ind)";
-						stateAccSummary += " (0/0)  ";
-					}
-				}*/
-
 				double nodeAccuracy = (double)totalCorrectCaseNum / (double)totalRecord;
 
 				String nodeAccuracyFormat = numberFormat.format(nodeAccuracy).toString();
@@ -544,17 +530,14 @@ public class ModelReader
 				for( int row=0; row < totalRecord ; row++ ) {
 					//validationResultArray[row+1][col] = dataSet.getInt(row, col);
 					int stateSeqNum = resultDataSet.getInt(numDataSetColumn+outcomeIDs.length, row);
-					//String stateLabel = outcomeIDs[stateSeqNum];
 					String stateLabel = totalStateNameArray[stateSeqNum];
 					validationResultArray[row+1][i+numDataSetColumn] = stateLabel;
 				}
 
-				String accSummary = nodeName + " = " + nodeAccuracyFormat +
-						//" (" + totalCorrectCaseNum + "/" + totalRecord + ")\\\\r\\\\n" +
-						" (" + totalCorrectCaseNum + "/" + totalRecord + ")  " +
-						stateAccSummary;
+				String accSummary = nodeID + " = " + nodeAccuracyFormat +
+						" (" + totalCorrectCaseNum + "/" + totalRecord + ")";
 
-				validationResultArray[totalRecord+1][i+numDataSetColumn] = accSummary;
+				validationResultArray[totalRecord+1+outcomeIDs.length][i+numDataSetColumn] = accSummary;
 				/*
 				if( i == 1 && totalRecord == 103 ) {
 					File tmpFile = new File("/tmp/validationResultDataSetNewTest_new");
@@ -572,7 +555,6 @@ public class ModelReader
 		try{
 			for(int col = 0; col < numDataSetColumn; col++) {
 				String curNodeId = dataSet.getVariableId(col);
-				String curNodeName = network.getNodeName(curNodeId);
 				String[] curOutcomeIDs = network.getOutcomeIds(curNodeId);
 
 				int[] curStatePredictCorrectNum = new int[curOutcomeIDs.length];
@@ -624,10 +606,10 @@ public class ModelReader
 				String externalValidationNodeId = "external" + curNodeId;
 				validationNodeAccuracyMap.put(externalValidationNodeId,
 						externalValidationProb);
-				String stateAccSummary = "";
 
 				for( int i=0; i<curOutcomeIDs.length; i++) {
 					String outcomeIdLabel = curOutcomeIDs[i];
+					String stateAccSummary = "";
 					if(stateCountMap.get(outcomeIdLabel) != null) {
 						int stateCount = stateCountMap.get(outcomeIdLabel);
 						double accuracy = (double) curStatePredictCorrectNum[i] /
@@ -635,18 +617,18 @@ public class ModelReader
 						stateAccSummary += outcomeIdLabel + " = " +
 								numberFormat.format(accuracy).toString() + " (";
 						stateAccSummary += curStatePredictCorrectNum[i] + "/" +
-								stateCount + ")  ";
+								stateCount + ")";
 					} else {
 						stateAccSummary += outcomeIdLabel + " = " ;
-						stateAccSummary += "-nan(ind) (0/0)  ";
+						stateAccSummary += "-nan(ind) (0/0)";
 					}
+					validationResultArray[totalRecord+1+i][col+numDataSetColumn*2] = stateAccSummary;
 				}
 
-				String accSummary = curNodeName + " = " + externalValidationProb +
-						" (" + totalCorrectPredictiveCase + "/" + dataSet.getRecordCount() + ")  " +
-						stateAccSummary;
+				String accSummary = curNodeId + " = " + externalValidationProb +
+						" (" + totalCorrectPredictiveCase + "/" + dataSet.getRecordCount() + ")";
 
-				validationResultArray[totalRecord+1][col+numDataSetColumn*2] = accSummary;
+				validationResultArray[totalRecord+1+curOutcomeIDs.length][col+numDataSetColumn*2] = accSummary;
 			}
 			network.clearAllEvidence();
 		} catch(Exception ex ){

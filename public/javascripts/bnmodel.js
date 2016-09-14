@@ -1390,8 +1390,11 @@ function viewRawDataValidationResult() {
 
 //function viewDataValidationResult(dataValidationResult, isTestData) {
 function viewDataValidationResult(isTestData) {
+
+    //get validation result from networkInfoArray
     var model = networkInfoArray[0];
     var modelName = $("#load").val();
+    var dataValidationResult;
     if( isTestData ) {
 	    $('#testDataValidationResult').jqxWindow("setTitle", "Test Data Validation Result for " + modelName);
 	    dataValidationResult = model.testDataValidationResult;
@@ -1399,6 +1402,7 @@ function viewDataValidationResult(isTestData) {
 	    $('#rawDataValidationResult').jqxWindow("setTitle", "Raw Data Validation Result for " + modelName);
 	    dataValidationResult = model.rawDataValidationResult;
 	}
+
 	var fields = [];
 	var columnStruct = [];
 
@@ -1441,6 +1445,8 @@ function viewDataValidationResult(isTestData) {
 		{
 			width: "99%",
 			height: "95%",
+			/*autoheight: true,
+			autorowheight: true,*/
 			source: dataAdapter,
 			columnsResize: true,
 			columns: columnStruct
@@ -1454,6 +1460,7 @@ function downloadResult(isTestData) {
     var downloadResultLinkTag;
 
     var downloadFileName = "";
+    var dataValidationResult;
     if( isTestData ) {
 	    dataValidationResult = model.testDataValidationResult;
 	    downloadFileName += "testData";
