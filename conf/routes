@@ -24,6 +24,7 @@ GET         /model/downloaddata/:modelName      controllers.BnApp.downloadData(m
 GET         /model/getmodelstatus/:modelName    controllers.BnApp.getModelStatus(modelName: String)
 GET         /model/getmodelhistory/:modelName   controllers.BnApp.getModelHistory(modelName: String)
 GET         /viewer/getrawdata/:modelName       controllers.BnApp.getRawData(modelName: String)
+GET         /viewer/queryValidationResult/:isTestData       controllers.BnApp.queryValidationResult(isTestData: Boolean)
 GET         /model/changealgorithm/:modelName/:algorithm/:kFold   controllers.BnApp.changeAlgorithm(modelName: String, algorithm: String, kFold: String)
 GET         /model/savenewmodel/:modelName/:combineRawData  controllers.BnApp.saveNewModel(modelName: String, combineRawData: Boolean)
 #GET        /shared                             controllers.Application.shared()

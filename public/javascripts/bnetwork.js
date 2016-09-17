@@ -144,48 +144,48 @@ function drawLegend(originalNodeAcc, testNodeAcc) {
 	    .attr('transform', 'translate(' + left + ', 20)');
 
     var data = [{"x":xValue+37, "y":yValue, "color":networkNodeColor, "value":"Network",
-                    "fontSize":"11px", "fontWeight":""},
+                    "fontSize":"11px", "fontWeight":"", "r":r},
                 {"x":xValue+100, "y":yValue, "color":realEvidenceNodeColor, "value":"Real Evidence",
-                    "fontSize":"11px", "fontWeight":""},
+                    "fontSize":"11px", "fontWeight":"", "r":r},
                 {"x":xValue+193, "y":yValue, "color":virtualEvidenceNodeColor, "value":"Virtual Evidence",
-                    "fontSize":"11px", "fontWeight":""},
+                    "fontSize":"11px", "fontWeight":"", "r":r},
                 {"x":xValue+296, "y":yValue, "color":observationNodeColor, "value":"Observation",
-                    "fontSize":"11px", "fontWeight":""},
+                    "fontSize":"11px", "fontWeight":"", "r":r},
                 {"x":xValue+378, "y":yValue, "color":searchNodeColor, "value":"Search",
-                    "fontSize":"11px", "fontWeight":""}];
+                    "fontSize":"11px", "fontWeight":"", "r":r}];
 
     if ( originalNodeAcc ) {
         data.push( {"x":xValue+449,"y":yValue, "color":"white",
                     "value":"Internal K-fold Cross Validation Accuracy",
-                    "fontSize":"12px", "fontWeight":""});
+                    "fontSize":"12px", "fontWeight":"", "r":0});
 
         data.push( {"x":xValue+440,"y":yValue, "color":"white",
                     "value":"I:",
-                    "fontSize":"12px", "fontWeight":"bold"});
+                    "fontSize":"12px", "fontWeight":"bold", "r":0});
 
         data.push( {"x":xValue+696,"y":yValue, "color":"white",
                     "value":"External Validation Accuracy",
-                    "fontSize":"12px", "fontWeight":""});
+                    "fontSize":"12px", "fontWeight":"", "r":0});
 
         data.push( {"x":xValue+684,"y":yValue, "color":"white",
                     "value":"E:",
-                    "fontSize":"12px", "fontWeight":"bold"});
+                    "fontSize":"12px", "fontWeight":"bold", "r":0});
 
         data.push( {"x":xValue+880,"y":yValue, "color":"white",
                     "value":"Original Raw Data",
-                    "fontSize":"12px", "fontWeight":""});
+                    "fontSize":"12px", "fontWeight":"", "r":0});
         data.push( {"x":xValue+865,"y":yValue, "color":"white",
                     "value":"O:",
-                    "fontSize":"12px", "fontWeight":"bold"});
+                    "fontSize":"12px", "fontWeight":"bold", "r":0});
     }
 
     if( testNodeAcc ) {
         data.push( {"x":xValue+1007,"y":yValue, "color":"white",
                     "value":"Test Data",
-                    "fontSize":"12px", "fontWeight":""});
+                    "fontSize":"12px", "fontWeight":"", "r":0});
         data.push( {"x":xValue+995,"y":yValue, "color":"white",
                     "value":"T:",
-                    "fontSize":"12px", "fontWeight":"bold"});
+                    "fontSize":"12px", "fontWeight":"bold", "r":0});
     }
 
     var g = svg.selectAll("g").data(data).enter().append("g");
@@ -201,7 +201,7 @@ function drawLegend(originalNodeAcc, testNodeAcc) {
     var circle = g.append("circle")
         .attr("cx", function(d){ return d.x; })
         .attr("cy", function(d){ return d.y; })
-        .attr("r", r)
+        .attr("r", function(d){ return d.r; })
         .style("fill", function(d){ return d.color;});
 
     var text = g.append("text")

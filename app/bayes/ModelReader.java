@@ -122,7 +122,8 @@ public class ModelReader
 				networkLastMap.put(nodes[i], values);
 			}
 		}catch(Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			Logger.info("modifyNetworkLast fault:" + e.toString());
 		}
 	}
 
@@ -163,7 +164,7 @@ public class ModelReader
 		//Logger.info("resultArray i length=" + resultArray.length);
 		//Logger.info("resultArray j length=" + resultArray[0].length);
 		for( int i = 0; i < resultArray.length; i++) {
-		//for( int i = 0; i < 4; i++) {
+		//for( int i = 0; i < 6; i++) {
 			for( int j = 0; j < resultArray[i].length; j++) {
 				resultString += resultArray[i][j];
 				if( j < resultArray[i].length - 1 ) {
@@ -171,6 +172,7 @@ public class ModelReader
 				}
 			}
 			if( i < resultArray.length - 1) {
+			//if( i < resultArray.length ) {
 			//if( i < 4 -1 ) {
 				resultString += "@";
 			}
@@ -179,7 +181,44 @@ public class ModelReader
 		return resultString;
 	}
 
+	public String getValidationResultStr( boolean isTestDataSet ) {
+		//Logger.info("modelReader getValidationResult coming with isTestDataSet=" + isTestDataSet);
+		NumberFormat formatter = new DecimalFormat("#0.00");
+		StringBuilder strBlder = new StringBuilder("[");
+
+		if( !isTestDataSet && dataSetForRawData != null ) {
+			originalNodeAccuracyMap = getValidationMap( dataSetForRawData,
+					dataSetStateMapForRawData, false );
+
+			if( originalNodeAccuracyMap.size() > 0 ) {
+				if (validationResultArrayForRawData != null &&
+						validationResultArrayForRawData.length > 0) {
+
+					return	resultArrayToCsvString(validationResultArrayForRawData);
+				}
+			}
+		}
+
+		if( isTestDataSet && dataSetForTestData != null) {
+			testNodeAccuracyMap = getValidationMap(
+					dataSetForTestData, dataSetStateMapForTestData, true );
+			if( testNodeAccuracyMap.size() > 0 ) {
+				if (validationResultArrayForTestData != null &&
+						validationResultArrayForTestData.length > 0) {
+
+					return resultArrayToCsvString(validationResultArrayForTestData);
+				}
+			}
+		}
+		if( isTestDataSet ) {
+			return "Error:The test data set didn't exist.";
+		} else {
+			return "Error:The raw data set didn't exist.";
+		}
+	}
+
 	public String getModelStr() {
+		//Logger.info("foldNum=" + foldNum);
 		NumberFormat formatter = new DecimalFormat("#0.00");
 		StringBuilder strBlder = new StringBuilder("[");
 
@@ -205,6 +244,7 @@ public class ModelReader
 			if( originalNodeAccuracyMap.size() > 0 ) {
 				strBlder.append("{\"originalNodeAcc\":\"true\"");
 				accuracyExist = true;
+				/*
 				if (validationResultArrayForRawData != null &&
 						validationResultArrayForRawData.length > 0) {
 
@@ -216,7 +256,7 @@ public class ModelReader
 					//String test = "result,comma";
 					strBlder.append(",\"rawDataValidationResult\":\"" + rawDataValidationResultString + "\"");
 					//strBlder.append(",\"rawDataValidationResult\":\"" + "myResult&#13;" + "\"");
-				}
+				}*/
 			}
 
 			if( testNodeAccuracyMap.size() > 0 ) {
@@ -227,6 +267,7 @@ public class ModelReader
 				}
 				strBlder.append("\"testNodeAcc\":\"true\"");
 				accuracyExist = true;
+				/*
 				if (validationResultArrayForTestData != null &&
 						validationResultArrayForTestData.length > 0) {
 
@@ -235,7 +276,7 @@ public class ModelReader
 
 					strBlder.append(",\"testDataValidationResult\":\"" +
 						testDataValidationResultString + "\"");
-				}
+				}*/
 			}
 
 			if(accuracyExist) {
@@ -412,19 +453,43 @@ public class ModelReader
 		int numDataSetColumn = dataSet.getVariableCount();
 		int totalRecord = dataSet.getRecordCount();
 		DecimalFormat numberFormat = new DecimalFormat("0.00");
+		DecimalFormat floatNumberFormat = new DecimalFormat("0.0000");
 		// ***get maximal state number***
 		int[] nodes = network.getAllNodes();
+		recordNetworkTarget();
+
+		int numOfObservationNode = 0;
 		int maxStateNum = 0;
 		for (int i = 0; i < nodes.length; i++) {
+			String nodeID = network.getNodeId(nodes[i]);
 			String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
 			if( outcomeIDs.length > maxStateNum ) {
 				maxStateNum = outcomeIDs.length;
 			}
+			if( network.isTarget(nodeID) ) {
+				numOfObservationNode += outcomeIDs.length * 2 + 2;
+				//Logger.info("ob for nodeID=" + nodeID);
+			}
+			/*
+			else {
+				Logger.info("ob not for nodeID=" + nodeID);
+			}*/
 		}
-		String[][] validationResultArray = new String[totalRecord+2+maxStateNum][numDataSetColumn*3];
+		String[][] validationResultArray;
+		if( numOfObservationNode > 0 ) {
+			validationResultArray =
+					new String[totalRecord + 2 + maxStateNum][numDataSetColumn + numOfObservationNode];
+			int row = totalRecord + 2 + maxStateNum;
+			int col = numDataSetColumn + numOfObservationNode;
+			//Logger.info("observation=" + numOfObservationNode + " and resultArray row=" + row + " and col=" + col );
+		} else {
+			validationResultArray =
+					new String[totalRecord + 2 + maxStateNum][numDataSetColumn*3];
+		}
 
+		int currentColumnIndex = numDataSetColumn;
 		try {
-			recordNetworkTarget();
+
 			ArrayList<DataMatch> tempMatching = new ArrayList<DataMatch>();
 
 			for (int col = 0; col < numDataSetColumn; col++) {
@@ -432,12 +497,15 @@ public class ModelReader
 				String colName = dataSet.getVariableId(col);
 
 				validationResultArray[0][col] = colName;
-				validationResultArray[0][numDataSetColumn+col] = colName +"_I";
-				validationResultArray[0][numDataSetColumn*2+col] = colName +"_E";
+				if( numOfObservationNode == 0 ) {
+					validationResultArray[0][numDataSetColumn + col] = colName + "_IP";
+					validationResultArray[0][numDataSetColumn * 2 + col] = colName + "_EP";
+				}
 
 				String[] stateNameArray = dataSet.getStateNames(col);
 
 				for( int row=0; row < totalRecord; row++ ) {
+				//for( int row=0; row < 3; row++ ) {
 					int stateSeqNum = dataSet.getInt(col, row);
 					String stateLabel = stateNameArray[stateSeqNum];
 					validationResultArray[row+1][col] = stateLabel;
@@ -449,9 +517,10 @@ public class ModelReader
 				if (Arrays.asList(network.getAllNodeIds()).contains(curNodeName)) {
 					int nodeNum = network.getNode(curNodeName);
 					tempMatching.add(new DataMatch(col, nodeNum, curSlice)); //associate: column, node, slice
-				} else {
-					Logger.info("getValidationMap: No node found for columnname: " + colName);
 				}
+				/*else {
+					Logger.info("getValidationMap: No node found for columnname: " + colName);
+				}*/
 			}
 
 			//Convert dataMatch array
@@ -459,7 +528,11 @@ public class ModelReader
 			for (int i = 0; i < nodes.length; i++) {
 				int node = nodes[i];
 				String nodeID = network.getNodeId(node);
-
+				if( numOfObservationNode > 0 && !network.isTarget(nodeID) ) {
+					continue;
+				}
+				//Logger.info("currentColumnIndex=" + currentColumnIndex + " for nodeID=" + nodeID);
+				network.clearAllTargets();
 				Validator validator = new Validator(network, dataSet, matches);
 				validator.addClassNode(nodeID);
 				EM em = new EM();
@@ -468,6 +541,7 @@ public class ModelReader
 				em.setUniformizeParameters(true);
 
 				validator.kFold(em, foldNum, foldingRandSeed);  //10 is K-foldCount
+				recoverNetworkTarget();
 
 				int totalCorrectCaseNum = 0;
 				String[] outcomeIDs = network.getOutcomeIds(nodes[i]);
@@ -490,11 +564,21 @@ public class ModelReader
 				} else {
 					totalStateNameArray = curNodeStateNameArray;
 				}
-
+				/*
+				for( int m=0; m< totalStateNameArray.length; m++){
+					Logger.info("totalStateNameArray for m=" + m + " is " + totalStateNameArray[m]);
+				}*/
 				//deal with missed state by finding index corresponding to the state
 				Map<String, Integer> stateToIndexMap = new HashMap<String, Integer>();
 				for( int m=0; m<totalStateNameArray.length; m++ ){
-					stateToIndexMap.put(totalStateNameArray[m], m);
+					int realIndex = 0;
+					String state = totalStateNameArray[m];
+					for( int n=0; n<outcomeIDs.length; n++ ) {
+						if( outcomeIDs[n].equals(state) ) {
+							stateToIndexMap.put(totalStateNameArray[m], n);
+							break;
+						}
+					}
 				}
 				for (int j = 0; j < outcomeIDs.length; j++) {
 					String outcomeIdLabel = outcomeIDs[j];
@@ -503,6 +587,9 @@ public class ModelReader
 					String networkStateLabel = outcomeIDs[index];
 
 					double accuracy = validator.getAccuracy(nodeID,  networkStateLabel); //real state label
+					/*if( j==3 || j== 4) {
+						Logger.info("accuracy=" + accuracy + " format=" + numberFormat.format(accuracy).toString());
+					}*/
 					Map<String, Integer> stateCountMap = dataSetStateMap.get(nodeID);
 
 					if (stateCountMap.get(outcomeIdLabel) != null) {
@@ -510,14 +597,25 @@ public class ModelReader
 						int correctCaseNum = (int) (accuracy * stateCount);
 
 						totalCorrectCaseNum += correctCaseNum;
-						stateAccSummary += outcomeIdLabel + " = " +
-								numberFormat.format(accuracy).toString();
+						if( Double.isNaN(accuracy) ) {
+							stateAccSummary += outcomeIdLabel + " = 0";
+						} else {
+							stateAccSummary += outcomeIdLabel + " = " +
+									numberFormat.format(accuracy).toString();
+						}
 						stateAccSummary += " (" + correctCaseNum + "/" + stateCount + ")";
 					} else {
 						stateAccSummary += outcomeIdLabel + " = -nan(ind)";
 						stateAccSummary += " (0/0)";
 					}
-					validationResultArray[totalRecord+1+j][i+numDataSetColumn] = stateAccSummary;
+					if( numOfObservationNode == 0 ) {
+						validationResultArray[totalRecord+1+j][i+numDataSetColumn]
+								= stateAccSummary;
+					} else {
+						validationResultArray[totalRecord+1+j][currentColumnIndex+outcomeIDs.length]
+								= stateAccSummary;
+						//Logger.info("ob is target for nodeID=" + nodeID + " stateAccSum=" + stateAccSummary);
+					}
 				}
 				double nodeAccuracy = (double)totalCorrectCaseNum / (double)totalRecord;
 
@@ -528,16 +626,49 @@ public class ModelReader
 				DataSet resultDataSet = validator.getResultDataSet();
 
 				for( int row=0; row < totalRecord ; row++ ) {
+				//for( int row=0; row < 3 ; row++ ) {
 					//validationResultArray[row+1][col] = dataSet.getInt(row, col);
 					int stateSeqNum = resultDataSet.getInt(numDataSetColumn+outcomeIDs.length, row);
 					String stateLabel = totalStateNameArray[stateSeqNum];
-					validationResultArray[row+1][i+numDataSetColumn] = stateLabel;
+					if( numOfObservationNode == 0 ) {
+						validationResultArray[row + 1][i + numDataSetColumn] = stateLabel;
+					} else {
+						for( int z=0; z< outcomeIDs.length; z++ ) {
+							if( numOfObservationNode > 0  && row == 0 ) {
+								validationResultArray[0][currentColumnIndex + z] =
+										resultDataSet.getVariableId(numDataSetColumn+z) + "_I";
+							}
+							float prob = resultDataSet.getFloat(numDataSetColumn+z, row);
+							String probString = floatNumberFormat.format(prob).toString();
+							int realStateIndex = (int)stateToIndexMap.get(totalStateNameArray[z]);
+
+							validationResultArray[row + 1][currentColumnIndex + realStateIndex] = probString;
+							/*Logger.info("nodeId=" + nodeID + " z="+ z + " and realStateIndex=" +
+									realStateIndex + " prob=" + probString);
+							*/
+							//int columnIndex = currentColumnIndex + z;
+							//Logger.info("enter probString=" + probString + " columnIndex=" + columnIndex);
+						}
+						if( numOfObservationNode > 0 && row == 0 ) {
+							validationResultArray[0][currentColumnIndex + outcomeIDs.length] =
+										nodeID + "_IP";
+						}
+						validationResultArray[row + 1][currentColumnIndex + outcomeIDs.length] = stateLabel;
+						//Logger.info("enter probString for target nodeID=" + nodeID);
+					}
 				}
 
 				String accSummary = nodeID + " = " + nodeAccuracyFormat +
 						" (" + totalCorrectCaseNum + "/" + totalRecord + ")";
 
-				validationResultArray[totalRecord+1+outcomeIDs.length][i+numDataSetColumn] = accSummary;
+				if( numOfObservationNode == 0 ) {
+					validationResultArray[totalRecord + 1 + outcomeIDs.length][i + numDataSetColumn] = accSummary;
+				} else if( network.isTarget(nodeID) ) {
+					validationResultArray[totalRecord + 1 + outcomeIDs.length][currentColumnIndex + outcomeIDs.length]
+							= accSummary;
+					currentColumnIndex += outcomeIDs.length + 1;
+				}
+
 				/*
 				if( i == 1 && totalRecord == 103 ) {
 					File tmpFile = new File("/tmp/validationResultDataSetNewTest_new");
@@ -547,18 +678,23 @@ public class ModelReader
 					resultDataSet.writeFile(tmpFile.getAbsolutePath());
 				}*/
 			}
+			//Logger.info("after IP currentColumnIndex=" + currentColumnIndex);
 		} catch (Exception ex) {
 			Logger.info("getValidationMap: cross validation matches exception is " + ex.toString());
 		}
+
 
 		//The followings are the external validation
 		try{
 			for(int col = 0; col < numDataSetColumn; col++) {
 				String curNodeId = dataSet.getVariableId(col);
+				if (numOfObservationNode > 0 && !network.isTarget(curNodeId) ) {
+					continue;
+				}
 				String[] curOutcomeIDs = network.getOutcomeIds(curNodeId);
 
 				int[] curStatePredictCorrectNum = new int[curOutcomeIDs.length];
-				for(int i=0; i<curStatePredictCorrectNum.length; i++) {
+				for (int i = 0; i < curStatePredictCorrectNum.length; i++) {
 					curStatePredictCorrectNum[i] = 0;
 				}
 
@@ -567,34 +703,53 @@ public class ModelReader
 				int totalCorrectPredictiveCase = 0;
 
 				for( int row=0; row < totalRecord ; row++ ) {
+				//for (int row = 0; row < 3; row++) {
 					network.clearAllEvidence();
 					int realStateSeqNum = dataSet.getInt(col, row);
 
 					for (int i = 0; i < dataSet.getVariableCount(); i++) {
-						if( i != col ) {
-							int stateSeqNum = dataSet.getInt( i, row );
+						if (i != col) {
+							int stateSeqNum = dataSet.getInt(i, row);
 							String[] nodeStateNameArray = dataSet.getStateNames(i);
 							network.setEvidence(dataSet.getVariableId(i), nodeStateNameArray[stateSeqNum]);
 						}
 					}
-					recordNetworkTarget();
+					network.clearAllTargets();
 					network.updateBeliefs();
 					recoverNetworkTarget();
 
 					double[] values = network.getNodeValue(curNodeId);
 					double max = values[0];
 					int maxIndex = 0;
-					for( int count = 1; count < values.length; count++ ) {
-						if( values[count] > max ) {
+					for (int count = 0; count < values.length; count++) {
+						if (values[count] > max) {
 							max = values[count];
 							maxIndex = count;
 						}
+						if (numOfObservationNode > 0) {
+							validationResultArray[row + 1][currentColumnIndex + count]
+									= floatNumberFormat.format(values[count]).toString();
+							if (row == 0) {
+								validationResultArray[0][currentColumnIndex + count]
+										= curNodeId + "_" + curOutcomeIDs[count] + "_E";
+							}
+						}
+					}
+					if( numOfObservationNode > 0 && row == 0 ) {
+						validationResultArray[0][currentColumnIndex + curOutcomeIDs.length]
+									= curNodeId + "_EP";
 					}
 
 					String[] outcomeIDs = network.getOutcomeIds(curNodeId);
-					validationResultArray[row+1][col+numDataSetColumn*2] =
-							outcomeIDs[maxIndex];
-					if( curNodeStateNameArray[realStateSeqNum].equals(outcomeIDs[maxIndex])){
+					if (numOfObservationNode == 0) {
+						validationResultArray[row + 1][col + numDataSetColumn * 2] =
+								outcomeIDs[maxIndex];
+					} else {
+						validationResultArray[row + 1][currentColumnIndex + outcomeIDs.length]
+								= outcomeIDs[maxIndex];
+					}
+
+					if (curNodeStateNameArray[realStateSeqNum].equals(outcomeIDs[maxIndex])) {
 						totalCorrectPredictiveCase++;
 						curStatePredictCorrectNum[maxIndex]++;
 					}
@@ -607,33 +762,58 @@ public class ModelReader
 				validationNodeAccuracyMap.put(externalValidationNodeId,
 						externalValidationProb);
 
-				for( int i=0; i<curOutcomeIDs.length; i++) {
+				for (int i = 0; i < curOutcomeIDs.length; i++) {
 					String outcomeIdLabel = curOutcomeIDs[i];
 					String stateAccSummary = "";
-					if(stateCountMap.get(outcomeIdLabel) != null) {
+					if (stateCountMap.get(outcomeIdLabel) != null) {
 						int stateCount = stateCountMap.get(outcomeIdLabel);
 						double accuracy = (double) curStatePredictCorrectNum[i] /
-								(double)stateCount;
+								(double) stateCount;
 						stateAccSummary += outcomeIdLabel + " = " +
 								numberFormat.format(accuracy).toString() + " (";
 						stateAccSummary += curStatePredictCorrectNum[i] + "/" +
 								stateCount + ")";
 					} else {
-						stateAccSummary += outcomeIdLabel + " = " ;
+						stateAccSummary += outcomeIdLabel + " = ";
 						stateAccSummary += "-nan(ind) (0/0)";
 					}
-					validationResultArray[totalRecord+1+i][col+numDataSetColumn*2] = stateAccSummary;
+					if( numOfObservationNode == 0 ) {
+						validationResultArray[totalRecord+1+i][col+numDataSetColumn*2]
+								= stateAccSummary;
+					} else {
+						validationResultArray[totalRecord+1+i][currentColumnIndex+curOutcomeIDs.length]
+								= stateAccSummary;
+					}
 				}
 
 				String accSummary = curNodeId + " = " + externalValidationProb +
 						" (" + totalCorrectPredictiveCase + "/" + dataSet.getRecordCount() + ")";
 
-				validationResultArray[totalRecord+1+curOutcomeIDs.length][col+numDataSetColumn*2] = accSummary;
+				if (numOfObservationNode == 0) {
+					validationResultArray[totalRecord + 1 + curOutcomeIDs.length][col + numDataSetColumn * 2]
+							= accSummary;
+				} else {
+					validationResultArray[totalRecord + 1 + curOutcomeIDs.length][currentColumnIndex + curOutcomeIDs.length]
+							= accSummary;
+					currentColumnIndex += curOutcomeIDs.length + 1;
+				}
 			}
 			network.clearAllEvidence();
+			//Logger.info("after EP currentColumnIndex=" + currentColumnIndex);
 		} catch(Exception ex ){
 			Logger.error("getValidationMap: external validation exception=" + ex.toString());
 		}
+		/*
+		Logger.info("output array result");
+		if( numOfObservationNode > 0 ) {
+			for( int row=0; row<3; row++) {
+				for(int col=0; col<validationResultArray[row].length; col++) {
+				//for(int col=0; col < 14; col++) {
+					Logger.info(validationResultArray[row][col]);
+				}
+				Logger.info("\n");
+			}
+		}*/
 
 		if( isTestData ) {
 			this.validationResultArrayForTestData = validationResultArray;

@@ -215,9 +215,12 @@ public class BnApp extends Controller {
 			return ok("Error:The network file didn't exist in database.");
 		}
 	}
+	public static Result queryValidationResult(Boolean isTestData) {
+		ModelReader modelReader = (ModelReader)Cache.get("modelReader");
+		return ok(modelReader.getValidationResultStr(isTestData));
+	}
 
 	public static Result downloadModel (String modelName) {
-		//Logger.info("get modelName=" + modelName);
 		String[] parseFullFileName = modelName.split("\\.");
 
 		String fileName = parseFullFileName[0];
@@ -272,19 +275,25 @@ public class BnApp extends Controller {
 	}
 
 	public static Result changeAlgorithm(String modelName, String algorithm, String kFold) {
-		ModelReader modelReader = new ModelReader();
+		//ModelReader modelReader = new ModelReader();
+		ModelReader modelReader = (ModelReader)Cache.get("modelReader");
+		if( modelReader == null ) {
+			modelReader = new ModelReader();
+			modelReader.setNetwork(Cache.get("network"));
+		}
 		modelReader.setFoldNum(Integer.parseInt(kFold));
-		modelReader.setNetwork(Cache.get("network"));
+		//modelReader.setNetwork(Cache.get("network"));
 		Network network = modelReader.getNetwork();
+
 		int algorithmType = -1;
 		try {
 			Field field = Network.BayesianAlgorithmType.class.getDeclaredField(algorithm);
 			Object object = field.get(Network.BayesianAlgorithmType.class);
 			algorithmType = field.getInt(object);
 		} catch (IllegalAccessException ex) {
-			Logger.info(ex.toString());
+			Logger.info("changeAlgorithm illegalAccess fault: " + ex.toString());
 		} catch (Exception ex) {
-			Logger.info(ex.toString());
+			Logger.info("changeAlgorithm fault: " + ex.toString());
 		}
 
 		if (network == null) {
@@ -295,9 +304,11 @@ public class BnApp extends Controller {
 			return ok("Error");
 		} else {
 			network.setBayesianAlgorithm(algorithmType);
-			Cache.set("network", network);
+			//Cache.set("network", network);
 			//Logger.info("change algorithm return success.");
 			modelReader.modifyNetworkLast();
+			Cache.set("network", network);
+			Cache.set("modelReader", modelReader);
 			String modelString = modelReader.getModelStr();
 			return ok(modelString);
 		}
@@ -329,6 +340,7 @@ public class BnApp extends Controller {
 		Network network = modelReader.getNetwork();
 
 		Cache.set("network", network);
+		Cache.set("modelReader", modelReader);
 		session("modelName", modelName);
 		logAdvice(networkFile, "view");
 		return ok(modelStr);
@@ -478,6 +490,8 @@ public class BnApp extends Controller {
 				modelFileName, networkFile.fileContent, algorithm );
 
 		session("modelName", modelFileName);
+		Cache.set("network", network);
+		Cache.set("modelReader", modelReader);
 		logAdvice(networkFile, "test");
 
 		return ok(modelStr);
@@ -773,7 +787,6 @@ public class BnApp extends Controller {
 				flash("success", "The files have been updated successfully.");
 			}
 		}
-
 		return ok("success");
 	}
 
@@ -1010,31 +1023,34 @@ public class BnApp extends Controller {
     public static Result setAsTarget(String nodeID)
     {
     	//Logger.info("setAsTarget in with nodeID=" + nodeID);
-		ModelReader modelReader = new ModelReader();
-    	modelReader.setNetwork(Cache.get("network"));
+		//ModelReader modelReader = new ModelReader();
+    	//modelReader.setNetwork(Cache.get("network"));
+		ModelReader modelReader = (ModelReader)Cache.get("modelReader");
     	String modelName = session("modelName");
     	String modelStr = modelReader.setAsTarget(modelName, nodeID);
-
+		Cache.set("modelReader", modelReader);
     	return ok(modelStr);
     }
 
 	public static Result removeTarget(String nodeID)
 	{
-		ModelReader modelReader = new ModelReader();
-		modelReader.setNetwork(Cache.get("network"));
+		//ModelReader modelReader = new ModelReader();
+		//modelReader.setNetwork(Cache.get("network"));
+		ModelReader modelReader = (ModelReader)Cache.get("modelReader");
 		String modelName = session("modelName");
 		String modelStr = modelReader.removeTarget(modelName, nodeID);
-
+		Cache.set("modelReader", modelReader);
 		return ok(modelStr);
 	}
 
     public static Result clearAllTargets()
     {
-    	ModelReader modelReader = new ModelReader();
-    	modelReader.setNetwork(Cache.get("network"));
+    	//ModelReader modelReader = new ModelReader();
+    	//modelReader.setNetwork(Cache.get("network"));
+		ModelReader modelReader = (ModelReader)Cache.get("modelReader");
     	String modelName = session("modelName");
     	String modelStr = modelReader.clearAllTargets(modelName);
-
+		Cache.set("modelReader", modelReader);
     	return ok(modelStr);
     }
 

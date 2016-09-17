@@ -11,6 +11,14 @@ function changeAlgorithm(){
     if( kFold == null || kFold == "" ) {
         kFold = 10;
     }
+    if( kFold == 1 ) {
+        alertBoxShow("K-fold count has to be greater than 1.");
+        return false;
+    }
+    if( Number.isInteger(kFold)){
+        alertBoxShow("K-fold count has to be an integer greater than 1.");
+        return false;
+    }
     if(modelName.indexOf("sharedBy") != -1){
         var modelNameArray = modelName.split("sharedBy");
         modelName = modelNameArray[0].trim();
@@ -20,6 +28,7 @@ function changeAlgorithm(){
     $.ajax({
         url: loadModelAjax.url
     }).done(function(data) {
+        console.log("changeAlgorithm return data:\n" + data);
         if( data.startsWith("Error:")) {
             var message = data.substr(6, data.length);
             alertBoxShow(message);
@@ -1008,8 +1017,6 @@ function clearEvidence()
 function setEvidence()
 {
 	var outcomeID = $('input[name=outcomeids]:checked').val();
-	//console.log(outcomeID);
-
 	var form = document.getElementById("setEvidenceForm");
 	var nodeID = '';
 	for (var i = 0; i < form.length; i++) {
@@ -1018,10 +1025,8 @@ function setEvidence()
 			break;
 		}
 	}
-	//console.log(nodeID);
 
 	var values = {nodeID:nodeID, outcomeID:outcomeID};
-
 	var setEvidenceAjax = jsRoutes.controllers.BnApp.setEvidence();
 	$.ajax({
 		type: 'POST',
@@ -1063,12 +1068,8 @@ function setVirtualEvidence()
         return false;
     }
 
-	//console.log(nodeID);
-
 	var values = {nodeID:nodeID, outcomeVals:outcomeVals};
-
 	var setVirtualEvidenceAjax = jsRoutes.controllers.BnApp.setVirtualEvidence();
-
 	$.ajax({
 		type: 'POST',
 		url: setVirtualEvidenceAjax.url,
@@ -1275,17 +1276,15 @@ function addQueryNodeNameSelect() {
 	selectString += "&nbsp;<button class='legendToggleButton' " +
 	    "onclick='toggleLegend();'>legend</button>";
 
-    var isTestData = true;
     if( model.originalNodeAcc == "true" ) {
-        isTestData = false;
+        var isTestData = false;
 	    selectString += "&nbsp;<button class='viewRawDataValidationResultButton' " +
-	        //"onclick='viewDataValidationResult(" + model.rawDataValidationResult + "," + isTestData + ");'>view raw data validation result</button>";
-	        "onclick='viewDataValidationResult(false);'>raw data validation</button>";
+	        "onclick='queryValidationResult("+isTestData+");'>raw data validation</button>";
 	}
 	if( model.testNodeAcc == "true" ) {
+	    var isTestData = true;
 	    selectString += "&nbsp;<button class='viewTestDataValidationResultButton' " +
-	        //"onclick='viewDataValidationResult(" + model.testDataValidationResult + "," + isTestData + ");'>view test data validation result</button>";
-	        "onclick='viewDataValidationResult(true);'>test data validation</button>";
+	        "onclick='queryValidationResult("+isTestData+");'>test data validation</button>";
 	}
 
 	$("#queryNodeNameDiv").append(selectString);
@@ -1362,7 +1361,8 @@ function toggleLegend(){
     interfaceSizing();
 }
 
-function viewRawDataValidationResult() {
+function queryValidationResult(isTestData) {
+    //alert("isTestData=" + isTestData);
     if( $("#load").val() == null || $("#load").val() == '') {
         alertBoxShow("Please select a network file first.");
         return false;
@@ -1371,36 +1371,28 @@ function viewRawDataValidationResult() {
     if(modelName == null) {
 	    alertBoxShow("Sorry, there is not an existed network yet.");
 	} else {
-        var getRawDataAjax = jsRoutes.controllers.BnApp.getRawData(modelName);
+        var getRawDataAjax = jsRoutes.controllers.BnApp.queryValidationResult(isTestData);
         $.ajax({
             url: getRawDataAjax.url
         }).done(function(data) {
+            //console.log("validationResult return:" + data);
             if( data.startsWith("Error:") ) {
                 var message = data.replace("Error:", "");
                 alertBoxShow(message);
             } else {
-                getRawData(modelName, data);
-                $("#rawData").jqxWindow('open');
-
+                viewDataValidationResult( isTestData, data);
             }
         }).fail(function(){
         });
     }
 }
 
-//function viewDataValidationResult(dataValidationResult, isTestData) {
-function viewDataValidationResult(isTestData) {
-
-    //get validation result from networkInfoArray
-    var model = networkInfoArray[0];
+function viewDataValidationResult(isTestData, dataValidationResult) {
     var modelName = $("#load").val();
-    var dataValidationResult;
     if( isTestData ) {
 	    $('#testDataValidationResult').jqxWindow("setTitle", "Test Data Validation Result for " + modelName);
-	    dataValidationResult = model.testDataValidationResult;
 	} else {
 	    $('#rawDataValidationResult').jqxWindow("setTitle", "Raw Data Validation Result for " + modelName);
-	    dataValidationResult = model.rawDataValidationResult;
 	}
 
 	var fields = [];
@@ -1445,8 +1437,6 @@ function viewDataValidationResult(isTestData) {
 		{
 			width: "99%",
 			height: "95%",
-			/*autoheight: true,
-			autorowheight: true,*/
 			source: dataAdapter,
 			columnsResize: true,
 			columns: columnStruct
@@ -1456,39 +1446,52 @@ function viewDataValidationResult(isTestData) {
 }
 
 function downloadResult(isTestData) {
-    var model = networkInfoArray[0];
+    //var model = networkInfoArray[0];
     var downloadResultLinkTag;
-
     var downloadFileName = "";
-    var dataValidationResult;
-    if( isTestData ) {
-	    dataValidationResult = model.testDataValidationResult;
-	    downloadFileName += "testData";
-	    downloadResultLinkTag = document.getElementById("downloadTestDataValidationResult");
-	} else {
-	    dataValidationResult = model.rawDataValidationResult;
-	    downloadFileName += "rawData"
-	    downloadResultLinkTag = document.getElementById("downloadRawDataValidationResult");
-	}
-	downloadFileName += "ValidationResult.csv";
-	var csv = "";
-    var lines = dataValidationResult.split('@');
-	var colNames = lines[0].split('$');
 
-    for(var i=0; i<lines.length; i++) {
-        var columns = lines[i].split("$");
-        for(var j=0; j<columns.length; j++) {
-            if( j < columns.length - 1 ) {
-                csv += columns[j] + ",";
-            } else {
-                csv += columns[j];
+    var getRawDataAjax = jsRoutes.controllers.BnApp.queryValidationResult(isTestData);
+    $.ajax({
+            url: getRawDataAjax.url
+    }).done(function(data) {
+        //console.log("validationResult return:" + data);
+        if( data.startsWith("Error:") ) {
+            var message = data.replace("Error:", "");
+            alertBoxShow(message);
+        } else {
+            //viewDataValidationResult( isTestData, data);
+            var dataValidationResult = data;
+
+            if( isTestData ) {
+	            downloadFileName += "testData";
+	            downloadResultLinkTag = document.getElementById("downloadTestDataValidationResult");
+	        } else {
+	            downloadFileName += "rawData"
+	            downloadResultLinkTag = document.getElementById("downloadRawDataValidationResult");
+	        }
+
+	        downloadFileName += "ValidationResult.csv";
+	        var csv = "";
+
+            var lines = dataValidationResult.split('@');
+	        var colNames = lines[0].split('$');
+
+            for(var i=0; i<lines.length; i++) {
+                var columns = lines[i].split("$");
+                for(var j=0; j<columns.length; j++) {
+                    if( j < columns.length - 1 ) {
+                        csv += columns[j] + ",";
+                    } else {
+                        csv += columns[j];
+                    }
+                }
+                csv += "\n";
             }
+            var csvData = new Blob([csv]);
+            downloadResultLinkTag.href = URL.createObjectURL(csvData);
+            downloadResultLinkTag.download = downloadFileName;
+            downloadResultLinkTag.click();
         }
-        csv += "\n";
-    }
-    var data = new Blob([csv]);
-
-    downloadResultLinkTag.href = URL.createObjectURL(data);
-    downloadResultLinkTag.download = downloadFileName;
-    downloadResultLinkTag.click();
+    }).fail(function(){
+    });
 }

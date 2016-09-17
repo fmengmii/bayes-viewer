@@ -159,7 +159,7 @@ $(document).ready(function () {
 		okButton: $("#rawDataValidationResultDoneButton"),
 		autoOpen: false
 	});
-
+    $('#rawDataValidationResult').jqxWindow('expand');
     $('#testDataValidationResult').jqxWindow({
 		width: 1200, height: 800,
 		maxHeight: maxHeight,
@@ -168,6 +168,7 @@ $(document).ready(function () {
 		okButton: $("#testDataValidationResultDoneButton"),
 		autoOpen: false
 	});
+	$('#testDataValidationResult').jqxWindow('expand');
 
 	$("#nodeMenu").jqxMenu({ width: '140px', height: '120px', autoOpenPopup: false, mode: 'popup'});
 
