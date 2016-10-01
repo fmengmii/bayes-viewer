@@ -155,35 +155,35 @@ function drawLegend(originalNodeAcc, testNodeAcc) {
                     "fontSize":"11px", "fontWeight":"", "r":r}];
 
     if ( originalNodeAcc ) {
-        data.push( {"x":xValue+449,"y":yValue, "color":"white",
+        data.push( {"x":xValue+429,"y":yValue, "color":"white",
                     "value":"Internal K-fold Cross Validation Accuracy",
                     "fontSize":"12px", "fontWeight":"", "r":0});
 
-        data.push( {"x":xValue+440,"y":yValue, "color":"white",
+        data.push( {"x":xValue+420,"y":yValue, "color":"white",
                     "value":"I:",
                     "fontSize":"12px", "fontWeight":"bold", "r":0});
 
-        data.push( {"x":xValue+696,"y":yValue, "color":"white",
+        data.push( {"x":xValue+662,"y":yValue, "color":"white",
                     "value":"External Validation Accuracy",
                     "fontSize":"12px", "fontWeight":"", "r":0});
 
-        data.push( {"x":xValue+684,"y":yValue, "color":"white",
+        data.push( {"x":xValue+650,"y":yValue, "color":"white",
                     "value":"E:",
                     "fontSize":"12px", "fontWeight":"bold", "r":0});
 
-        data.push( {"x":xValue+880,"y":yValue, "color":"white",
+        data.push( {"x":xValue+834,"y":yValue, "color":"white",
                     "value":"Original Raw Data",
                     "fontSize":"12px", "fontWeight":"", "r":0});
-        data.push( {"x":xValue+865,"y":yValue, "color":"white",
+        data.push( {"x":xValue+820,"y":yValue, "color":"white",
                     "value":"O:",
                     "fontSize":"12px", "fontWeight":"bold", "r":0});
     }
 
     if( testNodeAcc ) {
-        data.push( {"x":xValue+1007,"y":yValue, "color":"white",
+        data.push( {"x":xValue+947,"y":yValue, "color":"white",
                     "value":"Test Data",
                     "fontSize":"12px", "fontWeight":"", "r":0});
-        data.push( {"x":xValue+995,"y":yValue, "color":"white",
+        data.push( {"x":xValue+935,"y":yValue, "color":"white",
                     "value":"T:",
                     "fontSize":"12px", "fontWeight":"bold", "r":0});
     }

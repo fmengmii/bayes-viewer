@@ -215,9 +215,11 @@ public class BnApp extends Controller {
 			return ok("Error:The network file didn't exist in database.");
 		}
 	}
-	public static Result queryValidationResult(Boolean isTestData) {
+	public static Result queryValidationResult(Boolean isTestData, String queryType) {
 		ModelReader modelReader = (ModelReader)Cache.get("modelReader");
-		return ok(modelReader.getValidationResultStr(isTestData));
+		//Logger.info("queryType=" + queryType);
+		return ok(modelReader.getValidationResultStr(isTestData, queryType));
+
 	}
 
 	public static Result downloadModel (String modelName) {

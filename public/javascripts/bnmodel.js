@@ -1278,13 +1278,38 @@ function addQueryNodeNameSelect() {
 
     if( model.originalNodeAcc == "true" ) {
         var isTestData = false;
+        selectString += "&nbsp;<button class='viewRawDataValidationResultButton' " +
+	    //    "onclick='queryValidationResult("+isTestData+", summaryI);'>summary IO</button>";
+            "onclick='queryValidationResult("+isTestData+", \"summaryI\");'>summary IO</button>";
 	    selectString += "&nbsp;<button class='viewRawDataValidationResultButton' " +
+	        "onclick='queryValidationResult("+isTestData+", \"resultI\");'>result IO</button>";
+
+        selectString += "&nbsp;<button class='viewRawDataValidationResultButton' " +
+	        "onclick='queryValidationResult("+isTestData+", \"summaryE\");'>summary EO</button>";
+
+	    selectString += "&nbsp;<button class='viewRawDataValidationResultButton' " +
+	        "onclick='queryValidationResult("+isTestData+", \"resultE\");'>result EO</button>";
+	    /*selectString += "&nbsp;<button class='viewRawDataValidationResultButton' " +
 	        "onclick='queryValidationResult("+isTestData+");'>raw data validation</button>";
+	    */
 	}
 	if( model.testNodeAcc == "true" ) {
 	    var isTestData = true;
 	    selectString += "&nbsp;<button class='viewTestDataValidationResultButton' " +
+	        "onclick='queryValidationResult("+isTestData+", \"summaryI\");'>summary IT</button>";
+
+	    selectString += "&nbsp;<button class='viewTestDataValidationResultButton' " +
+	        "onclick='queryValidationResult("+isTestData+", \"resultI\");'>result IT</button>";
+
+        selectString += "&nbsp;<button class='viewTestDataValidationResultButton' " +
+	        "onclick='queryValidationResult("+isTestData+", \"summaryE\");'>summary ET</button>";
+
+	    selectString += "&nbsp;<button class='viewTestDataValidationResultButton' " +
+	        "onclick='queryValidationResult("+isTestData+", \"resultE\");'>result ET</button>";
+	    /*
+	    selectString += "&nbsp;<button class='viewTestDataValidationResultButton' " +
 	        "onclick='queryValidationResult("+isTestData+");'>test data validation</button>";
+	    */
 	}
 
 	$("#queryNodeNameDiv").append(selectString);
@@ -1361,8 +1386,8 @@ function toggleLegend(){
     interfaceSizing();
 }
 
-function queryValidationResult(isTestData) {
-    //alert("isTestData=" + isTestData);
+function queryValidationResult(isTestData, queryType) {
+    //alert("isTestData=" + isTestData + " and queryType=" + queryType);
     if( $("#load").val() == null || $("#load").val() == '') {
         alertBoxShow("Please select a network file first.");
         return false;
@@ -1371,7 +1396,8 @@ function queryValidationResult(isTestData) {
     if(modelName == null) {
 	    alertBoxShow("Sorry, there is not an existed network yet.");
 	} else {
-        var getRawDataAjax = jsRoutes.controllers.BnApp.queryValidationResult(isTestData);
+        var getRawDataAjax = jsRoutes.controllers.BnApp
+                        .queryValidationResult(isTestData, queryType);
         $.ajax({
             url: getRawDataAjax.url
         }).done(function(data) {
@@ -1380,19 +1406,44 @@ function queryValidationResult(isTestData) {
                 var message = data.replace("Error:", "");
                 alertBoxShow(message);
             } else {
-                viewDataValidationResult( isTestData, data);
+                //console.log("before view.");
+                viewDataValidationResult( isTestData, data, queryType);
             }
         }).fail(function(){
         });
     }
 }
 
-function viewDataValidationResult(isTestData, dataValidationResult) {
+function viewDataValidationResult(isTestData, dataValidationResult, queryType) {
     var modelName = $("#load").val();
     if( isTestData ) {
-	    $('#testDataValidationResult').jqxWindow("setTitle", "Test Data Validation Result for " + modelName);
+        if( queryType == "summaryI" ) {
+	        $('#testDataValidationResult').jqxWindow("setTitle", "Test Data Internal Validation " +
+	            "Accuracy Summary for " + modelName);
+	    } else if( queryType == "resultI" ) {
+	        $('#testDataValidationResult').jqxWindow("setTitle", "Test Data Internal Validation " +
+	            "Result for " + modelName);
+	    } else if( queryType == "resultE" ) {
+	        $('#testDataValidationResult').jqxWindow("setTitle", "Test Data External Validation " +
+	            "Result for " + modelName);
+	    } else {
+	        $('#testDataValidationResult').jqxWindow("setTitle", "Test Data External Validation " +
+	            "Accuracy Summary for " + modelName);
+	    }
 	} else {
-	    $('#rawDataValidationResult').jqxWindow("setTitle", "Raw Data Validation Result for " + modelName);
+	    if( queryType == "summaryI" ) {
+	        $('#rawDataValidationResult').jqxWindow("setTitle", "Raw Data Internal Validation " +
+	            "Accuracy Summary for " + modelName);
+	    } else if( queryType == "resultI" ) {
+	        $('#rawDataValidationResult').jqxWindow("setTitle", "Raw Data Internal Validation " +
+	            "Result for " + modelName);
+	    } else if( queryType.equals == "resultE" ) {
+	        $('#rawDataValidationResult').jqxWindow("setTitle", "Raw Data External Validation " +
+	            "Result for " + modelName);
+	    } else {
+	        $('#rawDataValidationResult').jqxWindow("setTitle", "Raw Data External Validation Accuracy Summary for " + modelName);
+	    }
+	    //$('#rawDataValidationResult').jqxWindow("setTitle", "Raw Data Validation Result for " + modelName);
 	}
 
 	var fields = [];
