@@ -705,16 +705,17 @@ a:hover, a:active{
     display: none;
 }
 
-#rawDataValidationResult{
+#rawDataValidationSumI, #rawDataValidationSumE, #rawDataValidationResultI, #rawDataValidationResultE{
     display: none;
 }
-#testDataValidationResult{
+
+#testDataValidationSumI, #testDataValidationSumE, #testDataValidationResultI,  #testDataValidationResultE{
     display: none;
 }
-#downloadRawDataValidationResult{
+#downloadRawDataValidationSumI, #downloadRawDataValidationSumE, #downloadRawDataValidationResultI, #downloadRawDataValidationResultE{
     display: none;
 }
-#downloadTestDataValidationResult{
+#downloadTestDataValidationSumI, #downloadTestDataValidationSumE, #downloadTestDataValidationResultI, #downloadTestDataValidationResultE{
     display: none;
 }
 .navbar-brand{

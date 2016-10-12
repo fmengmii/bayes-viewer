@@ -151,24 +151,85 @@ $(document).ready(function () {
 
     $('#rawData').jqxWindow('expand');
 
-	$('#rawDataValidationResult').jqxWindow({
+	$('#rawDataValidationSumI').jqxWindow({
 		width: 1200, height: 800,
 		maxHeight: maxHeight,
 		maxWidth: maxWidth,
 		resizable: true,
-		okButton: $("#rawDataValidationResultDoneButton"),
+		okButton: $("#rawDataValidationSumIDoneButton"),
 		autoOpen: false
 	});
-    $('#rawDataValidationResult').jqxWindow('expand');
-    $('#testDataValidationResult').jqxWindow({
+    $('#rawDataValidationSumI').jqxWindow('expand');
+
+    $('#rawDataValidationSumE').jqxWindow({
 		width: 1200, height: 800,
 		maxHeight: maxHeight,
 		maxWidth: maxWidth,
 		resizable: true,
-		okButton: $("#testDataValidationResultDoneButton"),
+		okButton: $("#rawDataValidationSumEDoneButton"),
 		autoOpen: false
 	});
-	$('#testDataValidationResult').jqxWindow('expand');
+    $('#rawDataValidationSumE').jqxWindow('expand');
+
+    $('#rawDataValidationResultI').jqxWindow({
+		width: 1200, height: 800,
+		maxHeight: maxHeight,
+		maxWidth: maxWidth,
+		resizable: true,
+		okButton: $("#rawDataValidationResultIDoneButton"),
+		autoOpen: false
+	});
+    $('#rawDataValidationResultI').jqxWindow('expand');
+
+    $('#rawDataValidationResultE').jqxWindow({
+		width: 1200, height: 800,
+		maxHeight: maxHeight,
+		maxWidth: maxWidth,
+		resizable: true,
+		okButton: $("#rawDataValidationResultEDoneButton"),
+		autoOpen: false
+	});
+    $('#rawDataValidationResultE').jqxWindow('expand');
+
+    $('#testDataValidationSumI').jqxWindow({
+		width: 1200, height: 800,
+		maxHeight: maxHeight,
+		maxWidth: maxWidth,
+		resizable: true,
+		okButton: $("#testDataValidationSumIDoneButton"),
+		autoOpen: false
+	});
+	$('#testDataValidationSumI').jqxWindow('expand');
+
+    $('#testDataValidationSumE').jqxWindow({
+		width: 1200, height: 800,
+		maxHeight: maxHeight,
+		maxWidth: maxWidth,
+		resizable: true,
+		okButton: $("#testDataValidationSumEDoneButton"),
+		autoOpen: false
+	});
+	$('#testDataValidationSumE').jqxWindow('expand');
+
+	$('#testDataValidationResultI').jqxWindow({
+		width: 1200, height: 800,
+		maxHeight: maxHeight,
+		maxWidth: maxWidth,
+		resizable: true,
+		okButton: $("#testDataValidationResultIDoneButton"),
+		autoOpen: false
+	});
+	$('#testDataValidationResultI').jqxWindow('expand');
+
+	$('#testDataValidationResultE').jqxWindow({
+		width: 1200, height: 800,
+		maxHeight: maxHeight,
+		maxWidth: maxWidth,
+		resizable: true,
+		okButton: $("#testDataValidationResultEDoneButton"),
+		autoOpen: false
+	});
+	$('#testDataValidationResultE').jqxWindow('expand');
 
 	$("#nodeMenu").jqxMenu({ width: '140px', height: '120px', autoOpenPopup: false, mode: 'popup'});
 

@@ -212,23 +212,84 @@
 		</div>
 	</div>
 
-	<div id="rawDataValidationResult">
-		<div id="rawDataValidationResultContent" style="overflow: hidden">
-			<div id="rawDataValidationResultTable"></div>
+	<div id="rawDataValidationSumI">
+		<div id="rawDataValidationSumIContent" style="overflow: hidden">
+			<div id="rawDataValidationSumITable"></div>
 			<div style="float: right">
-				<button type="button" onclick="downloadResult(false)">Download</button>
-				<a id="downloadRawDataValidationResult" type="text/csv">Download</a>
-				<input type="button" value="Close" id="rawDataValidationResultDoneButton" />
+				<button type="button" onclick="downloadResult(false, 'summaryI')">Download</button>
+				<a id="downloadRawDataValidationSumI" type="text/csv">Download</a>
+				<input type="button" value="Close" id="rawDataValidationSumIDoneButton" />
 			</div>
 		</div>
 	</div>
-	<div id="testDataValidationResult">
-		<div id="testDataValidationResultContent" style="overflow: hidden">
-			<div id="testDataValidationResultTable"></div>
+	<div id="rawDataValidationSumE">
+		<div id="rawDataValidationSumEContent" style="overflow: hidden">
+			<div id="rawDataValidationSumETable"></div>
 			<div style="float: right">
-				<button type="button" onclick="downloadResult(true)">Download</button>
-				<a id="downloadTestDataValidationResult" type="text/csv">Download</a>
-				<input type="button" value="Close" id="testDataValidationResultDoneButton" />
+				<button type="button" onclick="downloadResult(false, 'summaryE')">Download</button>
+				<a id="downloadRawDataValidationSumE" type="text/csv">Download</a>
+				<input type="button" value="Close" id="rawDataValidationSumEDoneButton" />
+			</div>
+		</div>
+	</div>
+	<div id="rawDataValidationResultI">
+		<div id="rawDataValidationResultIContent" style="overflow: hidden">
+			<div id="rawDataValidationResultITable"></div>
+			<div style="float: right">
+				<button type="button" onclick="downloadResult(false, 'resultI')">Download</button>
+				<a id="downloadRawDataValidationResultI" type="text/csv">Download</a>
+				<input type="button" value="Close" id="rawDataValidationResultIDoneButton" />
+			</div>
+		</div>
+	</div>
+	<div id="rawDataValidationResultE">
+		<div id="rawDataValidationResultEContent" style="overflow: hidden">
+			<div id="rawDataValidationResultETable"></div>
+			<div style="float: right">
+				<button type="button" onclick="downloadResult(false, 'resultE')">Download</button>
+				<a id="downloadRawDataValidationResultE" type="text/csv">Download</a>
+				<input type="button" value="Close" id="rawDataValidationResultEDoneButton" />
+			</div>
+		</div>
+	</div>
+
+	<div id="testDataValidationSumI">
+		<div id="testDataValidationSumIContent" style="overflow: hidden">
+			<div id="testDataValidationSumITable"></div>
+			<div style="float: right">
+				<button type="button" onclick="downloadResult(true, 'summaryI')">Download</button>
+				<a id="downloadTestDataValidationSumI" type="text/csv">Download</a>
+				<input type="button" value="Close" id="testDataValidationSumIDoneButton" />
+			</div>
+		</div>
+	</div>
+	<div id="testDataValidationSumE">
+		<div id="testDataValidationSumEContent" style="overflow: hidden">
+			<div id="testDataValidationSumETable"></div>
+			<div style="float: right">
+				<button type="button" onclick="downloadResult(true, 'summaryE')">Download</button>
+				<a id="downloadTestDataValidationSumE" type="text/csv">Download</a>
+				<input type="button" value="Close" id="testDataValidationSumEDoneButton" />
+			</div>
+		</div>
+	</div>
+	<div id="testDataValidationResultI">
+		<div id="testDataValidationResultIContent" style="overflow: hidden">
+			<div id="testDataValidationResultITable"></div>
+			<div style="float: right">
+				<button type="button" onclick="downloadResult(true, 'resultI')">Download</button>
+				<a id="downloadTestDataValidationResultI" type="text/csv">Download</a>
+				<input type="button" value="Close" id="testDataValidationResultIDoneButton" />
+			</div>
+		</div>
+	</div>
+	<div id="testDataValidationResultE">
+		<div id="testDataValidationResultEContent" style="overflow: hidden">
+			<div id="testDataValidationResultETable"></div>
+			<div style="float: right">
+				<button type="button" onclick="downloadResult(true, 'resultE')">Download</button>
+				<a id="downloadTestDataValidationResultE" type="text/csv">Download</a>
+				<input type="button" value="Close" id="testDataValidationResultEDoneButton" />
 			</div>
 
 		</div>

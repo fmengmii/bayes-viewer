@@ -1203,7 +1203,6 @@ function clearAllTargets()
 		    }
 		}
 		drawCharts(networkInfoArray[1]);
-
 		$('#chartDiv').trigger('resize');
 	}).fail(function() {
 	    alertBoxShow("Clear All Targets failed. Please try again.");
@@ -1306,10 +1305,6 @@ function addQueryNodeNameSelect() {
 
 	    selectString += "&nbsp;<button class='viewTestDataValidationResultButton' " +
 	        "onclick='queryValidationResult("+isTestData+", \"resultE\");'>result ET</button>";
-	    /*
-	    selectString += "&nbsp;<button class='viewTestDataValidationResultButton' " +
-	        "onclick='queryValidationResult("+isTestData+");'>test data validation</button>";
-	    */
 	}
 
 	$("#queryNodeNameDiv").append(selectString);
@@ -1406,7 +1401,7 @@ function queryValidationResult(isTestData, queryType) {
                 var message = data.replace("Error:", "");
                 alertBoxShow(message);
             } else {
-                //console.log("before view.");
+                console.log("before view.");
                 viewDataValidationResult( isTestData, data, queryType);
             }
         }).fail(function(){
@@ -1418,32 +1413,32 @@ function viewDataValidationResult(isTestData, dataValidationResult, queryType) {
     var modelName = $("#load").val();
     if( isTestData ) {
         if( queryType == "summaryI" ) {
-	        $('#testDataValidationResult').jqxWindow("setTitle", "Test Data Internal Validation " +
+	        $('#testDataValidationSumI').jqxWindow("setTitle", "Test Data Internal Validation " +
+	            "Accuracy Summary for " + modelName);
+	    } else if( queryType == "summaryE" ) {
+	        $('#testDataValidationSumE').jqxWindow("setTitle", "Test Data External Validation " +
 	            "Accuracy Summary for " + modelName);
 	    } else if( queryType == "resultI" ) {
-	        $('#testDataValidationResult').jqxWindow("setTitle", "Test Data Internal Validation " +
-	            "Result for " + modelName);
-	    } else if( queryType == "resultE" ) {
-	        $('#testDataValidationResult').jqxWindow("setTitle", "Test Data External Validation " +
+	        $('#testDataValidationResultI').jqxWindow("setTitle", "Test Data Internal Validation " +
 	            "Result for " + modelName);
 	    } else {
-	        $('#testDataValidationResult').jqxWindow("setTitle", "Test Data External Validation " +
-	            "Accuracy Summary for " + modelName);
+	        $('#testDataValidationResultE').jqxWindow("setTitle", "Test Data External Validation " +
+	            "Result for " + modelName);
 	    }
 	} else {
 	    if( queryType == "summaryI" ) {
-	        $('#rawDataValidationResult').jqxWindow("setTitle", "Raw Data Internal Validation " +
+	        $('#rawDataValidationSumI').jqxWindow("setTitle", "Raw Data Internal Validation " +
+	            "Accuracy Summary for " + modelName);
+	    } else if( queryType == "summaryE" ) {
+	        $('#rawDataValidationSumI').jqxWindow("setTitle", "Raw Data External Validation " +
 	            "Accuracy Summary for " + modelName);
 	    } else if( queryType == "resultI" ) {
-	        $('#rawDataValidationResult').jqxWindow("setTitle", "Raw Data Internal Validation " +
-	            "Result for " + modelName);
-	    } else if( queryType.equals == "resultE" ) {
-	        $('#rawDataValidationResult').jqxWindow("setTitle", "Raw Data External Validation " +
+	        $('#rawDataValidationResultI').jqxWindow("setTitle", "Raw Data Internal Validation " +
 	            "Result for " + modelName);
 	    } else {
-	        $('#rawDataValidationResult').jqxWindow("setTitle", "Raw Data External Validation Accuracy Summary for " + modelName);
+	        $('#rawDataValidationResultE').jqxWindow("setTitle", "Raw Data External Validation " +
+	            "Result for " + modelName);
 	    }
-	    //$('#rawDataValidationResult').jqxWindow("setTitle", "Raw Data Validation Result for " + modelName);
 	}
 
 	var fields = [];
@@ -1464,44 +1459,99 @@ function viewDataValidationResult(isTestData, dataValidationResult, queryType) {
 
 	//createDataResultTable(source,columnStruct);
 	var dataAdapter = new $.jqx.dataAdapter(source);
-	/*$("#dataResultTable").jqxGrid(
-		{
-			width: "99%",
-			height: "95%",
-			source: dataAdapter,
-			columnsResize: true,
-			columns: columnStruct
-		});
-	*/
 	if( isTestData ) {
-	    $("#testDataValidationResultTable").jqxGrid(
-		{
-			width: "99%",
-			height: "95%",
-			source: dataAdapter,
-			columnsResize: true,
-			columns: columnStruct
-		});
-	    $("#testDataValidationResult").jqxWindow('open');
+	    if( queryType == "summaryI" ) {
+	        $("#testDataValidationSumITable").jqxGrid(
+		    {
+			    width: "99%",
+			    height: "95%",
+			    source: dataAdapter,
+			    columnsResize: true,
+			    columns: columnStruct
+		    });
+	        $("#testDataValidationSumI").jqxWindow('open');
+	    } else if ( queryType == "summaryE" ) {
+	        $("#testDataValidationSumETable").jqxGrid(
+		    {
+			    width: "99%",
+			    height: "95%",
+			    source: dataAdapter,
+			    columnsResize: true,
+			    columns: columnStruct
+		    });
+	        $("#testDataValidationSumE").jqxWindow('open');
+	    } else if ( queryType == "resultI" ) {
+	        $("#testDataValidationResultITable").jqxGrid(
+		    {
+			    width: "99%",
+			    height: "95%",
+			    source: dataAdapter,
+			    columnsResize: true,
+			    columns: columnStruct
+		    });
+	        $("#testDataValidationResultI").jqxWindow('open');
+	    } else {
+	        $("#testDataValidationResultETable").jqxGrid(
+		    {
+                width: "99%",
+                height: "95%",
+                source: dataAdapter,
+                columnsResize: true,
+                columns: columnStruct
+		    });
+	        $("#testDataValidationResultE").jqxWindow('open');
+	    }
 	} else {
-	    $("#rawDataValidationResultTable").jqxGrid(
-		{
-			width: "99%",
-			height: "95%",
-			source: dataAdapter,
-			columnsResize: true,
-			columns: columnStruct
-		});
-	    $("#rawDataValidationResult").jqxWindow('open');
+	    if( queryType == "summaryI" ) {
+	        $("#rawDataValidationSumITable").jqxGrid(
+		    {
+			    width: "99%",
+			    height: "95%",
+			    source: dataAdapter,
+			    columnsResize: true,
+			    columns: columnStruct
+		    });
+	        $("#rawDataValidationSumI").jqxWindow('open');
+	    } else if ( queryType == "summaryE" ) {
+	        $("#rawDataValidationSumETable").jqxGrid(
+		    {
+			    width: "99%",
+			    height: "95%",
+			    source: dataAdapter,
+			    columnsResize: true,
+			    columns: columnStruct
+		    });
+	        $("#rawDataValidationSumE").jqxWindow('open');
+	    } else if ( queryType == "resultI" ) {
+	        $("#rawDataValidationResultITable").jqxGrid(
+		    {
+			    width: "99%",
+			    height: "95%",
+			    source: dataAdapter,
+			    columnsResize: true,
+			    columns: columnStruct
+		    });
+	        $("#rawDataValidationResultI").jqxWindow('open');
+	    } else {
+	        $("#rawDataValidationResultETable").jqxGrid(
+		    {
+                width: "99%",
+                height: "95%",
+                source: dataAdapter,
+                columnsResize: true,
+                columns: columnStruct
+		    });
+	        $("#rawDataValidationResultE").jqxWindow('open');
+	    }
 	}
 }
 
-function downloadResult(isTestData) {
+function downloadResult(isTestData, queryType) {
     //var model = networkInfoArray[0];
     var downloadResultLinkTag;
     var downloadFileName = "";
-
-    var getRawDataAjax = jsRoutes.controllers.BnApp.queryValidationResult(isTestData);
+    console.log("queryType=" + queryType);
+    var getRawDataAjax = jsRoutes.controllers.BnApp.queryValidationResult(isTestData, queryType);
     $.ajax({
             url: getRawDataAjax.url
     }).done(function(data) {
@@ -1514,11 +1564,35 @@ function downloadResult(isTestData) {
             var dataValidationResult = data;
 
             if( isTestData ) {
-	            downloadFileName += "testData";
-	            downloadResultLinkTag = document.getElementById("downloadTestDataValidationResult");
+                downloadFileName += "testData";
+                if( queryType == "summaryI" ) {
+	                downloadFileName += "SummaryI";
+	                downloadResultLinkTag = document.getElementById("downloadTestDataValidationSumI");
+	            } else if( queryType == "summaryE" ) {
+	                downloadFileName += "SummaryE";
+	                downloadResultLinkTag = document.getElementById("downloadTestDataValidationSumE");
+	            } else if( queryType == "resultI" ) {
+                    downloadFileName += "ResultI";
+	                downloadResultLinkTag = document.getElementById("downloadTestDataValidationResultI");
+	            } else {
+	                downloadFileName += "ResultE";
+	                downloadResultLinkTag = document.getElementById("downloadTestDataValidationResultE");
+	            }
 	        } else {
-	            downloadFileName += "rawData"
-	            downloadResultLinkTag = document.getElementById("downloadRawDataValidationResult");
+	            downloadFileName += "rawData";
+	            if( queryType == "summaryI" ) {
+	                downloadFileName += "SummaryI";
+	                downloadResultLinkTag = document.getElementById("downloadRawDataValidationSumI");
+	            } else if( queryType == "summaryE" ) {
+	                downloadFileName += "SummaryE";
+	                downloadResultLinkTag = document.getElementById("downloadRawDataValidationSumE");
+	            } else if( queryType == "resultI" ) {
+                    downloadFileName += "ResultI";
+	                downloadResultLinkTag = document.getElementById("downloadRawDataValidationResultI");
+	            } else {
+	                downloadFileName += "ResultE";
+	                downloadResultLinkTag = document.getElementById("downloadRawDataValidationResultE");
+	            }
 	        }
 
 	        downloadFileName += "ValidationResult.csv";

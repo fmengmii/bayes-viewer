@@ -29,8 +29,6 @@ public class ModelReader
 
 	private Map<String, String> originalNodeAccuracyMap = new HashMap<String, String>();
 	private Map<String, String> testNodeAccuracyMap = new HashMap<String, String>();
-	//private String[][] validationResultArrayForRawData = null;
-	//private String[][] validationResultArrayForTestData = null;
 	private String[][] validationResultArrayInternalForRawData = null;
 	private String[][] validationResultArrayExternalForRawData = null;
 	private String[][] validationResultArrayInternalSumForRawData = null;
@@ -40,9 +38,6 @@ public class ModelReader
 	private String[][] validationResultArrayExternalForTestData = null;
 	private String[][] validationResultArrayInternalSumForTestData = null;
 	private String[][] validationResultArrayExternalSumForTestData = null;
-
-	//private String validationResultSummaryForRawData = "";
-	//private String validationResultSummaryForTestData = "";
 
 	private Gson gson;
 	private String modelPath;
@@ -144,10 +139,7 @@ public class ModelReader
 			int[] nodes = network.getAllNodes();
 
 			for (int i=0; i<nodes.length; i++) {
-				//int node = nodes[i];
 				String nodeID = network.getNodeId(nodes[i]);
-				//String nodeID = network.getNodeId(node);
-				//String nodeName = network.getNodeName(node);
 				networkTargetMap.put(nodes[i], network.isTarget(nodeID));
 			}
 		}catch(Exception e) {
@@ -184,8 +176,6 @@ public class ModelReader
 				}
 			}
 			if( i < resultArray.length - 1) {
-			//if( i < resultArray.length ) {
-			//if( i < 4 -1 ) {
 				resultString += "@";
 			}
 		}
@@ -196,62 +186,31 @@ public class ModelReader
 	public String getValidationResultStr( boolean isTestDataSet,
 										  String queryType ) {
 
-		//Logger.info("modelReader getValidationResult coming with isTestDataSet=" + isTestDataSet);
-		//NumberFormat formatter = new DecimalFormat("#0.00");
-		//StringBuilder strBlder = new StringBuilder("[");
-
 		if( !isTestDataSet && dataSetForRawData != null ) {
-			/*originalNodeAccuracyMap = getValidationMap( dataSetForRawData,
-					dataSetStateMapForRawData, false );
-
-			if( originalNodeAccuracyMap.size() > 0 ) {
-				if (validationResultArrayForRawData != null &&
-						validationResultArrayForRawData.length > 0) {
-			*/
-					if( queryType.equals("resultI") ) {
-						Logger.info("raw data internal result. length=" +
-								validationResultArrayInternalForRawData.length );
-						return resultArrayToCsvString(validationResultArrayInternalForRawData);
-					} else if( queryType.equals("resultE") ) {
-						return resultArrayToCsvString(validationResultArrayExternalForRawData);
-					} else if( queryType.equals("summaryI") ) {
-						return resultArrayToCsvString(validationResultArrayInternalSumForRawData);
-					} else {
-						return resultArrayToCsvString(validationResultArrayExternalSumForRawData);
-					}
-
-			/*	}
-			}*/
+			if (queryType.equals("summaryI") ) {
+				//Logger.info("raw data internal result. length=" +
+				//		validationResultArrayInternalForRawData.length);
+				return resultArrayToCsvString(validationResultArrayInternalSumForRawData);
+			} else if( queryType.equals("summaryE") ) {
+				return resultArrayToCsvString(validationResultArrayExternalSumForRawData);
+			} else if( queryType.equals("resultI") ) {
+				return resultArrayToCsvString(validationResultArrayInternalForRawData);
+			} else {
+				return resultArrayToCsvString(validationResultArrayExternalForRawData);
+			}
 		}
 
 		if( isTestDataSet && dataSetForTestData != null) {
-			if ( queryType.equals("resultI") ) {
-				return resultArrayToCsvString(validationResultArrayInternalForTestData);
-			} else if ( queryType.equals("resultE") ) {
-				return resultArrayToCsvString(validationResultArrayExternalForTestData);
-			} else if( queryType.equals("summaryI") ) {
+			if( queryType.equals("summaryI") ) {
 				return resultArrayToCsvString(validationResultArrayInternalSumForTestData);
-			} else {
+			} else if ( queryType.equals("summaryE") ){
 				return resultArrayToCsvString(validationResultArrayExternalSumForTestData);
+			} else if ( queryType.equals("resultI") ) {
+				return resultArrayToCsvString(validationResultArrayInternalForTestData);
+			} else {
+				return resultArrayToCsvString(validationResultArrayExternalForTestData);
 			}
 		}
-			/*testNodeAccuracyMap = getValidationMap(
-					dataSetForTestData, dataSetStateMapForTestData, true );
-			if( testNodeAccuracyMap.size() > 0 ) {
-				if (validationResultArrayForTestData != null &&
-						validationResultArrayForTestData.length > 0) {
-
-					//return resultArrayToCsvString(validationResultArrayForTestData);
-					if( queryType.equals("resultI") ) {
-						return resultArrayToCsvString(validationResultArrayInternalForTestData);
-					} else if( queryType.equals("resultE") ) {
-						return resultArrayToCsvString(validationResultArrayExternalForTestData);
-					} else {
-						return resultArrayToCsvString(validationResultArrayInternalSumForTestData);
-					}
-				}
-			}
-		}*/
 		if( isTestDataSet ) {
 			return "Error:The test data set didn't exist.";
 		} else {
@@ -286,19 +245,6 @@ public class ModelReader
 			if( originalNodeAccuracyMap.size() > 0 ) {
 				strBlder.append("{\"originalNodeAcc\":\"true\"");
 				accuracyExist = true;
-				/*
-				if (validationResultArrayForRawData != null &&
-						validationResultArrayForRawData.length > 0) {
-
-					String rawDataValidationResultString =
-						resultArrayToCsvString(validationResultArrayForRawData);
-
-					//strBlder.append(",\"rawDataValidationResult\":" +
-					//	rawDataValidationResultString );
-					//String test = "result,comma";
-					strBlder.append(",\"rawDataValidationResult\":\"" + rawDataValidationResultString + "\"");
-					//strBlder.append(",\"rawDataValidationResult\":\"" + "myResult&#13;" + "\"");
-				}*/
 			}
 
 			if( testNodeAccuracyMap.size() > 0 ) {
@@ -309,16 +255,6 @@ public class ModelReader
 				}
 				strBlder.append("\"testNodeAcc\":\"true\"");
 				accuracyExist = true;
-				/*
-				if (validationResultArrayForTestData != null &&
-						validationResultArrayForTestData.length > 0) {
-
-					String testDataValidationResultString =
-						resultArrayToCsvString(validationResultArrayForTestData);
-
-					strBlder.append(",\"testDataValidationResult\":\"" +
-						testDataValidationResultString + "\"");
-				}*/
 			}
 
 			if(accuracyExist) {
@@ -399,10 +335,7 @@ public class ModelReader
 				StringBuilder outcomeBlder = new StringBuilder();
 				String nodeName = network.getNodeName(nodes[i]);
 				String nodeID = network.getNodeId(nodes[i]);
-				/*boolean isSearch = false;
-				if( network.getNodeBgColor(nodeID) == java.awt.Color.PINK ) {
-					isSearch = true;
-				}*/
+
 				if( !isAllUpperCase(nodeName) ) {
 					//modify all first character of node name to lower case
 					String nodeNameLastPart = nodeName.substring(1);
@@ -564,12 +497,7 @@ public class ModelReader
 			for (int col = 0; col < numDataSetColumn; col++) {
 				//get name of current column in the data set
 				String colName = dataSet.getVariableId(col);
-				/*
-				validationResultArrayInternal[0][col] = colName;
-				validationResultArrayExternal[0][col] = colName;
-				validationResultArrayInternalSum[0][col] = colName;
-				validationResultArrayExternalSum[0][col] = colName;
-				*/
+
 				if( numOfObservationCol == 0 ) {
 					validationResultArrayInternalSum[0][col] = colName;
 					validationResultArrayExternalSum[0][col] = colName;
@@ -749,10 +677,8 @@ public class ModelReader
 							validationResultArrayInternal[0][internalCurrentOutputColumnIndex + outcomeIDs.length] =
 										nodeID + "_IP";
 						}
-						//validationResultArrayInternal[row + 1][currentOutputColumnIndex + outcomeIDs.length] = stateLabel;
 						validationResultArrayInternal[row + 1][internalCurrentOutputColumnIndex + outcomeIDs.length] = stateLabel;
 						//Logger.info("enter probString for target nodeID=" + nodeID);
-						//currentOutputColumnIndex += outcomeIDs.length+1;
 					}
 				}
 
@@ -770,14 +696,6 @@ public class ModelReader
 					//currentOutputColumnIndex += outcomeIDs.length + 1;
 				}
 
-				/*
-				if( i == 1 && totalRecord == 103 ) {
-					File tmpFile = new File("/tmp/validationResultDataSetNewTest_new");
-					if( !tmpFile.exists() ) {
-						tmpFile.createNewFile();
-					}
-					resultDataSet.writeFile(tmpFile.getAbsolutePath());
-				}*/
 				realNodeNum++;
 				internalCurrentOutputColumnIndex += outcomeIDs.length+1;
 			}
@@ -915,19 +833,6 @@ public class ModelReader
 			Logger.error("getValidationMap: external validation exception=" + ex.toString());
 		}
 
-
-		/*
-		Logger.info("output array result");
-		if( numOfObservationCol > 0 ) {
-			for( int row=0; row<3; row++) {
-				for(int col=0; col<validationResultArray[row].length; col++) {
-				//for(int col=0; col < 14; col++) {
-					Logger.info(validationResultArray[row][col]);
-				}
-				Logger.info("\n");
-			}
-		}*/
-
 		if( isTestData ) {
 			//this.validationResultArrayForTestData = validationResultArray;
 			this.validationResultArrayInternalForTestData = validationResultArrayInternal;
@@ -985,12 +890,7 @@ public class ModelReader
 	
 	public String setAsTarget(String modelName, String nodeID)
 	{
-		//loadModel(modelName);
-		/*if( !hasEvidence(network) ){
-			return "Error: Please set an evidence first.";
-		}*/
 		network.setTarget(nodeID, true);
-		//Logger.info("set a target.");
 		return getModelStr();
 	}
 
