@@ -9,10 +9,21 @@ import java.util.List;
 
 import com.google.gson.Gson;
 
+import play.Application;
 import play.Logger;
+import play.api.Play;
 import play.api.libs.json.Json;
 import smile.*;
 import smile.learning.*;
+import org.w3c.dom.Document;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 public class ModelReader
 {
@@ -101,9 +112,10 @@ public class ModelReader
 	}
 
 	public String readModelFromFileContent ( String modelFullName,
-											 String modelXdslContent,
+											 String modelContent,
 											 String algorithm ) {
 		int algorithmType = 0;
+
 		try {
 			Field field = Network.BayesianAlgorithmType.class.getDeclaredField(algorithm);
 			Object object = field.get(Network.BayesianAlgorithmType.class);
@@ -112,23 +124,66 @@ public class ModelReader
 			Logger.info("get algorithm type error:" + ex.toString());
 		}
 
+		if( modelContent.contains("<PMML") || modelContent.contains("<pmml")) {
+			modelContent = transformFromPmmlToXdsl( modelContent );
+		} else if( !modelContent.contains("<SMILE") && !modelContent.contains("<smile") ) {
+			return "Error:wrong file format. The system can only accept SMILE or PMML format.";
+		}
 		network = new Network();
-		network.readString( modelXdslContent );
+		try {
+			network.readString(modelContent);
+		} catch( SMILEException ex ) {
+			Logger.info( "SMILEException=" + ex.toString() );
+		}
 		network.setName(modelFullName);
 		network.setBayesianAlgorithm(algorithmType);
-
 		return getModelStr();
 	}
 
+	private String transformFromPmmlToXdsl ( String pmmlContent ) {
+		try {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			dbf.setNamespaceAware(true);
+			DocumentBuilder db = dbf.newDocumentBuilder();
+
+			File xslFile = play.Play.application().getFile("schema/GBM_pmml_to_xdsl.xsl");
+			Document xslDoc = db.parse(xslFile);
+			DOMSource xslDomSource = new DOMSource( xslDoc );
+
+			TransformerFactory
+                    tFactory = TransformerFactory.newInstance();
+			Transformer tf = tFactory.newTransformer(xslDomSource);
+
+			ByteArrayInputStream bisPmmlContent =
+            	new ByteArrayInputStream( pmmlContent.getBytes( "UTF-8" ) );
+            StreamSource ssPmmlContent = new StreamSource( bisPmmlContent );
+			//JAXBContext xdslContentJc = DxfJAXBContext.getDxfContext();
+            //JAXBResult result = new JAXBResult( xdslContentJc );
+			StringWriter outWriter = new StringWriter();
+			StreamResult sResult = new StreamResult(outWriter);
+			//tf.setOutputProperty(OutputKeys.INDENT, "yes");
+			tf.transform(ssPmmlContent, sResult);
+			StringBuffer sb = outWriter.getBuffer();  //sResult.getWriter().toString()
+			String finalString = sb.toString();
+
+			//ByteArrayOutputStream baos = new ByteArrayOutputStream(sResult.getOutputStream());
+			//Logger.info("xdsl content=" + finalString);
+			return finalString;
+		} catch( Exception ex ) {
+			Logger.info("Transformer error: " + ex.toString());
+		}
+		return null;
+	}
+
 	public void modifyNetworkLast(){
-		try{
+		try {
 			int[] nodes = network.getAllNodes();
 
 			for (int i=0; i<nodes.length; i++) {
 				double[] values = network.getNodeValue(nodes[i]);
 				networkLastMap.put(nodes[i], values);
 			}
-		}catch(Exception e) {
+		} catch(Exception e) {
 			//e.printStackTrace();
 			Logger.info("modifyNetworkLast fault:" + e.toString());
 		}

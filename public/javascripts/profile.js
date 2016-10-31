@@ -70,15 +70,6 @@ function documentReady() {
     if($('#flashErrorWindow').is(':visible')) {
         flashErrorBoxShow();
     }
-
-    if( $("#profilePageDiv").length ) {
-        //$("#profileSelectLabelDiv").css("width", $("#profileSelectDiv").width());
-        $(".profilePageLeftTd").css("width", $("#profileSelectDiv").width() + 200);
-        //alert("rightTd wid=" + $(".profilePageRightTd").width());
-        var maxProfilePageTableWidth = $(".profilePageLeftTd").width() + $(".profilePageRightTd").width() ;
-        $(".profilePageTable").css("width", maxProfilePageTableWidth);
-    }
-
 	//init widgets (dialog window, split pane, etc)
 	//$('#splitter').jqxSplitter({ width: '100%', height: '100%', panels: [{ size: '80%', min: 250 }, { size: '20%', min: 300}] });
 }
@@ -89,8 +80,7 @@ $(document).ready(function () {
     var maxHeight = $("body").height();
     var maxWidth = $("body").width();
 
-    //if( $(".lowerButtonsTr").length ) {
-    if( $("#topButtonsDiv").length ) {
+    if( $(".lowerButtonsTr").length ) {
         var topButtonsDivPosition = $("#topButtonsDiv").position();
         var headerDivCenterPosition = $("#headerDiv .center").position();
         var notificationX = headerDivCenterPosition.left;
@@ -137,141 +127,131 @@ $(document).ready(function () {
         $('.alert').css("width", notificationWidth);
     }
     interfaceSizing();
-    if( $("#splitter").length ){
-        $('#splitter').on('resize', function(ev) {
-    	    cy.resize();
-        });
 
-	    $('#dialogSetValues').jqxWindow({ width: 600,
-		    height: 400, resizable: true,
-		    okButton: $('#doneButton'), autoOpen: false
-	    });
+    $('#splitter').on('resize', function(ev) {
+    	cy.resize();
+    });
 
-	    $('#dialogSetValues').on('close', function (event) {
-		    if (event.args.dialogResult.OK) {
-			    console.log("OK!");
-		    }
-	    });
+	$('#dialogSetValues').jqxWindow({ width: 600,
+		height: 400, resizable: true,
+		okButton: $('#doneButton'), autoOpen: false
+	});
 
-	    $('#rawData').jqxWindow({
-		    width: 800, height: 600,
-		    maxHeight: maxHeight,
-		    maxWidth: maxWidth,
-		    resizable: true,
-		    okButton: $("#rawDoneButton"),
-		    autoOpen: false
-	    });
+	$('#dialogSetValues').on('close', function (event) {
+		if (event.args.dialogResult.OK) {
+			console.log("OK!");
+		}
+	});
 
-        $('#rawData').jqxWindow('expand');
+	$('#rawData').jqxWindow({
+		width: 800, height: 600,
+		maxHeight: maxHeight,
+		maxWidth: maxWidth,
+		resizable: true,
+		okButton: $("#rawDoneButton"),
+		autoOpen: false
+	});
 
+    $('#rawData').jqxWindow('expand');
+    $('#profilePageRawData').jqxWindow({
+		width: 800, height: 600,
+		maxHeight: maxHeight,
+		maxWidth: maxWidth,
+		resizable: true,
+		okButton: $("#rawDoneButton"),
+		autoOpen: false
+	});
 
-	    $('#rawDataValidationSumI').jqxWindow({
+    $('#profilePageRawData').jqxWindow('expand');
+
+	$('#rawDataValidationSumI').jqxWindow({
 		width: 1200, height: 800,
 		maxHeight: maxHeight,
 		maxWidth: maxWidth,
 		resizable: true,
 		okButton: $("#rawDataValidationSumIDoneButton"),
 		autoOpen: false
-	    });
-        $('#rawDataValidationSumI').jqxWindow('expand');
+	});
+    $('#rawDataValidationSumI').jqxWindow('expand');
 
-        $('#rawDataValidationSumE').jqxWindow({
-		    width: 1200, height: 800,
-		    maxHeight: maxHeight,
-		    maxWidth: maxWidth,
-		    resizable: true,
-		    okButton: $("#rawDataValidationSumEDoneButton"),
-		    autoOpen: false
-	    });
-        $('#rawDataValidationSumE').jqxWindow('expand');
+    $('#rawDataValidationSumE').jqxWindow({
+		width: 1200, height: 800,
+		maxHeight: maxHeight,
+		maxWidth: maxWidth,
+		resizable: true,
+		okButton: $("#rawDataValidationSumEDoneButton"),
+		autoOpen: false
+	});
+    $('#rawDataValidationSumE').jqxWindow('expand');
 
-        $('#rawDataValidationResultI').jqxWindow({
-		    width: 1200, height: 800,
-		    maxHeight: maxHeight,
-		    maxWidth: maxWidth,
-		    resizable: true,
-		    okButton: $("#rawDataValidationResultIDoneButton"),
-		    autoOpen: false
-	    });
-        $('#rawDataValidationResultI').jqxWindow('expand');
+    $('#rawDataValidationResultI').jqxWindow({
+		width: 1200, height: 800,
+		maxHeight: maxHeight,
+		maxWidth: maxWidth,
+		resizable: true,
+		okButton: $("#rawDataValidationResultIDoneButton"),
+		autoOpen: false
+	});
+    $('#rawDataValidationResultI').jqxWindow('expand');
 
-        $('#rawDataValidationResultE').jqxWindow({
-		    width: 1200, height: 800,
-		    maxHeight: maxHeight,
-		    maxWidth: maxWidth,
-		    resizable: true,
-		    okButton: $("#rawDataValidationResultEDoneButton"),
-		    autoOpen: false
-	    });
-        $('#rawDataValidationResultE').jqxWindow('expand');
+    $('#rawDataValidationResultE').jqxWindow({
+		width: 1200, height: 800,
+		maxHeight: maxHeight,
+		maxWidth: maxWidth,
+		resizable: true,
+		okButton: $("#rawDataValidationResultEDoneButton"),
+		autoOpen: false
+	});
+    $('#rawDataValidationResultE').jqxWindow('expand');
 
-        $('#testDataValidationSumI').jqxWindow({
-		    width: 1200, height: 800,
-		    maxHeight: maxHeight,
-		    maxWidth: maxWidth,
-		    resizable: true,
-		    okButton: $("#testDataValidationSumIDoneButton"),
-		    autoOpen: false
-	    });
-	    $('#testDataValidationSumI').jqxWindow('expand');
+    $('#testDataValidationSumI').jqxWindow({
+		width: 1200, height: 800,
+		maxHeight: maxHeight,
+		maxWidth: maxWidth,
+		resizable: true,
+		okButton: $("#testDataValidationSumIDoneButton"),
+		autoOpen: false
+	});
+	$('#testDataValidationSumI').jqxWindow('expand');
 
-        $('#testDataValidationSumE').jqxWindow({
-		    width: 1200, height: 800,
-		    maxHeight: maxHeight,
-		    maxWidth: maxWidth,
-		    resizable: true,
-		    okButton: $("#testDataValidationSumEDoneButton"),
-		    autoOpen: false
-	    });
-	    $('#testDataValidationSumE').jqxWindow('expand');
+    $('#testDataValidationSumE').jqxWindow({
+		width: 1200, height: 800,
+		maxHeight: maxHeight,
+		maxWidth: maxWidth,
+		resizable: true,
+		okButton: $("#testDataValidationSumEDoneButton"),
+		autoOpen: false
+	});
+	$('#testDataValidationSumE').jqxWindow('expand');
 
-	    $('#testDataValidationResultI').jqxWindow({
-		    width: 1200, height: 800,
-		    maxHeight: maxHeight,
-		    maxWidth: maxWidth,
-		    resizable: true,
-		    okButton: $("#testDataValidationResultIDoneButton"),
-		    autoOpen: false
-	    });
-	    $('#testDataValidationResultI').jqxWindow('expand');
+	$('#testDataValidationResultI').jqxWindow({
+		width: 1200, height: 800,
+		maxHeight: maxHeight,
+		maxWidth: maxWidth,
+		resizable: true,
+		okButton: $("#testDataValidationResultIDoneButton"),
+		autoOpen: false
+	});
+	$('#testDataValidationResultI').jqxWindow('expand');
 
-	    $('#testDataValidationResultE').jqxWindow({
-		    width: 1200, height: 800,
-		    maxHeight: maxHeight,
-		    maxWidth: maxWidth,
-		    resizable: true,
-		    okButton: $("#testDataValidationResultEDoneButton"),
-		    autoOpen: false
-	    });
-	    $('#testDataValidationResultE').jqxWindow('expand');
+	$('#testDataValidationResultE').jqxWindow({
+		width: 1200, height: 800,
+		maxHeight: maxHeight,
+		maxWidth: maxWidth,
+		resizable: true,
+		okButton: $("#testDataValidationResultEDoneButton"),
+		autoOpen: false
+	});
+	$('#testDataValidationResultE').jqxWindow('expand');
 
-	    $("#nodeMenu").jqxMenu({ width: '140px', height: '120px', autoOpenPopup: false, mode: 'popup'});
+	$("#nodeMenu").jqxMenu({ width: '140px', height: '120px', autoOpenPopup: false, mode: 'popup'});
 
-	    $('#dialogTabs').jqxTabs({ width: '100%', height: 300, position: 'top'});
-	    $("#dialogGeneralPanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
-	    $("#dialogSetEvidencePanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
-	    $("#dialogSetVirtualEvidencePanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
-	    $("#dialogDefinitionPanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
-    }
+	$('#dialogTabs').jqxTabs({ width: '100%', height: 300, position: 'top'});
+	$("#dialogGeneralPanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
+	$("#dialogSetEvidencePanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
+	$("#dialogSetVirtualEvidencePanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
+	$("#dialogDefinitionPanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
 
-    if( $("#profilePageDiv").length ) {
-        $('#profilePageRawData').jqxWindow({
-		    width: 800, height: 600,
-		    maxHeight: maxHeight,
-		    maxWidth: maxWidth,
-		    resizable: true,
-		    okButton: $("#profilePageRawDoneButton"),
-		    autoOpen: false
-	    });
-        $('#profilePageRawData').jqxWindow('expand');
-        /*$('#profilePageRawData').on('close', function (event) {
-            $(".profilePageLeftTd").css("width", $("#profileSelectDiv").width() + 200);
-            var maxProfilePageTableWidth = $(".profilePageLeftTd").width() + $(".profilePageRightTd").width() ;
-            $(".profilePageTable").css("width", maxProfilePageTableWidth);
-        }*/
-        //var maxProfilePageTableWidth = $(".profilePageLeftTd").width() + $(".profilePageRightTd").width() + 200;
-        //$(".profilePageTable").css("width", maxProfilePageTableWidth);
-    }
 	//freewall
 	wall = new freewall("#chartDiv");
 	wall.reset({
@@ -310,8 +290,10 @@ function interfaceSizing() {
     var uploadDivHeight = maxModelContentDivHeight;
     var testModelDivHeight = maxModelContentDivHeight;
     var viewLogDivHeight = maxModelContentDivHeight;
+
     var maxProfilePageDivHeight = $("#contentDiv").height() - $("#topButtonsDiv").height();
     var maxProfilePageDivWidth = $("#contentDiv").width() - 10;
+
     //$('#updateDiv').css("height", updateDivHeight);
     //$('#updateDiv').css("width", updateDivWidth);
     //$('#uploadDiv').css("height", uploadDivHeight);
@@ -320,22 +302,14 @@ function interfaceSizing() {
     $('#testModelDiv').css("width", testModelDivWidth);
     $('#viewLogDiv').css("height", viewLogDivHeight);
     $('#viewLogDiv').css("width", viewLogDivWidth);
-    //$('#profilePageDiv').css("height", maxProfilePageDivHeight);
-   // $('#profilePageDiv').css("width", maxProfilePageDivWidth);
 
-    if( $("#profilePageDiv").length ) {
-        //$("#profileSelectLabelDiv").css("width", $("#profileSelectDiv").width());
-        $(".profilePageLeftTd").css("width", $("#profileSelectDiv").width() + 200);
-        var maxProfilePageTableWidth = $(".profilePageLeftTd").width() + $(".profilePageRightTd").width() ;
-        $(".profilePageTable").css("width", maxProfilePageTableWidth);
-    }
+    $('#profilePageDiv').css("height", maxProfilePageDivHeight);
+    $('#profilePageDiv').css("width", maxProfilePageDivWidth);
 
-    if( $("#splitter").length ){
-	    var networkWidth = splitterWidth - 330;
-	    $("#chartJQXPanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'});
-        //$('#splitter').jqxSplitter({ width: splitterWidth, height: maxSplitterHeight, panels: [{size: networkWidth}] });
-        $('#splitter').jqxSplitter({ width: splitterWidth, height: splitterHeight, panels: [{size: networkWidth}] });
-    }
+	var networkWidth = splitterWidth - 330;
+	//$("#chartJQXPanel").jqxPanel({ width: '100%', height: '100%', autoUpdate: true, sizeMode: 'fixed'}); //temporary
+    //$('#splitter').jqxSplitter({ width: splitterWidth, height: maxSplitterHeight, panels: [{size: networkWidth}] });
+    //$('#splitter').jqxSplitter({ width: splitterWidth, height: splitterHeight, panels: [{size: networkWidth}] }); //temporary
 }
 
 function flashSuccessBoxShow() {
@@ -465,7 +439,7 @@ function nodeSelected(nodeID, nodeName)
 	$("#dialogSetEvidencePanel #formDiv").append($form);
 	$("#dialogSetVirtualEvidencePanel #formDiv").append($formVirtual);
 	//$('#dialogTabs').jqxTabs('focus');
-	$('#dialogSetValues').jqxWindow('open');
+	//$('#dialogSetValues').jqxWindow('open'); //temporary
 
 	getCPT(nodeID);
 }
@@ -574,34 +548,10 @@ function truncateOutcome(name)
 	}
 	return truncated;
 }
+
 function showRawData()
 {
-    if( $("#load").val() == null || $("#load").val() == '') {
-        alertBoxShow("Please select a network file first.");
-        return false;
-    }
-    var modelName = $("#load").val();
-    if(modelName == null) {
-	    alertBoxShow("Sorry, there is not an existed network yet.");
-	} else {
-        var getRawDataAjax = jsRoutes.controllers.BnApp.getRawData(modelName);
-        $.ajax({
-            url: getRawDataAjax.url
-        }).done(function(data) {
-            if( data.startsWith("Error:") ) {
-                var message = data.replace("Error:", "");
-                alertBoxShow(message);
-            } else {
-                getRawData(modelName, data);
-                $("#rawData").jqxWindow('open');
-            }
-        }).fail(function(){
-        });
-    }
-
-}
-function showProfilePageRawData()
-{
+    alert("showRawData coming in...");
     if( $("#profilePageLoad").val() == null || $("#profilePageLoad").val() == '') {
         alertBoxShow("Please select a network file first.");
         return false;
@@ -610,16 +560,19 @@ function showProfilePageRawData()
     if(modelName == null) {
 	    alertBoxShow("Sorry, there is not an existed network yet.");
 	} else {
+	    alert("before modelName=" + modelName);
         var getRawDataAjax = jsRoutes.controllers.BnApp.getRawData(modelName);
         $.ajax({
             url: getRawDataAjax.url
         }).done(function(data) {
+            alert("return data=" + data);
             if( data.startsWith("Error:") ) {
                 var message = data.replace("Error:", "");
                 alertBoxShow(message);
             } else {
-                getProfilePageRawData(modelName, data);
+                getRawData(modelName, data);
                 $("#profilePageRawData").jqxWindow('open');
+
             }
         }).fail(function(){
         });
@@ -637,26 +590,7 @@ function getRawDataOptions(type)
 
 function getRawData(modelName, fileContent)
 {
-	$('#rawData').jqxWindow("setTitle", "Raw Data for " + modelName);
-	var fields = [];
-	var columnStruct = [];
-
-	var lines = fileContent.split('\n');
-	var colNames = lines[0].split(',');
-
-	createColumnStruct(colNames,fields,columnStruct);
-
-	var data = csvToJSON(fileContent, "\n", ",");
-	var source =
-		{
-			dataType: "json",
-			dataFields: fields,
-			localData: data
-		};
-	createRawTable(source,columnStruct);
-}
-function getProfilePageRawData(modelName, fileContent)
-{
+	alert("getRawData coming in...");
 	$('#profilePageRawData').jqxWindow("setTitle", "Raw Data for " + modelName);
 	var fields = [];
 	var columnStruct = [];
@@ -673,7 +607,8 @@ function getProfilePageRawData(modelName, fileContent)
 			dataFields: fields,
 			localData: data
 		};
-	createProfilePageRawTable(source,columnStruct);
+    alert("before createRawTable...");
+	createRawTable(source,columnStruct);
 }
 
 function createColumnStruct(columns,fields,columnStruct) {
@@ -690,17 +625,6 @@ function createColumnStruct(columns,fields,columnStruct) {
 }
 
 function createRawTable(source, columnStruct) {
-	var dataAdapter = new $.jqx.dataAdapter(source);
-	$("#rawTable").jqxGrid(
-		{
-			width: "99%",
-			height: "95%",
-			source: dataAdapter,
-			columnsResize: true,
-			columns: columnStruct
-		});
-}
-function createProfilePageRawTable(source, columnStruct) {
 	var dataAdapter = new $.jqx.dataAdapter(source);
 	$("#profilePageRawTable").jqxGrid(
 		{

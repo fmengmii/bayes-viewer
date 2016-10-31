@@ -54,7 +54,7 @@
 		<script src="@routes.Assets.at("javascripts/chart.js")"></script>
 		<script src="@routes.Assets.at("javascripts/bnmodel.js")"></script>
 		<script src="@routes.Assets.at("javascripts/viewer.js")"></script>
-        <script src="@routes.Assets.at("javascripts/main.js")"></script>
+        <!--<script src="@routes.Assets.at("javascripts/main.js")"></script> -->
 
 	    <!-- Embedded Javascript router -->
         @helper.javascriptRouter("jsRoutes")(
@@ -79,9 +79,12 @@
 		      routes.javascript.BnApp.getModelStatus,
 		      routes.javascript.BnApp.getModelHistory,
 		      routes.javascript.BnApp.home,
+		      routes.javascript.BnApp.profile,
 		      routes.javascript.BnApp.getRawData,
 		      routes.javascript.BnApp.queryValidationResult,
-		      routes.javascript.BnApp.changeAlgorithm
+		      routes.javascript.BnApp.changeAlgorithm,
+		      routes.javascript.BnApp.saveToXdslFile,
+		      routes.javascript.BnApp.getViewFile
               )
 	</head>
 

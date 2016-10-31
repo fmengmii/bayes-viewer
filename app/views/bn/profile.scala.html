@@ -1,0 +1,268 @@
+@(models: List[String], dataType:String, users: List[User], bnAlgorithmNameMap: Map[String, String])
+@main("BN Viewer"){
+	<div id="topButtonsDiv">
+		<button class="button topButton homeButton" type="button" onclick="location.href='/bn/home';">Home</button>
+		<button class="button topButton profileButton" type="button" onclick="location.href='/bn/profile';">Profile</button>
+		<button class="button topButton publicButton" type="button" onclick="location.href='/bn/public';">Public Bayesian Network</button>
+		<button class="button topButton privateButton" type="button" onclick="location.href='/bn/private';">Private Bayesian Network</button>
+	</div>
+	<div id="profilePageDiv">
+		<table class="profilePageTable">
+			<tr>
+				<td class="profilePageLeftTd">
+					<div id="profileSelectLabelDiv">Existed Network:</div>
+					<div id="profileSelectDiv">
+							<select id="profilePageLoad" size="25">
+								@for(model <- models) {
+									<option value="@model">@model</option>
+								}
+							</select>
+					</div>
+				</td>
+				<td class="profilePageRightTd">
+					<table>
+						<tr><td class="profilePageRightTd">
+							<button type="button" class="profilePageButton uploadButton" onclick="showUpload()">Upload New Model</button>
+						</td></tr>
+						<tr><td class="profilePageRightTd">
+							<button type="button" class="profilePageButton updateModelButton" onclick="updateModel()">Update Model</button>
+						</td></tr>
+						<tr><td class="profilePageRightTd">
+							<button type="button" class="profilePageButton deleteModelButton" onclick="deleteModel()">Delete Model</button>
+						</td></tr>
+						<tr><td class="profilePageRightTd">
+							<button type="button" class="profilePageButton centerButton" onclick="showProfilePageRawData()">View Raw Data File</button>
+						</td></tr>
+						<tr><td class="profilePageRightTd">
+							<button type="button" class="profilePageButton downloadModelButton"
+									onclick="window.location='/bn/profile/getviewfile/true/'+ $('#profilePageLoad').val();">View Model File</button>
+						</td></tr>
+						<tr><td class="profilePageRightTd">
+							<button type="button" class="profilePageButton viewLogButton" onclick="viewLogHistory()">View Log</button>
+						</td></tr>
+					</table>
+				</td>
+			</tr>
+			<tr><td style="height:30px;"></td><td></td></tr>
+		</table>
+	</div>
+	<div id="emptyDiv"></div>
+@if(flash.containsKey("success")){
+<div id="flashSuccessWindow">
+	<div>title</div>
+	<div id="flash-success-box" class="alert alert-success" >
+		<p class="close" onclick="hideFlashSuccessBox()" data-dismiss="alert" aria-label="close">&times;</p>
+		<strong>Success!</strong>&nbsp;@flash.get("success")
+	</div>
+</div>
+}
+
+@if(flash.containsKey("error")){
+<div id="flashErrorWindow">
+	<div>title</div>
+	<div id="flash-error-box" class="alert alert-danger">
+		<p class="close" onclick="hideFlashErrorBox()" data-dismiss="alert" aria-label="close">&times;</p>
+		<strong>Error:</strong>&nbsp;@flash.get("error")
+	</div>
+</div>
+}
+
+<div id="confirmWindow">
+	<div>title</div>
+	<div id="confirm-box" class="alert alert-info" >
+		@** <a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a> **@
+		@**<p class="close" data-dismiss="alert" aria-label="close"
+			  onclick="hideConfirmBox()">&times;</p> **@
+		&nbsp;&nbsp;
+		<button id="btnYesConfirmYesNo" type="button" class="btn btn-primary">Yes</button>
+		<button id="btnNoConfirmYesNo"
+				type="button" class="btn btn-default">No</button>
+	</div>
+</div>
+
+<div id="confirmLearnModelWindow">
+	<div>title</div>
+	<div id="confirm-learn-box" class="alert alert-info" >
+		&nbsp;&nbsp;
+		<strong>Confirm:</strong>&nbsp;
+			<span class="alertLearnBoxMessage">
+			&nbsp;&nbsp;Do you want to learn a new model from the test data?<br>
+			&nbsp;&nbsp;
+				<input id="combineWithOriRawData" name="combineWithOriRawData"
+					   value="yes" type="checkbox">&nbsp;Combine the original and testing raw data
+				&nbsp;&nbsp;&nbsp;&nbsp;
+			</span>
+		<button id="btnYesConfirmLearnModel" onclick="saveNewModel();" type="button"
+				class="btn btn-primary">Yes</button>
+		<button id="btnNoConfirmLearnModel" onclick="hideConfirmLearnModelBox();" value="No"
+				type="button" class="btn btn-default">No</button>
+	</div>
+</div>
+
+<div id="errorWindow">
+	<div>title</div>
+	<div id="alert-box" class="alert alert-danger" >
+		<p class="close" data-dismiss="alert" aria-label="close"
+		   onclick="hideAlertBox()">&times;</p>
+		<strong>Alert:</strong>&nbsp;<span class="alertBoxMessage"></span>
+	</div>
+</div>
+
+<div id="successWindow">
+	<div>title</div>
+	<div id="success-box" class="alert alert-success" >
+		<p class="close" data-dismiss="alert" aria-label="close" onclick="hideSuccessBox()">&times;</p>
+		<strong>Success!</strong>&nbsp;<span class="successBoxMessage"></span>
+	</div>
+</div>
+
+<div class="deleting"><br><b>Deleting...</b>&nbsp;&nbsp;</div>
+<div id="profilePageRawData">
+	<div id="profilePageWindowContent" style="overflow: hidden">
+		<div id="profilePageRawTable"></div>
+		<div style="float: right">
+				<button type="button" onclick="downloadData()">Download</button>
+				<button type="button" onclick="profilePageRawDataClose()">Close</button>
+				@** <input type="button" value="Close" id="profilePageRawDoneButton" /> **@
+		</div>
+
+	</div>
+</div>
+
+	<div id="uploadDiv">
+		<form enctype="multipart/form-data" id="modelForm" >
+		<p style="font-size:20px"><strong>Please upload new file:</strong></p>
+		<ol type="1">
+			<li>
+				<p>Select your model file with extension xdsl. </p>
+				<div id="modelFileDiv" style="display:inline">
+					<input id="modelFile" name="modelFile" type="file">
+				</div>
+				<br>
+				Public:&nbsp;<input id="isModelPublic" name="isModelPublic" type="checkbox">
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<label class="sharedByLabel" for="modelSharedBy">Shared with:&nbsp;</label>
+				<select id="modelSharedBy" name="modelSharedBy" onChange="checkSharedWith();" multiple="multiple">
+					@for(user <- users) {
+						<option value="@user.userName">&nbsp;@user.firstName&nbsp;@user.lastName:&nbsp;&nbsp;@user.email</option>
+					}
+				</select>
+				<br>
+				<br>
+				<label class="annotationLabel" for="annotation">Model annotation:&nbsp;</label>
+				<textarea id="annotation" rows="6" cols="100"></textarea>
+
+			</li>
+			<br>
+			<li>
+				<p> Select your model's raw data file with extension csv (optional). </p>
+				<input id="dataFile" name="dataFile" type="file"  /><br>
+				Public:&nbsp;
+                <input id="isRawDataPublic" name="isRawDataPubicOrSameUp"
+                       value="isRawDataPublic" type="radio">
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				Shared with: The same as the model file&nbsp;
+				<input id="isSameSharedBy" name="name="isRawDataPubicOrSameUp"
+                        value="isSameSharedBy" type="radio">
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<label class="sharedByLabel" for="rawDataSharedBy">Shared with:&nbsp;</label>
+				<select id="rawDataSharedBy" name="rawDataSharedBy" onChange="checkSharedWith();" multiple="multiple">
+					@for(user <- users) {
+						<option value="@user.userName">&nbsp;@user.firstName&nbsp;@user.lastName:&nbsp;&nbsp;@user.email</option>
+					}
+				</select>
+			</li>
+		</ol>
+		</form>
+		<br><br>
+		<div id="uploadButtonDiv">
+			<input id="uploadSubmit" class="uploadCancelButton"  type="button" onClick="getModelUpload()" value="Upload" />
+			<input id="uploadCancel" class="uploadCancelButton" type="button" value="Cancel" onClick="window.location='/bn/private';"  />
+			&nbsp;&nbsp;
+			<label for="uploadSubmit" class="uploading">Uploading...&nbsp;&nbsp;</label>
+		</div>
+		<br>
+		@*<progress id ="modelProgress" value="0" max="100"></progress> *@
+		@**<</d style="float: right"> **@
+	</div>
+
+    <div id="updateDiv">
+		<table class="profilePageTable">
+        <div id="fileStatusDiv">
+			@**
+            <p style="font-size:20px"><strong>The current status of the file:</strong></p>
+            <p class="selectedModelFileName"></p>
+            <p class="uploadedBy"></p>
+            <p class="uploadTime"></p>
+            <p class="isPublic"></p>
+            <p class="sharedWith"></p>
+            <p class="rawDataFileName"></p>
+			**@
+        </div>
+        @** <br> **@
+        <form enctype="multipart/form-data" id="updateModelForm" >
+		<p style="font-size:20px"><strong>Upload the updated information:</strong></p>
+		<ol type="1">
+			<li>
+				<p>Model file: </p>
+
+				<div id="updateModelFileDiv" style="display:inline">
+					<input id="updateModelFile" name="updateModelFile" type="file">
+				</div>
+				<br>
+
+				Public:&nbsp;<input id="isUpdateModelPublic" name="isUpdateModelPublic" type="checkbox">
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<label class="sharedByLabel" for="modelSharedBy">Shared with:&nbsp;</label>
+				<select id="updateModelSharedBy" name="updateModelSharedBy" onChange="checkSharedWith()" multiple="multiple">
+					@for(user <- users) {
+						<option value="@user.userName">&nbsp;@user.firstName&nbsp;@user.lastName:&nbsp;&nbsp;@user.email</option>
+					}
+				</select>
+				<br>
+				<br>
+				<label class="annotationLabel" for="annotation">Model annotation:&nbsp;</label>
+				<textarea id="annotationUpdate" rows="3" cols="100"></textarea>
+			</li>
+			@** <br> **@
+			<li>
+				<p class="rawDataFile">Raw data file: </p>
+				<input id="updateDataFile" name="dataFile" type="file"  /><br>
+				Public:&nbsp;
+                <input id="isUpdateRawDataPublic" name="isUpdateRawDataPubicOrSameUp"
+                       value="isRawDataPublic" type="radio">
+
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				Shared with: The same as the model file&nbsp;
+				<input id="isUpdateSameSharedBy" name="isUpdateRawDataPubicOrSameUp"
+                        value="isSameSharedBy" type="radio">
+				@**
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<label class="sharedByLabel" for="rawDataSharedBy">Shared with:&nbsp;</label>
+				<select id="updateRawDataSharedBy" name="updateRawDataSharedBy" onChange="checkSharedWith()" multiple="multiple">
+					@@for(user <- users) {
+						<option value="@user.userName">&nbsp;@user.firstName&nbsp;@user.lastName:&nbsp;&nbsp;@user.email</option>
+					}
+				</select>
+				**@
+			</li>
+		</ol>
+		</form>
+		<br>
+		<div id="updateButtonDiv">
+			<input id="updateSubmit" class="uploadCancelButton"  type="button" onClick="getModelUpdate()" value="Update" />
+			<input id="updateCancel" class="uploadCancelButton" type="button" value="Cancel" onClick="window.location='/bn/private';"  />
+			&nbsp;&nbsp;
+			<label for="updateSubmit" class="uploading">Updating...&nbsp;&nbsp;</label>
+		</div>
+		<br>
+		</table>
+    </div>
+	<div id="viewLogDiv"></div>
+}

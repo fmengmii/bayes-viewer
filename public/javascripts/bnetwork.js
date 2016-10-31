@@ -4,10 +4,26 @@ var realEvidenceNodeColor = "Green";
 var virtualEvidenceNodeColor = "#8FBC8F";
 var observationNodeColor = "DarkSalmon";
 var searchNodeColor = "#dd99ff";
+/*
+var layoutName = "breadthfirst";
+if( $("#load").val() != null && $("#load").val() != '' ) {
+    var modelNameArray = $("#load").val().split(".");
+    if( modelNameArray[1] == 'xdsl') {
+        layoutName = "preset";
+    }
+}*/
 
 //$(window).load(function () {
-$(function() { // on dom ready
-
+//$(function() { // on dom ready that the same as  $(document).ready(function(){});
+function cytoscapeReady() {
+    var layoutName = "breadthfirst";
+    if( $("#load").val() != null && $("#load").val() != '' ) {
+        //alert("model is xdsl.");
+        var modelNameArray = $("#load").val().split(".");
+        if( modelNameArray[1] == 'xdsl') {
+            layoutName = "preset";
+        }
+    }
 	cy = cytoscape({
 	  container: document.getElementById('network'),
 	  
@@ -33,11 +49,13 @@ $(function() { // on dom ready
 	      }),
 	      
 	      layout: {
-	        name: 'preset'
+	        //name: 'preset'
+	        name: layoutName
+	        //name: 'breadthfirst'
 	      },
 	      boxSelectionEnabled:false
 	});
-  
+
 	cy.on('tap', 'node', function(evt) {
 		//console.log(evt.cyTarget.id());
 		nodeSelected(evt.cyTarget.id(), evt.cyTarget.data('name'));
@@ -66,8 +84,31 @@ $(function() { // on dom ready
 		    parseInt(event.clientY) + 5 + scrollTop);
 		$('#nodeMenu #nodeID').val(evt.cyTarget.id());
 	});
+}
+//}); // on dom ready
 
-}); // on dom ready
+function saveToXdslFile() {
+    var modelName = $("#load").val();
+    if(modelName == null) {
+	    alertBoxShow("Sorry, there is not an existed network yet.");
+	} else {
+	    //console.log("cy json=" + JSON.stringify(cy.json().elements.nodes));
+        var saveToXdslFileAjax = jsRoutes.controllers.BnApp
+                        .saveToXdslFile(modelName, JSON.stringify(cy.json().elements.nodes));
+        $.ajax({
+            url: saveToXdslFileAjax.url
+        }).done(function(data) {
+            console.log("validationResult return:" + data);
+            if( data.startsWith("Error:") ) {
+                var message = data.replace("Error:", "");
+                alertBoxShow(message);
+            } else {
+                successBoxShow("The file has been successfully saved.");
+            }
+        }).fail(function(){
+        });
+    }
+}
 
 function centerNetwork(showMessage)
 {
@@ -102,6 +143,7 @@ function getNodeColor( nodeID ) {
 }
 
 function networkLoadModel(model) {
+    cytoscapeReady();
     $('#queryNodeNameDiv').empty();
     //addQueryNodeNameSelect(model);
     addQueryNodeNameSelect();

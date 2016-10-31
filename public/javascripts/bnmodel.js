@@ -54,7 +54,18 @@ function loadModel() {
         alertBoxShow("Please upload a network file first.");
         return false;
     }
+
     var modelName = $("#load").val();
+    /*var modelNameArray = modelName.split(".");
+    if( modelNameArray[1] == 'xdsl') {
+        alert("model extension is xdsl");
+        var layout = cy.makeLayout({name: 'preset'});
+        layout.run();
+    } else {
+        var layout = cy.makeLayout({name: 'breadthfirst'});
+        layout.run();
+    }*/
+
     var algorithm = $("#algorithmSelect").val();
     var kFold = $('#kFoldField').val();
     if( kFold == null || kFold == "" ) {
@@ -112,6 +123,7 @@ function loadModel() {
 }
 
 function showUpload() {
+    $('#profilePageDiv').hide();
     $('.lowerButton').removeClass('selected');
     $('.uploadButton').addClass('selected');
 
@@ -126,43 +138,51 @@ function showUpload() {
 }
 
 function deleteModel(){
-    var modelName = $("#load").val();
-    $('.lowerButton').removeClass('selected');
-    $('.deleteModelButton').addClass('selected');
-    if( $("#load").val() == null || $("#load").val() == '') {
+    var modelName = null;
+    if( $("#lowerButtonsDiv").length ) {
+        modelName= $("#load").val();
+        $('.lowerButton').removeClass('selected');
+        $('.deleteModelButton').addClass('selected');
+    }
+    if( $("#profilePageDiv").length ) {
+        modelName= $("#profilePageLoad").val();
+    }
+    if( modelName == null || modelName == '') {
         alertBoxShow("Please select a network file first.");
         return false;
     }
-	if(modelName == null) {
-	    alertBoxShow("Sorry, there is not an existed network yet.");
-	} else {
-	    if(modelName.indexOf("sharedBy") != -1){
-	        alertBoxShow("You don't have a privilege to delete the file because it's a shared file.");
-	        return false;
-        }
-        var message="Are you sure to delete the model file?";
-        confirmBoxForDelete(message,
+
+	if(modelName.indexOf("sharedBy") != -1){
+	    alertBoxShow("You don't have a privilege to delete the file because it's a shared file.");
+	    return false;
+    }
+
+    var message="Are you sure to delete the model file?";
+    confirmBoxForDelete(message,
                         modelName,
                         confirmYesFunctionForDelete,
                         confirmNoFunction);
-
-	}
 }
 
 function updateModel() {
     //alert("update..");
-    var modelName = $("#load").val();
-    $('.lowerButton').removeClass('selected');
-    $('.updateModelButton').addClass('selected');
+    var modelName = null;
 
-    $('#testModelDiv').hide();
-    $('#updateDiv').hide();
-    $('#splitter').hide();
-    $('#legendDiv').hide();
-    $('#uploadDiv').hide();
-    $('#viewLogDiv').hide();
-    $('#queryNodeNameDiv').css("display", "none");
+    if( $("#lowerButtonsDiv").length ) {
+        modelName= $("#load").val();
+        $('.lowerButton').removeClass('selected');
+        $('.updateModelButton').addClass('selected');
 
+        $('#testModelDiv').hide();
+        $('#updateDiv').hide();
+        $('#splitter').hide();
+        $('#legendDiv').hide();
+        $('#uploadDiv').hide();
+        $('#viewLogDiv').hide();
+        $('#queryNodeNameDiv').css("display", "none");
+    } else {
+        modelName= $("#profilePageLoad").val();
+    }
     if( modelName == null || modelName == '' ) {
         alertBoxShow("Please select a network file first.");
         return false;
@@ -177,11 +197,15 @@ function updateModel() {
     $.ajax({
         url: getModelStatusAjax.url
     }).done(function(data) {
+        if(!$("#lowerButtonsDiv").length){
+            $("#profilePageDiv").hide();
+            $("#emptyDiv").show();
+        }
         $('#updateDiv').show();
         var updateDivContent = '<p style="font-size:20px">' +
                 '<strong>The current status of the model:</strong></p>';
         updateDivContent += '<p class="selectedModelFileName">' +
-                'Model file name:&nbsp;' + $('#load').val() + '</p>';
+                'Model file name:&nbsp;' + modelName + '</p>';
         updateDivContent += '<p class="uploadedBy">' +
                 'Uploaded by:&nbsp;' + data.uploadedBy + '</p>';
         updateDivContent += '<p class="uploadTime">' +
@@ -242,7 +266,13 @@ function downloadModel() {
 }
 
 function downloadData(){
-    var modelName = $("#load").val();
+    var modelName = null;
+    if($("#profilePageRawData").length) {
+        modelName = $("#profilePageLoad").val();
+    }
+    if($("#lowerButtonsDiv").length) {
+        var modelName = $("#load").val();
+    }
     if( modelName == null || modelName == '' ) {
         alertBoxShow("Please select a network file first.");
         return false;
@@ -254,39 +284,62 @@ function downloadData(){
     }
     window.location.href="/model/downloaddata/" + modelName;
 }
+
+function profilePageRawDataClose() {
+    $("#profilePageRawData").jqxWindow('close');
+    window.location.href="/bn/profile";
+}
+
 function viewLogHistory (){
-    var modelName = $("#load").val();
-    $('.lowerButton').removeClass('selected');
-    $('.viewLogButton').addClass('selected');
-
-    $('#viewLogDiv').hide();
-    $('#splitter').hide();
-    $('#legendDiv').hide();
-    $('#updateDiv').hide();
-    $('#uploadDiv').hide();
-    $('#testModelDiv').hide();
-    $('#queryNodeNameDiv').css("display", "none");
-
-    if( $("#load").val() == null || $("#load").val() == '') {
-        alertBoxShow("Please select a network file first.");
-        return false;
+    var modelName = null;
+    if($("#profilePageRawData").length) {
+        modelName = $("#profilePageLoad").val();
+    } else {
+        modelName = $("#load").val();
     }
-    if(modelName == null) {
+
+    if($("#lowerButtonsDiv").length) {
+        $('.lowerButton').removeClass('selected');
+        $('.viewLogButton').addClass('selected');
+
+        $('#viewLogDiv').hide();
+        $('#splitter').hide();
+        $('#legendDiv').hide();
+        $('#updateDiv').hide();
+        $('#uploadDiv').hide();
+        $('#testModelDiv').hide();
+        $('#queryNodeNameDiv').css("display", "none");
+    }
+
+    if(modelName == null || modelName == "") {
 	    alertBoxShow("Sorry, there is not an existed network yet.");
-	} else {
-	    if(modelName.indexOf("sharedBy") != -1){
-	        alertBoxShow("You don't have a privilege to view the file because it's a shared file.");
-	        return false;
-        }
-        var getModelHistoryAjax = jsRoutes.controllers.BnApp.getModelHistory(modelName);
-        $.ajax({
-            url: getModelHistoryAjax.url
-        }).done(function(data) {
+	    return false;
+	}
+
+	if(modelName.indexOf("sharedBy") != -1){
+	    alertBoxShow("You don't have a privilege to view the file because it's a shared file.");
+	    return false;
+    }
+
+    var getModelHistoryAjax = jsRoutes.controllers.BnApp.getModelHistory(modelName);
+    $.ajax({
+        url: getModelHistoryAjax.url
+    }).done(function(data) {
             logArray = data.logList;
+            //if($("#profilePageRawData").length) {
+            if(!$("#lowerButtonsDiv").length){
+                $("#profilePageDiv").hide();
+                $("#emptyDiv").show();
+            }
+
             $('#viewLogDiv').show();
             var logTableContent = "";
 
             logTableContent += "<table id='tableSortable' class='sortable logTable'>";
+            if(!$("#lowerButtonsDiv").length){
+                logTableContent += "<caption>View Log for " + modelName + "</caption>";
+            }
+
             logTableContent += "<tr><th class='operationNo'>No.</th>";
             logTableContent += "<th class='operationBy'>Operation By</th>";
             logTableContent += "<th class='operation'>Operation</th>";
@@ -324,9 +377,8 @@ function viewLogHistory (){
 			}
 
 			$('#viewLogDiv').css("width", logTableWidth + 80 );
-        }).fail(function() {
-        });
-    }
+    }).fail(function() {
+    });
 }
 
 function checkSharedWith() {
@@ -453,12 +505,15 @@ function confirmYesFunctionForDelete(modelName) {
     }).done(function(data) {
         $('.deleting').hide();
         $("i").remove();
-
         if( data == "success") {
-            $('#load option[value="'+modelName+'"]').remove();
-            $('#load').val('');
-            $('.lowerButton').removeClass('selected');
-            successBoxShow("The netwrok file has been deleted successfully.");
+            if( $("#lowerButtonsDiv").length ) {
+                $('#load option[value="'+modelName+'"]').remove();
+                $('#load').val('');
+                $('.lowerButton').removeClass('selected');
+                location.href = "/bn/private";
+            } else {
+                location.href = "/bn/profile";
+            }
         } else {
             alertBoxShow(data);
         }
@@ -596,7 +651,9 @@ function getModelUpload() {
         formData.append('modelFile', modelFile);
         updateModelFile = true;
 	    var modelFileNameArray = modelFileName.split(".");
-        if( modelFileNameArray[1] != "xdsl") {
+        if( modelFileNameArray[1].toLowerCase() != "xdsl"
+            && modelFileNameArray[1].toLowerCase() != "pmml" ) {
+
 	        alertBoxShow(
 	            "The model file extension is not  '.xdsl'. \nPlease choose a correct file.");
 	        upload = false;
@@ -709,7 +766,11 @@ function getModelUpload() {
                 $('.uploading').hide();
                 $('#uploadButtonDiv i').remove();
                 if( data == "success") {
-                    location.href = "/bn/private";
+                    if( $("#lowerButtonsDiv").length ) {
+                        location.href = "/bn/private";
+                    } else {
+                        location.href = "/bn/profile";
+                    }
                 } else {
                     alertBoxShow(data);
                 }
@@ -800,7 +861,11 @@ function getModelUpdate() {
         $('.uploading').hide();
         $('#uploadButtonDiv i').remove();
         if( data == "success") {
-            location.href = "/bn/private";
+            if( $("#lowerButtonsDiv").length) {
+                location.href = "/bn/private";
+            } else {
+                location.href = "/bn/profile";
+            }
         } else {
             alertBoxShow(data);
         }
@@ -1275,6 +1340,15 @@ function addQueryNodeNameSelect() {
 	selectString += "&nbsp;<button class='legendToggleButton' " +
 	    "onclick='toggleLegend();'>legend</button>";
 
+    if( $("#load").val() != null && $("#load").val() != '' ) {
+        //alert("model is xdsl.");
+        var modelNameArray = $("#load").val().split(".");
+        if( modelNameArray[1].toLowerCase() == 'pmml') {
+            selectString += "&nbsp;<button class='saveXdslButton' " +
+                "onclick='saveToXdslFile();'>save to xdsl file</button>";
+        }
+    }
+
     if( model.originalNodeAcc == "true" ) {
         var isTestData = false;
         selectString += "&nbsp;<button class='viewRawDataValidationResultButton' " +
@@ -1616,6 +1690,31 @@ function downloadResult(isTestData, queryType) {
             downloadResultLinkTag.href = URL.createObjectURL(csvData);
             downloadResultLinkTag.download = downloadFileName;
             downloadResultLinkTag.click();
+        }
+    }).fail(function(){
+    });
+}
+
+function viewModelFile(){
+    alert("viewModelFile coming with value" + $("#profilePageLoad").val());
+    if( $("#profilePageLoad").val() == null || $("#profilePageLoad").val() == '') {
+        alertBoxShow("Please select a network file first.");
+        return true;
+    }
+    alert("here.");
+    var modelName = $("#profilePageLoad").val();
+    var getModelFileAjax = jsRoutes.controllers.BnApp.getViewFile(modelName, true);
+
+    $.ajax({
+        url: getModelFileAjax.url
+    }).done(function(data) {
+        //console.log("validationResult return:" + data);
+        if( data.startsWith("Error:") ) {
+            var message = data.replace("Error:", "");
+            alertBoxShow(message);
+        } else {
+            alert("return data=" + data + " location=" + window.location.hostname + " port=" + location.port);
+            window.open("http://" + window.location.hostname + ":" + window.location.port + "/assets/viewfiles/"+data);
         }
     }).fail(function(){
     });

@@ -30,7 +30,7 @@ GET         /model/savenewmodel/:modelName/:combineRawData  controllers.BnApp.sa
 #GET        /shared                             controllers.Application.shared()
 #GET        /network/:loadFileName              controllers.Application.network(loadFileName: String)
 
-#GET         /network/:dataType                  controllers.Application.network(dataType: String)
+#GET        /network/:dataType                  controllers.Application.network(dataType: String)
 
 GET         /login                              controllers.Application.login()
 POST        /authenticate                       controllers.Application.authenticate()
@@ -40,6 +40,9 @@ GET         /logout                             controllers.Application.logout()
 GET         /changePassword                     controllers.Application.changePassword()
 POST        /saveNewPassword                    controllers.Application.saveNewPassword()
 GET         /bn/home                            controllers.BnApp.home()
+GET         /bn/profile                         controllers.BnApp.profile()
 GET         /bn/:dataType                       controllers.BnApp.network(dataType: String)
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                       controllers.Assets.at(path="/public", file)
+GET         /bn/savetoxdslfile/:modelName/:nodesJsonString  controllers.BnApp.saveToXdslFile(modelName: String, nodesJsonString: String)
+GET         /bn/profile/getviewfile/:isModelFile/:modelName controllers.BnApp.getViewFile(isModelFile: Boolean, modelName: String)

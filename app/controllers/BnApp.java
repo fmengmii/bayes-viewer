@@ -6,6 +6,8 @@ package controllers;
  */
 
 import bayes.ModelReader;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import play.*;
 import play.cache.Cache;
 import play.data.Form;
@@ -15,6 +17,7 @@ import play.mvc.*;
 import play.mvc.Http.*;
 import play.mvc.Http.MultipartFormData.*;
 import play.data.validation.*;
+import scala.util.parsing.json.JSONArray$;
 import smile.Network;
 import smile.learning.DataMatch;
 import smile.learning.DataSet;
@@ -78,6 +81,27 @@ public class BnApp extends Controller {
 
 	public static Result home() {
 		return ok(views.html.bn.home.render());
+	}
+	public static Result profile() {
+		List<String> modelFileList = new ArrayList<String>();
+		//map algorithm in GeNIE interface to Network.BayesianAlgorithmType properties
+		Map<String, String> bnAlgorithmNameMap = new HashMap<String, String>();
+		bnAlgorithmNameMap.put("Lauritzen", "Clustering");
+		bnAlgorithmNameMap.put("Pearl", "Polytree");
+		bnAlgorithmNameMap.put("Henrion", "Logic Sampling");
+		bnAlgorithmNameMap.put("LSampling", "Likelihood Sampling");
+		bnAlgorithmNameMap.put("SelfImportance", "Self-Importance");
+		bnAlgorithmNameMap.put("BackSampling", "Backward Sampling");
+		bnAlgorithmNameMap.put("AisSampling", "AIS Sampling");
+		bnAlgorithmNameMap.put("EpisSampling", "EPIS Sampling");
+
+		List<User> users = new ArrayList<User>();
+		User user = User.findByUserName(session("user"));
+		modelFileList = getModelFileList(user);
+		users = User.findAllApprovedList();
+		users.remove(user);
+		return ok(views.html.bn.profile.render(modelFileList, "private",
+					users, bnAlgorithmNameMap));
 	}
 
 	public static Result network(String dataType) {
@@ -215,6 +239,7 @@ public class BnApp extends Controller {
 			return ok("Error:The network file didn't exist in database.");
 		}
 	}
+
 	public static Result queryValidationResult(Boolean isTestData, String queryType) {
 		ModelReader modelReader = (ModelReader)Cache.get("modelReader");
 		//Logger.info("queryType=" + queryType);
@@ -336,8 +361,9 @@ public class BnApp extends Controller {
 			modelReader.setFoldNum(Integer.parseInt(kFold));
 		}
 
+
 		String modelStr = modelReader.readModelFromFileContent(
-				modelName, modelContent, algorithm);
+					modelName, modelContent, algorithm);
 
 		Network network = modelReader.getNetwork();
 
@@ -621,6 +647,7 @@ public class BnApp extends Controller {
 						}
 					}
 					networkFile.modelSharedUsers = sharedUsers;
+					//Logger.info("fileContent=" + fileContent);
 					networkFile.fileContent = fileContent;
 					networkFile.annotation = annotation;
 					networkFile.isPublic = isModelPublic;
@@ -953,9 +980,14 @@ public class BnApp extends Controller {
 					fileName, fileType);
 
 		if( networkFile != null ) {
-			logAdvice(networkFile, "delete");
-			networkFile.isActive = false;
-			networkFile.update();
+			List<Log> logList = Log.findByNetworkFile(networkFile);
+			for( Log log: logList ) {
+				log.delete();
+			}
+			//logAdvice(networkFile, "delete");
+			//networkFile.isActive = false;
+			//networkFile.update();
+			networkFile.delete();
 			return ok("success");
 		} else {
 			return ok("The network file does not exist in database.");
@@ -1078,6 +1110,111 @@ public class BnApp extends Controller {
     	return ok(cptStr);
     }
 
+	public static Result saveToXdslFile(String modelName, String nodesJsonString) {
+		String[] modelNameArray = modelName.split("\\.");
+		String modelFileName = modelNameArray[0];
+		String modelFileType = modelNameArray[1];
+
+		String newModelFileName = modelFileName + "FromPmml";
+		String newModelFileType = "xdsl";
+
+		String newModelFileFullName = newModelFileName + "." + newModelFileType;
+
+		Gson gson = new Gson();
+		JsonArray jArray = gson.fromJson(nodesJsonString, JsonArray.class);
+		ModelReader modelReader = (ModelReader)Cache.get("modelReader");
+		Network network = modelReader.getNetwork();
+
+		for(int i=0; i<jArray.size(); i++){
+			JsonObject jsonO = jArray.get(i).getAsJsonObject();
+			JsonObject jsonPosition = jsonO.get("position").getAsJsonObject();
+			int nodeXValue = jsonPosition.get("x").getAsInt();
+			int nodeYValue = jsonPosition.get("y").getAsInt();
+			JsonObject jsonData = jsonO.get("data").getAsJsonObject();
+			String nodeId = jsonData.get("id").getAsString();
+			String[] nodeOutcomeIDs = network.getOutcomeIds(nodeId);
+			int width = network.getNodeName(nodeId).length()*10 + 200;
+			int height = 20 * (nodeOutcomeIDs.length + 1 );
+			network.setNodePosition(nodeId, nodeXValue, nodeYValue, width, height);
+		}
+		String newModelName = "/tmp/" + newModelFileFullName;
+		File newModelFile = new File(newModelName);
+
+		network.writeFile(newModelName);
+		User user = User.findByUserName(session("user"));
+
+		String newModelFileContent = null;
+		try {
+			newModelFileContent = new Scanner(newModelFile).useDelimiter("\\Z").next();
+		} catch (FileNotFoundException ex) {
+			return badRequest("The new model file is not found.");
+		}
+
+		newModelFile.delete();
+
+		NetworkFile newNetworkFile = NetworkFile.findByFileNameAndType(
+				newModelFileName, newModelFileType);
+		if( newNetworkFile == null ) {
+			newNetworkFile = new NetworkFile();
+		}
+
+		newNetworkFile.user = user;
+		newNetworkFile.fileName = modelFileName + "FromPmml";
+		newNetworkFile.fileType = "xdsl";
+		newNetworkFile.isPublic = false;
+		//networkFile.modelSharedUsers = sharedUsers;
+		newNetworkFile.fileContent = newModelFileContent;
+		if( newNetworkFile.id != 0 ) {
+			newNetworkFile.update();
+		} else {
+			newNetworkFile.save();
+		}
+
+		NetworkFile oriNetworkFile = NetworkFile.findByFileNameAndType(modelFileName, modelFileType);
+
+		RawDataFile oriRawDataFile = RawDataFile.findByNetworkFile(oriNetworkFile);
+
+		if( oriRawDataFile != null ) {
+			RawDataFile newRawDataFile = new RawDataFile();
+			newRawDataFile.networkFile = newNetworkFile;
+			newRawDataFile.fileName = oriRawDataFile.fileName;
+			newRawDataFile.fileType = oriRawDataFile.fileType;
+			newRawDataFile.fileContent = oriRawDataFile.fileContent;
+			newRawDataFile.isPublic = oriRawDataFile.isPublic;
+			newRawDataFile.save();
+		}
+
+		logAdvice(newNetworkFile, "save");
+
+		return ok();
+	}
+
+	public static Result getViewFile( boolean isModelFile, String fileName ) {
+		//Logger.info("fileName coming with=" + fileName);
+		String[] fileNameArray = fileName.split("\\.");
+		if( isModelFile ) {
+			NetworkFile networkFile = NetworkFile.findByFileNameAndType(
+					fileNameArray[0], fileNameArray[1]);
+			if( networkFile == null ) {
+				return ok("Error: The model file does not exist in database.");
+			}
+			return ok(networkFile.fileContent).as("text/xml");
+			/*
+			try {
+				File newFile = new File(Play.application().path() + "/public/viewfiles/" + fileName);
+				//File newFile = new File("/tmp/" + fileName);
+				BufferedWriter out = new BufferedWriter(new FileWriter(newFile));
+				Logger.info("file path=" + Play.application().path());
+				out.write(networkFile.fileContent);
+				out.close();
+
+			} catch( IOException ex ) {
+				Logger.info("writer ex=" + ex.toString());
+				return ok("Error:" + ex.toString());
+			}*/
+		}
+		return ok(fileName);
+	}
 	/*public static class DownloadModel {
 		//@Constraints.Required
 		public String modelName;

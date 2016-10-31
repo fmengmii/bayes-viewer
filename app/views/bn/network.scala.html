@@ -4,6 +4,7 @@
 
 	<div id="topButtonsDiv">
 		<button class="button topButton homeButton" type="button" onclick="location.href='/bn/home';">Home</button>
+		<button class="button topButton profileButton" type="button" onclick="location.href='/bn/profile';">Profile</button>
 		<button class="button topButton publicButton" type="button" onclick="location.href='/bn/public';">Public</button>
 		<button class="button topButton privateButton" type="button" onclick="location.href='/bn/private';">Private</button>
 		 @** @if( models != null ) {  **@
@@ -37,19 +38,19 @@
                     <button type="button" class="button lowerButton clearTarButton" onclick="clearAllTargets()">Clear All Observations</button>
 					@**<button type="button" class="button lowerButton clearAllButton" onclick="clearAll()">Clear All</button>**@
 					<button type="button" class="button lowerButton centerButton" onclick="centerNetwork()">Center Network</button>
-					<button type="button" class="button lowerButton centerButton" onclick="showRawData()">View Raw Data</button>
-					@if(dataType.equals("public")) {
+					@** <button type="button" class="button lowerButton centerButton" onclick="showRawData()">View Raw Data</button> **@
+					@** @if(dataType.equals("public")) { **@
 					    <button type="button" class="button lowerButton testModelButton centerButtonLast" onclick="testModel()">Test Model</button>
-                    } else {
+                    @** } else {
                         <button type="button" class="button lowerButton testModelButton" onclick="testModel()">Test Model</button>
-                    }
-                    @if(dataType.equals("private")) {
+                    } **@
+                    @** @if(dataType.equals("private")) {
                         <button type="button" class="button lowerButton updateModelButton" onclick="updateModel()">Update Model</button>
 						<button type="button" class="button lowerButton downloadModelButton" onclick="downloadModel()">Download Model</button>
 						<button type="button" class="button lowerButton deleteModelButton" onclick="deleteModel()">Delete Model</button>
                         <button type="button" class="button lowerButton uploadButton" onclick="showUpload()">Upload New Model</button>
                         <button type="button" class="button lowerButton viewLogButton" onclick="viewLogHistory()">View Log</button>
-                    }
+                    } **@
                 </td>
             </tr>
 			<tr >
@@ -445,7 +446,7 @@
 		<br>
     </div>
 
-    <div id="viewLogDiv"></div>
+	<div id="viewLogDiv"></div>
 }
 
 

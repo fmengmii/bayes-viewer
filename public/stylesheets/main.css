@@ -15,7 +15,7 @@ html, body{
     /*background-color:#ffffff;*/
 }
 
-#topButtonsDiv {
+#topButtonsDiv{
     /*float:left;*/
    /*padding-top:20px;*/
    display:block;
@@ -233,7 +233,7 @@ html, body{
     outline:none;
 }
 
-.topButton.selectedHome{
+.topButton.selectedHome,.topButton.selectedProfile {
     background-color: #ffffff;
     font-weight:bold;
     font-weight:bold;
@@ -255,7 +255,7 @@ html, body{
     /*border-right:none !important;*/
 }
 
-.lowerButton {
+.lowerButton, .profilePageButton {
     background-color:#ffebcc; /*#ffffff;*/ /*#4c91cd;*/ /*#4da6ff;*/ /*#1EC0FF;*/   /*#3E95F7;*/ /*#35A2CE*/
     font-size: 16px;
     /*padding: 0px 4px 0px 0px !important;*/
@@ -268,7 +268,7 @@ html, body{
     outline:none !important;
 }
 
-.lowerButton:hover{
+.lowerButton:hover, .profilePageButton:hover{
     background-color:#dadada; /*#bfbfbf*/; /*#004280;*/ /*#245D73;*/
     /*font-weight:bold;*/
     /*border:1px solid #000000;*/
@@ -283,7 +283,7 @@ html, body{
     /*padding: 0px 4px 0px 0px !important;*/
 }
 
-.lowerButton.selected{
+.lowerButton.selected, .profilePageButton.selected{
     background-color:#ffffff; /*#004280;*/ /*#245D73;*/
     /*font-weight:bold;*/
     /*border:4px solid #ffffff;*/
@@ -371,6 +371,14 @@ html, body{
     box-shadow: 0 1px 0 #666, 0 5px 0 #444, 0 6px 6px rgba(0,0,0,0.6);
     cursor: pointer;
 }
+/*.profilePageButton{
+    font-size: 1.3em;
+    border: 0 none;
+    border-radius: 3px;
+    text-shadow: 0 -1px 0 #000;
+    box-shadow: 0 1px 0 #666, 0 5px 0 #444, 0 6px 6px rgba(0,0,0,0.6);
+    cursor: pointer;
+}*/
 
 #uploadSubmit, #updateSubmit, #uploadTestRawDataSubmit{
     font-weight: bold;
@@ -387,7 +395,7 @@ html, body{
     color: #4c91cd; /*#21578A;*/
 }
 
-.queryNodeNameButton, .legendToggleButton,
+.queryNodeNameButton, .legendToggleButton, .saveXdslButton,
 .viewRawDataValidationResultButton, .viewTestDataValidationResultButton{
     height:30px;
     font-weight: bold;
@@ -407,7 +415,7 @@ html, body{
     outline:none !important;
 }
 
-.queryNodeNameButton:hover, .legendToggleButton:hover,
+.queryNodeNameButton:hover, .legendToggleButton:hover, .saveXdslButton:hover,
 .viewRawDataValidationResultButton:hover, .viewTestDataValidationResultButton:hover{
      color: #4c91cd;
 }
@@ -421,7 +429,7 @@ html, body{
     line-height: inherit;
     font-family: Verdana, Arial, sans-serif !important;
     font-size: 18px !important;
-    /*border-color:#d3d3d3 !important;*/
+    border-color:#d3d3d3 !important;
     border:1px solid #d3d3d3 !important;
     border-bottom-right-radius:4px !important;
     border-bottom-left-radius:4px !important;
@@ -433,6 +441,46 @@ html, body{
     height: 34px !important;
     cursor: pointer;
     background:#e6e6e6 !important;
+}
+#profilePageLoad{
+    align-items:center !important;
+    /*-webkit-appearance: menulist !important;*/
+    border-radius:initial;
+    vertical-align: text-bottom;
+    line-height: inherit;
+    font-family: Verdana, Arial, sans-serif !important;
+    font-size: 18px !important;
+    /*border-color:#d3d3d3 !important;*/
+    border:1px solid #d3d3d3 !important;
+    border-bottom-right-radius:4px !important;
+    border-bottom-left-radius:4px !important;
+    border-top-right-radius:4px !important;
+    border-top-left-radius:4px !important;
+    padding: 2px 0 2px 4px !important;
+    font-weight: normal !important;
+    /*color: #555555 !important;*/
+    /*height: 34px !important;*/
+    cursor: pointer;
+    /*background:#e6e6e6 !important;*/
+    size:30;
+}
+/*#profilePageLoad, option{
+    width: auto;
+}*/
+
+select:-internal-list-box{
+    -webkit-appearance: listbox;
+    align-items: flex-start;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    vertical-align: text-bottom;
+    -webkit-user-select: none;
+    white-space: nowrap;
+    border-width: 1px;
+    border-style: inset;
+    border-color: #4c91cd !important;
+    border-image: initial;
+    border-radius: initial;
 }
 
 #kFoldField{
@@ -551,7 +599,7 @@ option:not(:checked) {
 }
 
 .logTable{
-	border:2px solid #666;
+	border:2px solid #4c91cd; /*#666;*/
 	/*width:70%;*/
 	border-collapse:collapse;
 }
@@ -701,7 +749,7 @@ a:hover, a:active{
     display: none;
 }
 
-#rawData{
+#rawData, #profilePageRawData{
     display: none;
 }
 
@@ -778,9 +826,66 @@ a:hover, a:active{
     vertical-align: top;
     overflow: hidden;
 }
+
 .svg-content-responsive {
     display: inline-block;
     position: absolute;
-    //top: 10px;
+    /*top: 10px;*/
     left: 0;
+}
+
+#profilePageDiv{
+    overflow:auto;
+    /*display: none;*/
+    padding-left: 20px;
+    padding-top: 40px;
+}
+
+.profilePageLeftTd{
+    vertical-align:top;
+    text-align:center;
+    padding-left: 30px;
+    padding-top: 30px;
+    /*width: 950px;*/
+}
+/*.profilePageRightTd{
+    vertical-align:top;
+    text-align:center;
+    padding-top: 60px;
+    padding-left: 30px;
+}*/
+#profileSelectLabelDiv{
+    height: 30px;
+    text-align:left;
+    vertical-align:top;
+    width: 60px;
+    /*display: inline-block;*/
+    white-space: nowrap;
+}
+
+.profilePageRightTd{
+    vertical-align:top;
+    text-align:center;
+    padding-top:30px;
+    padding-bottom: 25px;
+    width: 300px;
+}
+
+.profilePageTable{
+    border: 2px solid #4c91cd;
+    padding-top: 20px;
+    /*width: 80%;*/
+    height:95%;
+}
+
+#profileSelectDiv{
+    float:left;
+    border: 1px solid #4c91cd;
+    /*width: 600px;*/
+    overflow: hidden;
+}
+
+#emptyDiv{
+    display: none;
+    height: 30px;
 }
