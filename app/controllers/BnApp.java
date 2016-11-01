@@ -83,6 +83,10 @@ public class BnApp extends Controller {
 		return ok(views.html.bn.home.render());
 	}
 	public static Result profile() {
+		if (!session().containsKey("user")) {
+			//return ok(login.render(Form.form(Login.class)));
+			return redirect("/login");
+		}
 		List<String> modelFileList = new ArrayList<String>();
 		//map algorithm in GeNIE interface to Network.BayesianAlgorithmType properties
 		Map<String, String> bnAlgorithmNameMap = new HashMap<String, String>();
@@ -97,6 +101,7 @@ public class BnApp extends Controller {
 
 		List<User> users = new ArrayList<User>();
 		User user = User.findByUserName(session("user"));
+
 		modelFileList = getModelFileList(user);
 		users = User.findAllApprovedList();
 		users.remove(user);
@@ -825,6 +830,11 @@ public class BnApp extends Controller {
 		RawDataFile uploadRawDataFileObj = (RawDataFile)Cache.get("testRawDataFileObj");
 		Network networkNew = network;
 		DataSet dataSet = (DataSet)Cache.get("dataSetExternal");
+		if( dataSet != null ) {
+			Logger.info("dataSet record count=" + dataSet.getRecordCount());
+		} else {
+			Logger.info("dataSet is null here.");
+		}
 		DataSet dataSetNew = new DataSet();
     	modelReader.setNetwork(network);
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss"); //year month day hour minute second
@@ -835,8 +845,13 @@ public class BnApp extends Controller {
 		String fileType = parseFullFileName[1];
 		String tmpFileName = "/tmp/" + fileName + "_rawDataCombine" +
 				dateFormat.format(date) + "_" + session("user") + ".csv";
-
-		dataSet.writeFile(tmpFileName, ',', null, true); //default separator \t missingValueToken:null columnIdsPresent:true
+		Logger.info("tmpFileName=" + tmpFileName);
+		try {
+			dataSet.writeFile(tmpFileName);
+			//dataSet.writeFile(tmpFileName, ',', null, true); //default separator \t missingValueToken:null columnIdsPresent:true
+		} catch( Exception ex ) {
+			Logger.info("dataSet.writeFile ex: " + ex.toString());
+		}
 		File tmpFile = new File(tmpFileName);
 		dataSetNew.readFile(tmpFileName);
 		tmpFile.delete();

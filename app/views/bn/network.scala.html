@@ -5,14 +5,14 @@
 	<div id="topButtonsDiv">
 		<button class="button topButton homeButton" type="button" onclick="location.href='/bn/home';">Home</button>
 		<button class="button topButton profileButton" type="button" onclick="location.href='/bn/profile';">Profile</button>
-		<button class="button topButton publicButton" type="button" onclick="location.href='/bn/public';">Public</button>
-		<button class="button topButton privateButton" type="button" onclick="location.href='/bn/private';">Private</button>
+		<button class="button topButton publicButton" type="button" onclick="location.href='/bn/public';">Public Bayesian Network </button>
+		<button class="button topButton privateButton" type="button" onclick="location.href='/bn/private';">Private Bayesian Network</button>
 		 @** @if( models != null ) {  **@
 		<div id="showAlgorithmChangeDiv">
 			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			<label for="algorithmSelect" class="algorithmSelectLabel">Inference algorithm
 				<a class="logo navbar-btn" target="_blank" href="@routes.Assets.at("files/BN_inference_algorithm.pdf")"
-					title="references"><img src="@routes.Assets.at("images/question.png")"></a>&nbsp;:</label>
+					title="references"><img src="@routes.Assets.at("images/question.png")" class="questionImg"></a>&nbsp;:</label>
 			<select id="algorithmSelect">
 				@for((key,value) <- bnAlgorithmNameMap ) {
 					@if( value == "Clustering" ) {

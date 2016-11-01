@@ -889,3 +889,7 @@ a:hover, a:active{
     display: none;
     height: 30px;
 }
+
+.questionImg{
+    height: 32px;
+}

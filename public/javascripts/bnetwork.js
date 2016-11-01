@@ -196,7 +196,7 @@ function drawLegend(originalNodeAcc, testNodeAcc) {
                 {"x":xValue+378, "y":yValue, "color":searchNodeColor, "value":"Search",
                     "fontSize":"11px", "fontWeight":"", "r":r}];
 
-    if ( originalNodeAcc ) {
+    //if ( originalNodeAcc ) {
         data.push( {"x":xValue+429,"y":yValue, "color":"white",
                     "value":"Internal K-fold Cross Validation Accuracy",
                     "fontSize":"12px", "fontWeight":"", "r":0});
@@ -219,7 +219,7 @@ function drawLegend(originalNodeAcc, testNodeAcc) {
         data.push( {"x":xValue+820,"y":yValue, "color":"white",
                     "value":"O:",
                     "fontSize":"12px", "fontWeight":"bold", "r":0});
-    }
+    //}
 
     if( testNodeAcc ) {
         data.push( {"x":xValue+947,"y":yValue, "color":"white",

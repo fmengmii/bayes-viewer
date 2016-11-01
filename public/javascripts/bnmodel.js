@@ -1696,12 +1696,11 @@ function downloadResult(isTestData, queryType) {
 }
 
 function viewModelFile(){
-    alert("viewModelFile coming with value" + $("#profilePageLoad").val());
+    // alert("viewModelFile coming with value" + $("#profilePageLoad").val());
     if( $("#profilePageLoad").val() == null || $("#profilePageLoad").val() == '') {
         alertBoxShow("Please select a network file first.");
         return true;
     }
-    alert("here.");
     var modelName = $("#profilePageLoad").val();
     var getModelFileAjax = jsRoutes.controllers.BnApp.getViewFile(modelName, true);
 
@@ -1718,4 +1717,11 @@ function viewModelFile(){
         }
     }).fail(function(){
     });
+}
+
+function showModelFile() {
+    var getUrl = window.location;
+    var baseUrl = getUrl.protocol + "//" + getUrl.host + getUrl.pathname;
+    var newWindowLocation = baseUrl + "/getviewfile/true/"+ $('#profilePageLoad').val();
+    window.open(newWindowLocation);
 }
