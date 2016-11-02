@@ -827,14 +827,10 @@ public class BnApp extends Controller {
 	public static Result saveNewModel( String modelFileName, Boolean combineRawData ) {
 		ModelReader modelReader = new ModelReader();
 		Network network = (Network)Cache.get("network");
+
 		RawDataFile uploadRawDataFileObj = (RawDataFile)Cache.get("testRawDataFileObj");
 		Network networkNew = network;
-		DataSet dataSet = (DataSet)Cache.get("dataSetExternal");
-		if( dataSet != null ) {
-			Logger.info("dataSet record count=" + dataSet.getRecordCount());
-		} else {
-			Logger.info("dataSet is null here.");
-		}
+
 		DataSet dataSetNew = new DataSet();
     	modelReader.setNetwork(network);
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss"); //year month day hour minute second
@@ -843,18 +839,9 @@ public class BnApp extends Controller {
 		String[] parseFullFileName = modelFileName.split("\\.");
 		String fileName = parseFullFileName[0];
 		String fileType = parseFullFileName[1];
+
 		String tmpFileName = "/tmp/" + fileName + "_rawDataCombine" +
 				dateFormat.format(date) + "_" + session("user") + ".csv";
-		Logger.info("tmpFileName=" + tmpFileName);
-		try {
-			dataSet.writeFile(tmpFileName);
-			//dataSet.writeFile(tmpFileName, ',', null, true); //default separator \t missingValueToken:null columnIdsPresent:true
-		} catch( Exception ex ) {
-			Logger.info("dataSet.writeFile ex: " + ex.toString());
-		}
-		File tmpFile = new File(tmpFileName);
-		dataSetNew.readFile(tmpFileName);
-		tmpFile.delete();
 
 		if( combineRawData ) {
 			//combine the original raw data with the testing raw data
@@ -879,6 +866,20 @@ public class BnApp extends Controller {
 			}
 		}
 
+		try {
+			File tmpFile = new File(tmpFileName);
+			if (!tmpFile.exists()) {
+				tmpFile.createNewFile();
+			}
+
+			PrintWriter writer = new PrintWriter(tmpFile);
+			writer.print(uploadRawDataFileObj.fileContent);
+			writer.close();
+			dataSetNew.readFile(tmpFileName);
+			tmpFile.delete();
+		} catch( Exception ex ) {
+			return badRequest("There is a problem during the creation of new model.");
+		}
 
 		DataMatch[] matches = dataSetNew.matchNetwork(network);
 		EM em = new EM();
