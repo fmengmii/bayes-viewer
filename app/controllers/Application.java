@@ -133,10 +133,10 @@ public class Application extends Controller
 			flash("alert", "Please wait for your account approval. We will notify you by email. ");
 			return redirect("/");
 		} else {
-			flash("success", "login successful.");
+			//flash("success", "login successful.");
 			session().clear();
 			session("user", userName);
-			return redirect("/bn/private"); // or redirect("/");
+			return redirect("/bn/home"); // or redirect("/");
 		}
 	}
 

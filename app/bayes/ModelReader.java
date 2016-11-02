@@ -146,7 +146,7 @@ public class ModelReader
 			dbf.setNamespaceAware(true);
 			DocumentBuilder db = dbf.newDocumentBuilder();
 
-			File xslFile = play.Play.application().getFile("schema/GBM_pmml_to_xdsl.xsl");
+			File xslFile = play.Play.application().getFile("conf/transformer_pmml_to_xdsl.xsl");
 			Document xslDoc = db.parse(xslFile);
 			DOMSource xslDomSource = new DOMSource( xslDoc );
 
