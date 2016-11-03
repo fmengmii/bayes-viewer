@@ -326,8 +326,11 @@ function interfaceSizing() {
     if( $("#profilePageDiv").length ) {
         //$("#profileSelectLabelDiv").css("width", $("#profileSelectDiv").width());
         $(".profilePageLeftTd").css("width", $("#profileSelectDiv").width() + 200);
+
         var maxProfilePageTableWidth = $(".profilePageLeftTd").width() + $(".profilePageRightTd").width() ;
         $(".profilePageTable").css("width", maxProfilePageTableWidth);
+        //$(".profilePageTable").css("height", maxProfilePageDivHeight - 200);
+        //$(".profilePageLoad").css("height", maxProfilePageDivHeight - 300);
     }
 
     if( $("#splitter").length ){
