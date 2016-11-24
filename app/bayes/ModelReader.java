@@ -9,9 +9,12 @@ import java.util.List;
 
 import com.google.gson.Gson;
 
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
 import play.Application;
 import play.Logger;
 import play.api.Play;
+import play.api.libs.iteratee.Input;
 import play.api.libs.json.Json;
 import smile.*;
 import smile.learning.*;
@@ -24,6 +27,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
 
 public class ModelReader
 {
@@ -174,6 +181,203 @@ public class ModelReader
 		}
 		return null;
 	}
+
+	public String transformFromXdslToPmml(String xdslContent, String modelName) {
+		try {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			dbf.setNamespaceAware(true);
+			DocumentBuilder pmmlDocBuilder = dbf.newDocumentBuilder();
+			Document pmmlDoc = pmmlDocBuilder.newDocument();
+			Element pmmlRootElement = pmmlDoc.createElementNS("http://www.dmg.org/PMML-4_3", "PMML");
+
+			XPathFactory xPathFactory = XPathFactory.newInstance();
+			XPath xPath = xPathFactory.newXPath();
+
+			Double numOfNode = (Double)xPath.evaluate("count(/smile/nodes/cpt)", getInputSource(xdslContent), XPathConstants.NUMBER);
+			int numOfNodeInt = numOfNode.intValue();
+			Logger.info("numOfNodeInt=" + numOfNodeInt);
+
+			Element dataDictionary = pmmlDoc.createElement("DataDictionary");
+			dataDictionary.setAttribute("numberOfFields", String.valueOf(numOfNodeInt));
+
+			//cpt node
+			for(int i = 1; i <= numOfNodeInt; i++ ) {
+				Element dataField = pmmlDoc.createElement("DataField");
+				String cptIdExp = "/smile/nodes/cpt[" + i + "]/@id";
+				String name= (String)xPath.evaluate(cptIdExp, getInputSource(xdslContent), XPathConstants.STRING);
+				dataField.setAttribute("name", name);
+				Logger.info("name=" + name);
+				String nameExp = "/smile/extensions/genie/node[@id='" + name + "']/name";
+				String displayName = (String)xPath.evaluate(nameExp, getInputSource(xdslContent), XPathConstants.STRING);
+				Logger.info("displayName=" + displayName);
+				dataField.setAttribute("name", name);
+				dataField.setAttribute("displayName", displayName);
+				dataField.setAttribute("optype", "categorical");
+
+				String countStateValueExp = "count(/smile/nodes/cpt[" + i +"]/state)";
+				Double stateNum = (Double)xPath.evaluate(countStateValueExp, getInputSource(xdslContent), XPathConstants.NUMBER);
+				Logger.info("dataField stateNum=" + stateNum);
+				for( int j = 1; j <= stateNum.intValue(); j++ ) {
+					String stateValueExp = "/smile/nodes/cpt[" + i + "]/state[" + j + "]/@id";
+					String stateValue = (String) xPath.evaluate(stateValueExp, getInputSource(xdslContent), XPathConstants.STRING);
+					Element value = pmmlDoc.createElement("Value");
+					value.setAttribute("value", stateValue);
+					dataField.appendChild(value);
+				}
+				dataDictionary.appendChild(dataField);
+			}
+			pmmlRootElement.appendChild(dataDictionary);
+
+			Element bayesianNetworkModel = pmmlDoc.createElement("BayesianNetworkModel");
+			bayesianNetworkModel.setAttribute("modelName", modelName);
+			Element bayesianNetworkNodes = pmmlDoc.createElement("BayesianNetworkNodes");
+			for( int i = 1; i <= numOfNodeInt; i++ ) {
+				Element discreteNode = pmmlDoc.createElement("DiscreteNode");
+				String cptIdExp = "/smile/nodes/cpt[" + i + "]/@id";
+				String name= (String)xPath.evaluate(cptIdExp, getInputSource(xdslContent), XPathConstants.STRING);
+				discreteNode.setAttribute("name", name);
+
+				String parentsExp = "/smile/nodes/cpt[" + i + "]/parents";
+				Boolean hasParent = (Boolean)xPath.evaluate(parentsExp, getInputSource(xdslContent), XPathConstants.BOOLEAN);
+				String probListExp ="/smile/nodes/cpt[" + i + "]/probabilities";
+				String probList = (String)xPath.evaluate(probListExp, getInputSource(xdslContent), XPathConstants.STRING);
+				String[] probArray = probList.split(" ");
+				int probArrayPosition = 0;
+				String countStateValueExp = "count(/smile/nodes/cpt[" + i + "]/state)";
+				Double stateNum = (Double)xPath.evaluate(countStateValueExp, getInputSource(xdslContent), XPathConstants.NUMBER);
+
+				if( hasParent ) {
+					String parentList = (String)xPath.evaluate(parentsExp, getInputSource(xdslContent), XPathConstants.STRING);
+					String[] parentArray = parentList.split(" ");
+					Map parentStateMap = new LinkedHashMap<String, String[]>();
+
+					int totalStateNum = 1;
+					//int numOfDiscreteConditionalProbability = parentArray.length * stateNum.intValue()
+					for( int j = 0; j < parentArray.length; j++ ) {
+						String parent = parentArray[j];
+						String countParentStateValueExp = "count(/smile/nodes/cpt[@id='" + parent + "']/state)";
+						Double parentStateNum = (Double)xPath.evaluate(countParentStateValueExp, getInputSource(xdslContent), XPathConstants.NUMBER);
+						//Logger.info("i=" + i + " and parent=" + parent + " and parentStateNum=" + parentStateNum);
+
+						//totalStateNum += parentStateNum.intValue();
+						String[] parentStateArray = new String[parentStateNum.intValue()];
+						for( int k = 1; k <= parentStateNum.intValue(); k++ ) {
+							String parentStateValueExp = "/smile/nodes/cpt[@id='" + parent + "']/state[" + k + "]/@id";
+							String parentStateValue = (String)xPath.evaluate(parentStateValueExp, getInputSource(xdslContent), XPathConstants.STRING);
+							parentStateArray[k-1] = parentStateValue;
+						}
+						parentStateMap.put(parent, parentStateArray);
+						totalStateNum = totalStateNum * parentStateArray.length;
+					}
+					Logger.info("totalStateNum=" + totalStateNum);
+					for( int j = 0; j < totalStateNum; j++) {
+						//Logger.info("j=" +j );
+						Element discreteConditinalProbability = pmmlDoc.createElement("DiscreteConditionalProbability");
+
+						for( int k = 0; k < parentArray.length; k++ ) {
+							String parent = parentArray[k];
+							String[] stateArray = (String[])parentStateMap.get(parent);
+							int statePosition = 0;
+							if( parentArray.length == 1 ) {
+								statePosition = j;
+							} else {
+								if ( k == parentArray.length - 1 ) {
+									if(  j < stateArray.length) {
+										statePosition = j;
+									} else {
+										statePosition = j % stateArray.length;
+									}
+								} else {
+									int totalStateChange = 0 ;
+									for (int m = k + 1; m < parentArray.length; m++) {
+										String[] nextParentStateArray = (String[]) parentStateMap.get(parentArray[m]);
+										//Logger.info("m=" + m + " and key=" + parentArray[m] );
+										if( totalStateChange == 0 ) {
+											totalStateChange =  nextParentStateArray.length;
+										} else {
+											totalStateChange = totalStateChange * nextParentStateArray.length;
+										}
+										//Logger.info("nextParentStateNum=" + nextParentStateArray.length);
+									}
+									statePosition = j / totalStateChange;
+									if( statePosition >= stateArray.length ) {
+										statePosition = statePosition % stateArray.length;
+									}
+								}
+							}
+							//Logger.info("stateList=" + stateArray[statePosition]);
+							Element parentValue = pmmlDoc.createElement("ParentValue");
+							parentValue.setAttribute("parent", parent);
+							parentValue.setAttribute("value", stateArray[statePosition]);
+							discreteConditinalProbability.appendChild(parentValue);
+						}
+						for(int r = 1; r <= stateNum.intValue(); r++ ) {
+							Element valueProb = pmmlDoc.createElement("ValueProbability");
+							String stateValueExp = "/smile/nodes/cpt[" + i + "]/state[" + r + "]/@id";
+							String stateValue = (String) xPath.evaluate(stateValueExp, getInputSource(xdslContent), XPathConstants.STRING);
+							valueProb.setAttribute("value", stateValue);
+							//Logger.info("probArrayPosition=" + probArrayPosition + " and j=" + j );
+							String probValue = probArray[probArrayPosition + r - 1];
+							valueProb.setAttribute("probability", probValue);
+							discreteConditinalProbability.appendChild(valueProb);
+						}
+						probArrayPosition += stateNum.intValue();
+						discreteNode.appendChild(discreteConditinalProbability);
+					}
+					//String[][] discreteConditionalProbArray = new String[parentArray.length][totalStateNum];
+
+				} else {
+					for(int j = 1; j <= stateNum.intValue(); j++ ) {
+						Element valueProb = pmmlDoc.createElement("ValueProbability");
+						String stateValueExp = "/smile/nodes/cpt[" + i + "]/state[" + j + "]/@id";
+						String stateValue = (String)xPath.evaluate(stateValueExp, getInputSource(xdslContent), XPathConstants.STRING);
+						valueProb.setAttribute("value", stateValue);
+						Logger.info("probArrayPosition=" + probArrayPosition + " and j=" + j );
+						String probValue = probArray[probArrayPosition + j - 1];
+						valueProb.setAttribute("probability", probValue);
+						discreteNode.appendChild(valueProb);
+					}
+					probArrayPosition += stateNum.intValue();
+				}
+				bayesianNetworkNodes.appendChild(discreteNode);
+			}
+			bayesianNetworkModel.appendChild(bayesianNetworkNodes);
+			pmmlRootElement.appendChild(bayesianNetworkModel);
+			pmmlDoc.appendChild(pmmlRootElement);
+			Transformer tf = TransformerFactory.newInstance().newTransformer();
+			//tf.setOutputProperty(OutputKeys.INDENT, "yes");
+			DOMSource source = new DOMSource(pmmlDoc);
+
+			StringWriter outWriter = new StringWriter();
+			StreamResult sResult = new StreamResult(outWriter);
+			tf.transform(source, sResult);
+			StringBuffer sb = outWriter.getBuffer();  //sResult.getWriter().toString()
+			String finalString = sb.toString();
+			//Logger.info("finalString=" + finalString);
+			return finalString;
+		} catch( Exception ex) {
+			Logger.info("Transformer error: " + ex.toString());
+		}
+		return null;
+	}
+
+	private InputSource getInputSource ( String xmlContent ){
+		try {
+			ByteArrayInputStream inputStream =
+					new ByteArrayInputStream(xmlContent.getBytes("UTF-8"));
+			inputStream.reset();
+			InputSource inputSource = new InputSource(inputStream);
+			return inputSource;
+		} catch ( Exception ex ) {
+			Logger.info("Transformer error: " + ex.toString());
+		}
+		return null;
+	}
+	private static XPath createXpath() {
+        final XPathFactory xpathFactory = XPathFactory.newInstance();
+        final XPath xpath = xpathFactory.newXPath();
+        return xpath;
+    }
 
 	public void modifyNetworkLast(){
 		try {

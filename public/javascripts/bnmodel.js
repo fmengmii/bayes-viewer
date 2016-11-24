@@ -1347,6 +1347,10 @@ function addQueryNodeNameSelect() {
             selectString += "&nbsp;<button class='saveXdslButton' " +
                 "onclick='saveToXdslFile();'>save to xdsl file</button>";
         }
+        if( modelNameArray[1].toLowerCase() == 'xdsl') {
+            selectString += "&nbsp;<button class='saveXdslButton' " +
+                "onclick='saveToPmmlFile();'>save to pmml file</button>";
+        }
     }
 
     if( model.originalNodeAcc == "true" ) {

@@ -110,6 +110,27 @@ function saveToXdslFile() {
     }
 }
 
+function saveToPmmlFile() {
+    var modelName = $("#load").val();
+    if(modelName == null) {
+	    alertBoxShow("Sorry, there is not an existed network yet.");
+	} else {
+        var saveToPmmlFileAjax = jsRoutes.controllers.BnApp.saveToPmmlFile(modelName);
+        $.ajax({
+            url: saveToPmmlFileAjax.url
+        }).done(function(data) {
+            console.log("validationResult return:" + data);
+            if( data.startsWith("Error:") ) {
+                var message = data.replace("Error:", "");
+                alertBoxShow(message);
+            } else {
+                successBoxShow("The file has been successfully saved.");
+            }
+        }).fail(function(){
+        });
+    }
+}
+
 function centerNetwork(showMessage)
 {
     if( $("#load").val() == null || $("#load").val() == '') {

@@ -1175,7 +1175,7 @@ public class BnApp extends Controller {
 		}
 
 		newNetworkFile.user = user;
-		newNetworkFile.fileName = modelFileName + "FromPmml";
+		newNetworkFile.fileName = newModelFileName;
 		newNetworkFile.fileType = "xdsl";
 		newNetworkFile.isPublic = false;
 		//networkFile.modelSharedUsers = sharedUsers;
@@ -1199,6 +1199,57 @@ public class BnApp extends Controller {
 			newRawDataFile.isPublic = oriRawDataFile.isPublic;
 			newRawDataFile.save();
 		}
+
+		logAdvice(newNetworkFile, "save");
+
+		return ok();
+	}
+
+	public static Result saveToPmmlFile(String modelName) {
+		String[] modelNameArray = modelName.split("\\.");
+		String modelFileName = modelNameArray[0];
+		String modelFileType = modelNameArray[1];
+
+		String newModelFileName = modelFileName + "FromXdsl";
+		String newModelFileType = "pmml";
+
+		String newModelFileFullName = newModelFileName + "." + newModelFileType;
+
+		NetworkFile newNetworkFile = NetworkFile.findByFileNameAndType(
+				newModelFileName, newModelFileType);
+		if( newNetworkFile == null ) {
+			newNetworkFile = new NetworkFile();
+		}
+
+		NetworkFile oldNetworkFile = NetworkFile.findByFileNameAndType(
+				modelFileName, modelFileType);
+
+		if( oldNetworkFile == null ) {
+			return badRequest("The original model file is not found.");
+		}
+
+		ModelReader modelReader = (ModelReader)Cache.get("modelReader");
+
+		//Logger.info("before call transforFromXdslToPmml. xdsl fileContent=" + oldNetworkFile.fileContent);
+		String newModelFileContent = modelReader.transformFromXdslToPmml (oldNetworkFile.fileContent, modelFileName);
+
+		//Logger.info( "newModelFileContent=" + newModelFileContent );
+
+		User user = User.findByUserName(session("user"));
+
+		newNetworkFile.user = user;
+		newNetworkFile.fileName = newModelFileName;
+		newNetworkFile.fileType = "pmml";
+		newNetworkFile.isPublic = false;
+		//networkFile.modelSharedUsers = sharedUsers;
+		newNetworkFile.fileContent = newModelFileContent;
+		if( newNetworkFile.id != 0 ) {
+			newNetworkFile.update();
+		} else {
+			newNetworkFile.save();
+		}
+
+		NetworkFile oriNetworkFile = NetworkFile.findByFileNameAndType(modelFileName, modelFileType);
 
 		logAdvice(newNetworkFile, "save");
 
