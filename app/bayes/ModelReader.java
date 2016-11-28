@@ -1,24 +1,16 @@
 package bayes;
 
-import java.awt.*;
-import java.io.*;
-import java.lang.reflect.Field;
-import java.text.*;
-import java.util.*;
-import java.util.List;
-
 import com.google.gson.Gson;
-
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
-import play.Application;
 import play.Logger;
-import play.api.Play;
-import play.api.libs.iteratee.Input;
-import play.api.libs.json.Json;
-import smile.*;
-import smile.learning.*;
-import org.w3c.dom.Document;
+import smile.Network;
+import smile.SMILEException;
+import smile.learning.DataMatch;
+import smile.learning.DataSet;
+import smile.learning.EM;
+import smile.learning.Validator;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -29,8 +21,16 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
+import java.awt.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.List;
 
 public class ModelReader
 {
@@ -195,7 +195,6 @@ public class ModelReader
 
 			Double numOfNode = (Double)xPath.evaluate("count(/smile/nodes/cpt)", getInputSource(xdslContent), XPathConstants.NUMBER);
 			int numOfNodeInt = numOfNode.intValue();
-			Logger.info("numOfNodeInt=" + numOfNodeInt);
 
 			Element dataDictionary = pmmlDoc.createElement("DataDictionary");
 			dataDictionary.setAttribute("numberOfFields", String.valueOf(numOfNodeInt));
@@ -206,17 +205,14 @@ public class ModelReader
 				String cptIdExp = "/smile/nodes/cpt[" + i + "]/@id";
 				String name= (String)xPath.evaluate(cptIdExp, getInputSource(xdslContent), XPathConstants.STRING);
 				dataField.setAttribute("name", name);
-				Logger.info("name=" + name);
 				String nameExp = "/smile/extensions/genie/node[@id='" + name + "']/name";
 				String displayName = (String)xPath.evaluate(nameExp, getInputSource(xdslContent), XPathConstants.STRING);
-				Logger.info("displayName=" + displayName);
 				dataField.setAttribute("name", name);
 				dataField.setAttribute("displayName", displayName);
 				dataField.setAttribute("optype", "categorical");
 
 				String countStateValueExp = "count(/smile/nodes/cpt[" + i +"]/state)";
 				Double stateNum = (Double)xPath.evaluate(countStateValueExp, getInputSource(xdslContent), XPathConstants.NUMBER);
-				Logger.info("dataField stateNum=" + stateNum);
 				for( int j = 1; j <= stateNum.intValue(); j++ ) {
 					String stateValueExp = "/smile/nodes/cpt[" + i + "]/state[" + j + "]/@id";
 					String stateValue = (String) xPath.evaluate(stateValueExp, getInputSource(xdslContent), XPathConstants.STRING);
@@ -257,9 +253,6 @@ public class ModelReader
 						String parent = parentArray[j];
 						String countParentStateValueExp = "count(/smile/nodes/cpt[@id='" + parent + "']/state)";
 						Double parentStateNum = (Double)xPath.evaluate(countParentStateValueExp, getInputSource(xdslContent), XPathConstants.NUMBER);
-						//Logger.info("i=" + i + " and parent=" + parent + " and parentStateNum=" + parentStateNum);
-
-						//totalStateNum += parentStateNum.intValue();
 						String[] parentStateArray = new String[parentStateNum.intValue()];
 						for( int k = 1; k <= parentStateNum.intValue(); k++ ) {
 							String parentStateValueExp = "/smile/nodes/cpt[@id='" + parent + "']/state[" + k + "]/@id";
@@ -269,7 +262,6 @@ public class ModelReader
 						parentStateMap.put(parent, parentStateArray);
 						totalStateNum = totalStateNum * parentStateArray.length;
 					}
-					Logger.info("totalStateNum=" + totalStateNum);
 					for( int j = 0; j < totalStateNum; j++) {
 						//Logger.info("j=" +j );
 						Element discreteConditinalProbability = pmmlDoc.createElement("DiscreteConditionalProbability");
@@ -291,13 +283,11 @@ public class ModelReader
 									int totalStateChange = 0 ;
 									for (int m = k + 1; m < parentArray.length; m++) {
 										String[] nextParentStateArray = (String[]) parentStateMap.get(parentArray[m]);
-										//Logger.info("m=" + m + " and key=" + parentArray[m] );
 										if( totalStateChange == 0 ) {
 											totalStateChange =  nextParentStateArray.length;
 										} else {
 											totalStateChange = totalStateChange * nextParentStateArray.length;
 										}
-										//Logger.info("nextParentStateNum=" + nextParentStateArray.length);
 									}
 									statePosition = j / totalStateChange;
 									if( statePosition >= stateArray.length ) {
@@ -305,7 +295,6 @@ public class ModelReader
 									}
 								}
 							}
-							//Logger.info("stateList=" + stateArray[statePosition]);
 							Element parentValue = pmmlDoc.createElement("ParentValue");
 							parentValue.setAttribute("parent", parent);
 							parentValue.setAttribute("value", stateArray[statePosition]);
@@ -316,7 +305,6 @@ public class ModelReader
 							String stateValueExp = "/smile/nodes/cpt[" + i + "]/state[" + r + "]/@id";
 							String stateValue = (String) xPath.evaluate(stateValueExp, getInputSource(xdslContent), XPathConstants.STRING);
 							valueProb.setAttribute("value", stateValue);
-							//Logger.info("probArrayPosition=" + probArrayPosition + " and j=" + j );
 							String probValue = probArray[probArrayPosition + r - 1];
 							valueProb.setAttribute("probability", probValue);
 							discreteConditinalProbability.appendChild(valueProb);
@@ -324,15 +312,12 @@ public class ModelReader
 						probArrayPosition += stateNum.intValue();
 						discreteNode.appendChild(discreteConditinalProbability);
 					}
-					//String[][] discreteConditionalProbArray = new String[parentArray.length][totalStateNum];
-
 				} else {
 					for(int j = 1; j <= stateNum.intValue(); j++ ) {
 						Element valueProb = pmmlDoc.createElement("ValueProbability");
 						String stateValueExp = "/smile/nodes/cpt[" + i + "]/state[" + j + "]/@id";
 						String stateValue = (String)xPath.evaluate(stateValueExp, getInputSource(xdslContent), XPathConstants.STRING);
 						valueProb.setAttribute("value", stateValue);
-						Logger.info("probArrayPosition=" + probArrayPosition + " and j=" + j );
 						String probValue = probArray[probArrayPosition + j - 1];
 						valueProb.setAttribute("probability", probValue);
 						discreteNode.appendChild(valueProb);

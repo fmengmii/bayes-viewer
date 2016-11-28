@@ -6,36 +6,33 @@ package controllers;
  */
 
 import bayes.ModelReader;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import play.*;
+import models.Log;
+import models.NetworkFile;
+import models.RawDataFile;
+import models.User;
+import play.Logger;
 import play.cache.Cache;
-import play.data.Form;
-import static play.data.Form.form;
 import play.libs.Json;
-import play.mvc.*;
-import play.mvc.Http.*;
-import play.mvc.Http.MultipartFormData.*;
-import play.data.validation.*;
-import scala.util.parsing.json.JSONArray$;
+import play.mvc.Controller;
+import play.mvc.Http;
+import play.mvc.Http.MultipartFormData;
+import play.mvc.Http.MultipartFormData.FilePart;
+import play.mvc.Result;
 import smile.Network;
 import smile.learning.DataMatch;
 import smile.learning.DataSet;
 import smile.learning.EM;
-import views.html.*;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.lang.reflect.*;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.google.gson.Gson;
-
-import static play.data.Form.form;
-import models.*;
-import controllers.Application.*;
 
 public class BnApp extends Controller {
 	private Gson gson;
@@ -71,10 +68,12 @@ public class BnApp extends Controller {
 		User user = User.findByUserName(session("user"));
 		if (user != null) {
 			Log log = new Log(networkFile, user, "", operation);
+			log.updateTime = getNowTimestamp();
 			log.save();
 		} else {
 			String ip = getClientIpAddress(request());
 			Log log = new Log(networkFile, user, ip, operation);
+			log.updateTime = getNowTimestamp();
 			log.save();
 		}
 	}
@@ -656,6 +655,7 @@ public class BnApp extends Controller {
 					networkFile.fileContent = fileContent;
 					networkFile.annotation = annotation;
 					networkFile.isPublic = isModelPublic;
+					networkFile.updateTime = getNowTimestamp();
 					networkFile.update(id);
 
 					//logging
@@ -677,6 +677,8 @@ public class BnApp extends Controller {
 				networkFile = new NetworkFile(user,
 						fileName, fileType, fileContent, annotation,
 						isModelPublic, sharedUsers);
+
+				networkFile.updateTime = getNowTimestamp();
 
 				networkFile.save();
 				//logging
@@ -713,7 +715,9 @@ public class BnApp extends Controller {
 				networkFile.modelSharedUsers = sharedUsers;
 				networkFile.isPublic = isModelPublic;
 				networkFile.annotation = annotation;
+				networkFile.updateTime = getNowTimestamp();
 				networkFile.update(id);
+
 				flash("success", "The file has been updated successfully.");
 			}
 
@@ -776,7 +780,7 @@ public class BnApp extends Controller {
 				rawDataFile.rawDataSharedUsers = sharedUsers;
 				rawDataFile.fileContent = dataFileContent;
 				rawDataFile.isPublic = isRawDataPublic;
-
+				rawDataFile.updateTime = getNowTimestamp();
 				rawDataFile.update(id);
 				Logger.info("rawDataFile has been updated.");
 				flash("success", "The files have been updated successfully.");
@@ -796,6 +800,7 @@ public class BnApp extends Controller {
 				rawDataFile = new RawDataFile(networkFile, dataFileName,
 						dataFileType, dataFileContent, isRawDataPublic, sharedUsers);
 
+				rawDataFile.updateTime = getNowTimestamp();
 				rawDataFile.save();
 				flash("success", "The files have been uploaded successfully.");
 			}
@@ -817,6 +822,7 @@ public class BnApp extends Controller {
 				}
 				rawDataFile.rawDataSharedUsers = sharedUsers;
 				rawDataFile.isPublic = isRawDataPublic;
+				rawDataFile.updateTime = getNowTimestamp();
 				rawDataFile.update(id);
 				flash("success", "The files have been updated successfully.");
 			}
@@ -919,6 +925,7 @@ public class BnApp extends Controller {
 		networkFile.isPublic = false;
 		//networkFile.modelSharedUsers = sharedUsers;
 		networkFile.fileContent = newModelFileContent;
+		networkFile.updateTime = getNowTimestamp();
 		networkFile.save();
 
 		uploadRawDataFileObj.networkFile = networkFile;
@@ -1180,6 +1187,7 @@ public class BnApp extends Controller {
 		newNetworkFile.isPublic = false;
 		//networkFile.modelSharedUsers = sharedUsers;
 		newNetworkFile.fileContent = newModelFileContent;
+		newNetworkFile.updateTime = getNowTimestamp();
 		if( newNetworkFile.id != 0 ) {
 			newNetworkFile.update();
 		} else {
@@ -1197,6 +1205,7 @@ public class BnApp extends Controller {
 			newRawDataFile.fileType = oriRawDataFile.fileType;
 			newRawDataFile.fileContent = oriRawDataFile.fileContent;
 			newRawDataFile.isPublic = oriRawDataFile.isPublic;
+			newRawDataFile.updateTime = getNowTimestamp();
 			newRawDataFile.save();
 		}
 
@@ -1205,6 +1214,12 @@ public class BnApp extends Controller {
 		return ok();
 	}
 
+	private static java.sql.Timestamp getNowTimestamp() {
+		Calendar calendar = Calendar.getInstance();
+		java.util.Date now = calendar.getTime();
+		java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(now.getTime());
+		return currentTimestamp;
+	}
 	public static Result saveToPmmlFile(String modelName) {
 		String[] modelNameArray = modelName.split("\\.");
 		String modelFileName = modelNameArray[0];
@@ -1243,16 +1258,18 @@ public class BnApp extends Controller {
 		newNetworkFile.isPublic = false;
 		//networkFile.modelSharedUsers = sharedUsers;
 		newNetworkFile.fileContent = newModelFileContent;
+		newNetworkFile.updateTime = getNowTimestamp();
+
 		if( newNetworkFile.id != 0 ) {
 			newNetworkFile.update();
+			Logger.info("before logAdvice update.");
+			logAdvice(newNetworkFile, "update");
 		} else {
 			newNetworkFile.save();
+			logAdvice(newNetworkFile, "save");
 		}
 
-		NetworkFile oriNetworkFile = NetworkFile.findByFileNameAndType(modelFileName, modelFileType);
-
-		logAdvice(newNetworkFile, "save");
-
+		//NetworkFile oriNetworkFile = NetworkFile.findByFileNameAndType(modelFileName, modelFileType);
 		return ok();
 	}
 
